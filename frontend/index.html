@@ -1,0 +1,1603 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="color-scheme" content="dark">
+<title>Drift — Strategic Accountability Research</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;0,900;1,400;1,700&family=Source+Serif+4:ital,opsz,wght@0,8..60,300;0,8..60,400;0,8..60,600;1,8..60,300;1,8..60,400&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  /* Backgrounds */
+  --bg:           #111111;
+  --bg-deep:      #0d0d0d;
+  --surface:      #191919;
+  --surface2:     #222222;
+  --surface3:     #2a2a2a;
+  --surface-soil: #1a1510;
+  --surface-sky:  #111a11;
+
+  /* Text — inverted for dark theme */
+  --ink:          #eeeeee;
+  --ink-light:    #cccccc;
+  --ink-muted:    #999999;
+  --ink-faint:    #666666;
+  --ink-ghost:    #444444;
+
+  /* Backward-compat aliases */
+  --parchment:    #eeeeee;
+  --parchment-dark: #cccccc;
+  --parchment-deeper: #aaaaaa;
+
+  /* Brand Accent — Crema */
+  --gold:         #ffe0c2;
+  --gold-light:   #ffe0c2;
+  --gold-pale:    #393028;
+  --rule:         #2a2520;
+  --border:       rgba(255,224,194,.12);
+  --border2:      rgba(255,224,194,.22);
+
+  /* Status — dark variants */
+  --status-active:    #4ade80;
+  --status-active-bg: #0f2b1f;
+  --status-drift:     #f59e0b;
+  --status-drift-bg:  #2a1a05;
+  --status-dropped:   #f87171;
+  --status-dropped-bg:#1e0a0a;
+  --status-achieved:  #4ade80;
+  --status-achieved-bg:#0a2018;
+
+  /* Elevation — darker */
+  --shadow-sm: 0 2px 6px rgba(0,0,0,.35), 0 1px 2px rgba(0,0,0,.25);
+  --shadow-md: 0 6px 20px rgba(0,0,0,.4), 0 2px 6px rgba(0,0,0,.3);
+  --shadow-lg: 0 12px 40px rgba(0,0,0,.5), 0 4px 12px rgba(0,0,0,.35);
+}
+
+::selection { background: rgba(255,224,194,.25); color: #eeeeee; }
+
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html{font-size:16px;scroll-behavior:smooth;}
+body{
+  background:var(--bg);
+  color:var(--ink);
+  font-family:'Source Serif 4',Georgia,serif;
+  font-weight:300;
+  line-height:1.6;
+  min-height:100vh;
+  overflow-x:hidden;
+}
+
+
+/* ── MASTHEAD ── */
+.masthead{
+  background:var(--bg-deep);
+  padding:0 2rem;
+  display:flex;align-items:center;justify-content:space-between;
+  height:52px;
+  position:fixed;top:0;left:0;right:0;
+  z-index:200;
+  border-bottom:2px solid var(--gold);
+  transition:background .3s, box-shadow .3s;
+}
+.masthead.scrolled{
+  background:var(--bg-deep);
+  border-bottom-color:var(--gold);
+  box-shadow:0 2px 12px rgba(0,0,0,.4);
+}
+.masthead-brand{display:flex;align-items:baseline;gap:.5rem;}
+.drift-logo{
+  font-family:'Playfair Display',serif;
+  font-size:1.8rem;font-weight:700;font-style:italic;
+  letter-spacing:-.02em;color:var(--parchment);
+  text-decoration:none;
+}
+.drift-logo .logo-dot{color:var(--gold-light);}
+.masthead-tagline{
+  font-family:'JetBrains Mono',monospace;
+  font-size:.65rem;color:var(--ink-faint);
+  letter-spacing:.1em;text-transform:uppercase;
+}
+.masthead-nav{display:flex;gap:1.5rem;align-items:center;}
+.masthead-nav a{
+  font-family:'Source Serif 4',serif;
+  font-size:.75rem;color:var(--ink-faint);
+  text-decoration:none;letter-spacing:.04em;transition:color .2s;
+}
+.masthead-nav a:hover{color:var(--parchment);}
+.masthead-nav a.active{color:var(--gold-light);}
+.masthead-cta{
+  font-family:'JetBrains Mono',monospace;
+  font-size:.65rem;letter-spacing:.06em;text-transform:uppercase;
+  background:var(--gold);color:#111111;
+  border:none;padding:.4rem .9rem;border-radius:3px;cursor:pointer;
+  transition:background .2s;text-decoration:none;
+}
+.masthead-cta:hover{background:var(--gold-light);}
+
+/* hamburger */
+.nav-toggle{
+  display:none;background:none;border:none;cursor:pointer;
+  padding:.25rem;flex-direction:column;gap:5px;
+  align-items:center;justify-content:center;
+}
+.nav-toggle span{
+  display:block;width:20px;height:2px;
+  background:rgba(255,224,194,.5);border-radius:2px;
+  transition:all .25s ease;transform-origin:center;
+}
+.nav-toggle.open span:nth-child(1){transform:translateY(7px) rotate(45deg);}
+.nav-toggle.open span:nth-child(2){opacity:0;transform:scaleX(0);}
+.nav-toggle.open span:nth-child(3){transform:translateY(-7px) rotate(-45deg);}
+
+.mobile-nav{
+  display:none;position:fixed;
+  top:52px;left:0;right:0;
+  background:var(--bg-deep);
+  border-bottom:2px solid var(--gold);
+  z-index:199;flex-direction:column;padding:.5rem 0;
+}
+.mobile-nav.open{display:flex;}
+.mobile-nav a{
+  font-family:'Source Serif 4',serif;font-size:.9rem;
+  color:var(--ink-faint);text-decoration:none;
+  padding:.65rem 1.5rem;border-bottom:1px solid rgba(255,255,255,.05);
+  transition:color .2s,background .2s;
+}
+.mobile-nav a:hover{color:var(--parchment);background:rgba(255,255,255,.04);}
+
+/* ── HERO ── */
+.hero{
+  background:var(--surface2);
+  min-height:100vh;
+  display:flex;flex-direction:column;justify-content:center;
+  padding:8rem 2rem 5rem;
+  position:relative;
+  overflow:hidden;
+}
+
+/* Gold horizontal rule accent */
+.hero::after{
+  content:'';
+  position:absolute;
+  bottom:0;left:0;right:0;height:2px;
+  background:linear-gradient(to right,transparent,var(--gold) 20%,var(--gold) 80%,transparent);
+}
+
+.hero-inner{
+  max-width:1100px;
+  margin:0 auto;
+  width:100%;
+  position:relative;z-index:1;
+}
+
+/* Edition header */
+.hero-edition{
+  display:flex;align-items:center;gap:.75rem;
+  margin-bottom:2.5rem;
+}
+.hero-edition-line{
+  height:1px;width:48px;
+  background:var(--gold);
+  opacity:.5;
+}
+.hero-edition-text{
+  font-family:'JetBrains Mono',monospace;
+  font-size:.65rem;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--gold);
+}
+
+/* The headline */
+.hero-headline{
+  font-family:'Playfair Display',serif;
+  font-size:clamp(2.4rem,6vw,5.2rem);
+  font-weight:900;
+  line-height:1.08;
+  letter-spacing:-.04em;
+  color:var(--ink);
+  margin-bottom:1.5rem;
+  max-width:860px;
+}
+
+.hero-headline .verb-wrap{
+  display:inline-block;
+  position:relative;
+  min-width:320px;
+}
+
+/* cycling verb */
+.hero-verb{
+  color:var(--gold);
+  display:inline-block;
+  opacity:1;
+  transition:opacity .25s ease;
+}
+.hero-verb.fading{opacity:0;}
+
+/* underline accent on the verb */
+.hero-verb::after{
+  content:'';
+  position:absolute;
+  bottom:4px;left:0;right:0;height:3px;
+  background:var(--gold);
+  opacity:.4;
+  border-radius:2px;
+}
+
+.hero-sub{
+  font-size:clamp(.9rem,1.8vw,1.1rem);
+  color:var(--ink-muted);
+  max-width:560px;
+  line-height:1.7;
+  margin-bottom:2.5rem;
+  font-weight:300;
+}
+
+/* CTA row */
+.hero-actions{
+  display:flex;align-items:center;gap:1.25rem;
+  flex-wrap:wrap;
+  margin-bottom:4rem;
+}
+.btn-primary{
+  font-family:'JetBrains Mono',monospace;
+  font-size:.7rem;letter-spacing:.08em;text-transform:uppercase;
+  background:var(--gold);color:#111111;
+  border:none;padding:.75rem 1.75rem;border-radius:4px;
+  cursor:pointer;text-decoration:none;
+  transition:background .2s,transform .15s;
+  display:inline-flex;align-items:center;gap:.5rem;
+}
+.btn-primary:hover{background:var(--gold-light);transform:translateY(-1px);}
+.btn-primary .arrow{transition:transform .2s;}
+.btn-primary:hover .arrow{transform:translateX(3px);}
+
+.btn-ghost{
+  font-family:'JetBrains Mono',monospace;
+  font-size:.7rem;letter-spacing:.08em;text-transform:uppercase;
+  background:none;color:var(--ink-muted);
+  border:1px solid var(--border2);
+  padding:.75rem 1.5rem;border-radius:4px;
+  cursor:pointer;text-decoration:none;
+  transition:all .2s;
+}
+.btn-ghost:hover{border-color:var(--ink-faint);color:var(--ink);}
+
+/* Hero stat strip */
+.hero-stats{
+  display:flex;gap:2.5rem;flex-wrap:wrap;
+  padding-top:1.75rem;
+  border-top:1px solid var(--rule);
+}
+.hero-stat{}
+.hero-stat-num{
+  font-family:'Playfair Display',serif;
+  font-size:2rem;font-weight:700;
+  color:var(--ink);line-height:1;
+  letter-spacing:-.03em;
+}
+.hero-stat-num span{color:var(--gold);}
+.hero-stat-label{
+  font-family:'JetBrains Mono',monospace;
+  font-size:.65rem;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--ink-ghost);margin-top:.3rem;
+}
+
+/* Scroll indicator */
+.scroll-hint{
+  position:absolute;bottom:2rem;left:50%;transform:translateX(-50%);
+  display:flex;flex-direction:column;align-items:center;gap:.4rem;
+  animation:bounce 2.5s ease infinite;
+  opacity:.3;
+}
+.scroll-hint-text{
+  font-family:'JetBrains Mono',monospace;
+  font-size:.65rem;letter-spacing:.12em;text-transform:uppercase;
+  color:var(--ink-faint);
+}
+.scroll-hint-arrow{color:var(--ink-faint);font-size:.8rem;line-height:1;}
+@keyframes bounce{
+  0%,100%{transform:translateX(-50%) translateY(0);}
+  50%{transform:translateX(-50%) translateY(6px);}
+}
+
+/* ── LEADERBOARD AD (below hero) ── */
+.leaderboard-ad-wrap{
+  background:var(--surface2);
+  border-bottom:1px solid var(--rule);
+  padding:.6rem 2rem;
+  display:flex;align-items:center;justify-content:center;gap:1rem;
+}
+.leaderboard-ad-label{
+  font-family:'JetBrains Mono',monospace;
+  font-size:.6rem;text-transform:uppercase;letter-spacing:.1em;
+  color:var(--ink-faint);
+  border:1px solid var(--rule);border-radius:2px;
+  padding:.1rem .35rem;flex-shrink:0;
+}
+.leaderboard-ad-content{
+  display:flex;align-items:center;gap:1rem;
+}
+.leaderboard-ad-name{
+  font-family:'Source Serif 4',serif;
+  font-size:.82rem;font-weight:600;color:var(--ink);
+}
+.leaderboard-ad-desc{
+  font-size:.72rem;color:var(--ink-muted);
+}
+.leaderboard-ad-cta{
+  font-family:'JetBrains Mono',monospace;
+  font-size:.6rem;color:var(--gold);text-decoration:none;
+  letter-spacing:.04em;white-space:nowrap;
+  padding:.3rem .7rem;border:1px solid var(--gold-pale);
+  border-radius:3px;background:var(--gold-pale);
+  transition:background .2s;
+}
+.leaderboard-ad-cta:hover{background:var(--surface3);}
+
+/* ── HOW IT WORKS STRIP ── */
+.how-strip{
+  background:var(--surface3);
+  padding:3rem 2rem;
+  overflow:hidden;
+  position:relative;
+}
+.how-inner{
+  max-width:1100px;margin:0 auto;
+  display:grid;grid-template-columns:auto 1fr;
+  gap:3rem;align-items:center;
+  position:relative;z-index:1;
+}
+.how-label-col{}
+.how-big-label{
+  font-family:'Playfair Display',serif;
+  font-size:clamp(1.6rem,3vw,2.4rem);
+  font-weight:700;font-style:italic;
+  color:var(--ink);
+  line-height:1.15;
+  max-width:220px;
+}
+.how-big-label span{color:var(--gold);}
+
+.how-steps{
+  display:grid;grid-template-columns:repeat(4,1fr);
+  gap:1.5rem;
+}
+.how-step{
+  padding:1.1rem;
+  border-top:2px solid var(--rule);
+  transition:background .2s cubic-bezier(.23,1,.32,1), border-radius .2s cubic-bezier(.23,1,.32,1);
+}
+.how-step:hover{
+  background:var(--surface);
+  border-radius:6px;
+}
+.how-step-num{
+  display:flex;align-items:center;gap:.5rem;
+  font-family:'JetBrains Mono',monospace;
+  font-size:.65rem;letter-spacing:.12em;
+  color:var(--gold);text-transform:uppercase;
+  margin-bottom:.5rem;
+}
+.how-step-num::before{
+  content:attr(data-step);
+  display:flex;align-items:center;justify-content:center;
+  width:24px;height:24px;
+  border:1.5px solid var(--gold);
+  border-radius:50%;
+  font-family:'JetBrains Mono',monospace;
+  font-size:.65rem;font-weight:600;
+  color:var(--gold);
+  flex-shrink:0;
+}
+.how-step-title{
+  font-family:'Playfair Display',serif;
+  font-size:.95rem;font-weight:600;
+  color:var(--ink);
+  line-height:1.25;margin-bottom:.4rem;
+}
+.how-step-desc{
+  font-size:.72rem;color:var(--ink-muted);
+  line-height:1.6;
+}
+
+/* ── BROWSE SECTION ── */
+.browse-section{
+  max-width:1400px;margin:0 auto;
+  padding:3rem 1.5rem 4rem;
+  display:grid;
+  grid-template-columns:1fr 280px;
+  gap:0;
+  align-items:start;
+}
+
+.browse-main{padding-right:2rem;}
+
+/* Browse header */
+.browse-header{
+  display:flex;align-items:flex-end;justify-content:space-between;
+  margin-bottom:1.5rem;
+  flex-wrap:wrap;gap:1rem;
+}
+.browse-title{
+  font-family:'Playfair Display',serif;
+  font-size:1.6rem;font-weight:700;
+  letter-spacing:-.03em;color:var(--ink);
+  line-height:1.15;
+}
+.browse-title span{font-style:italic;color:var(--gold);}
+.browse-count{
+  font-family:'JetBrains Mono',monospace;
+  font-size:.65rem;color:var(--ink-faint);
+  letter-spacing:.08em;
+}
+
+/* Search */
+.browse-search-wrap{
+  position:relative;margin-bottom:1.25rem;
+}
+.browse-search{
+  width:100%;
+  font-family:'Source Serif 4',serif;
+  font-size:.85rem;color:var(--ink);
+  background:var(--surface);
+  border:1px solid var(--rule);border-radius:6px;
+  padding:.65rem 1rem .65rem 2.5rem;
+  outline:none;
+  transition:border-color .2s,box-shadow .2s;
+}
+.browse-search:focus{
+  border-color:var(--gold);
+  box-shadow:0 0 0 3px rgba(255,224,194,.1);
+}
+.browse-search::placeholder{color:var(--ink-faint);}
+.search-icon{
+  position:absolute;left:.85rem;top:50%;transform:translateY(-50%);
+  font-size:.8rem;color:var(--ink-faint);pointer-events:none;
+}
+
+/* Sector filters */
+.sector-filters{
+  display:flex;gap:.5rem;flex-wrap:wrap;
+  margin-bottom:1.5rem;
+}
+.sector-btn{
+  font-family:'JetBrains Mono',monospace;
+  font-size:.65rem;letter-spacing:.07em;text-transform:uppercase;
+  background:var(--surface);color:var(--ink-muted);
+  border:1px solid var(--rule);border-radius:3px;
+  padding:.3rem .75rem;cursor:pointer;
+  transition:all .2s;
+}
+.sector-btn:hover{border-color:var(--gold);color:var(--gold);}
+.sector-btn.active{
+  background:var(--gold);color:#111111;
+  border-color:var(--gold);
+}
+
+/* Sort bar */
+.sort-bar{
+  display:flex;align-items:center;justify-content:space-between;
+  margin-bottom:1rem;
+  padding-bottom:.75rem;
+  border-bottom:1px solid var(--rule);
+}
+.sort-label{
+  font-family:'JetBrains Mono',monospace;
+  font-size:.65rem;color:var(--ink-faint);
+  letter-spacing:.08em;text-transform:uppercase;
+}
+.sort-options{display:flex;gap:.5rem;}
+.sort-opt{
+  font-family:'JetBrains Mono',monospace;
+  font-size:.65rem;color:var(--ink-faint);
+  letter-spacing:.06em;cursor:pointer;
+  padding:.2rem .4rem;border-radius:2px;
+  transition:all .15s;
+}
+.sort-opt:hover{color:var(--ink);}
+.sort-opt.active{color:var(--gold);background:var(--gold-pale);}
+
+/* ── COMPANY CARDS GRID ── */
+.company-grid{
+  display:grid;
+  grid-template-columns:repeat(2,1fr);
+  gap:1rem;
+}
+
+.company-card{
+  background:var(--surface);
+  border:1px solid var(--rule);
+  border-radius:8px;
+  padding:1.1rem;
+  text-decoration:none;color:inherit;
+  display:flex;flex-direction:column;
+  transition:all .25s ease;
+  position:relative;
+  overflow:hidden;
+  cursor:pointer;
+  box-shadow:var(--shadow-sm);
+}
+.company-card:hover{
+  box-shadow:var(--shadow-md);
+  transform:translateY(-2px);
+  border-color:var(--border2);
+}
+.company-card::before{
+  content:'';
+  position:absolute;
+  top:0;left:0;right:0;height:3px;
+  background:var(--card-accent,var(--rule));
+  transition:height .25s;
+}
+.company-card:hover::before{height:4px;}
+
+.company-card.accent-green{--card-accent:var(--status-active);}
+.company-card.accent-amber{--card-accent:#C07A30;}
+.company-card.accent-blue{--card-accent:#2874A6;}
+.company-card.accent-gold{--card-accent:var(--gold);}
+.company-card.accent-red{--card-accent:var(--status-dropped);}
+
+.card-top{
+  display:flex;align-items:flex-start;
+  justify-content:space-between;
+  margin-bottom:.65rem;
+}
+.card-logo{
+  width:36px;height:36px;
+  background:var(--bg-deep);border-radius:4px;
+  display:flex;align-items:center;justify-content:center;
+  font-family:'Playfair Display',serif;
+  font-size:.75rem;font-weight:700;
+  color:var(--gold-light);letter-spacing:-.01em;
+  flex-shrink:0;
+}
+.card-sector{
+  font-family:'JetBrains Mono',monospace;
+  font-size:.65rem;text-transform:uppercase;
+  letter-spacing:.08em;color:var(--ink-faint);
+  background:var(--surface2);
+  padding:.15rem .4rem;border-radius:2px;
+}
+
+.card-company{
+  font-family:'Playfair Display',serif;
+  font-size:1rem;font-weight:700;
+  color:var(--ink);line-height:1.2;
+  margin-bottom:.15rem;letter-spacing:-.02em;
+}
+.card-initiative{
+  font-family:'Playfair Display',serif;
+  font-size:.72rem;font-style:italic;
+  color:var(--gold);margin-bottom:.5rem;line-height:1.3;
+}
+.card-desc{
+  font-size:.7rem;color:var(--ink-muted);
+  line-height:1.5;margin-bottom:.75rem;flex:1;
+}
+
+/* Objective status pills row */
+.card-objectives{
+  display:flex;gap:.3rem;flex-wrap:wrap;
+  margin-bottom:.75rem;
+}
+.obj-pip{
+  width:10px;height:10px;border-radius:2px;
+  flex-shrink:0;
+}
+.obj-pip.active{background:var(--status-active);}
+.obj-pip.drift{background:#C07A30;}
+.obj-pip.dropped{background:var(--status-dropped);}
+.obj-pip.achieved{background:var(--status-achieved);}
+.obj-pip.watch{background:var(--gold);}
+.obj-pip.graveyard{background:rgba(255,255,255,.1);border:1px dashed rgba(255,255,255,.15);}
+
+.card-footer{
+  display:flex;align-items:center;justify-content:space-between;
+  padding-top:.65rem;
+  border-top:1px solid var(--surface2);
+}
+.card-stats{display:flex;gap:.75rem;}
+.card-stat-item{
+  font-family:'JetBrains Mono',monospace;
+  font-size:.65rem;color:var(--ink-faint);
+  letter-spacing:.04em;
+}
+.card-stat-item strong{color:var(--ink-light);font-weight:500;}
+
+.card-commitment{
+  display:flex;align-items:center;gap:.3rem;
+}
+.commitment-label{
+  font-family:'JetBrains Mono',monospace;
+  font-size:.65rem;letter-spacing:.06em;text-transform:uppercase;
+  color:var(--ink-faint);
+}
+.commitment-bar{display:flex;gap:2px;}
+.cb-seg{
+  width:12px;height:3px;border-radius:1px;
+  background:var(--surface2);
+}
+.cb-seg.on{background:var(--gold);}
+.cb-seg.on.high{background:var(--status-active);}
+.cb-seg.on.low{background:#C07A30;}
+
+.card-arrow{
+  font-size:.75rem;color:var(--ink-faint);
+  transition:transform .2s,color .2s;
+}
+.company-card:hover .card-arrow{
+  transform:translateX(3px);
+  color:var(--gold);
+}
+
+/* "No results" state */
+.no-results{
+  grid-column:1/-1;
+  text-align:center;
+  padding:3rem 1rem;
+  color:var(--ink-muted);
+  font-style:italic;
+  font-size:.88rem;
+}
+
+/* ── SCROLL REVEAL & STAGGER ANIMATIONS ── */
+@keyframes revealUp {
+  from { opacity: 0; transform: translateY(18px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.reveal-stagger > * {
+  opacity: 0;
+  animation: revealUp .6s cubic-bezier(.23,1,.32,1) both;
+}
+.reveal-stagger > :nth-child(1) { animation-delay: .1s; }
+.reveal-stagger > :nth-child(2) { animation-delay: .2s; }
+.reveal-stagger > :nth-child(3) { animation-delay: .35s; }
+.reveal-stagger > :nth-child(4) { animation-delay: .45s; }
+.reveal-stagger > :nth-child(5) { animation-delay: .55s; }
+
+.reveal {
+  opacity: 0;
+  transform: translateY(16px);
+  transition: opacity .5s cubic-bezier(.23,1,.32,1), transform .5s cubic-bezier(.23,1,.32,1);
+}
+.reveal.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.reveal-children > * {
+  opacity: 0;
+  transform: translateY(12px);
+  transition: opacity .45s cubic-bezier(.23,1,.32,1), transform .45s cubic-bezier(.23,1,.32,1);
+}
+.reveal-children.visible > * {
+  opacity: 1;
+  transform: translateY(0);
+}
+.reveal-children.visible > :nth-child(1) { transition-delay: .05s; }
+.reveal-children.visible > :nth-child(2) { transition-delay: .1s; }
+.reveal-children.visible > :nth-child(3) { transition-delay: .15s; }
+.reveal-children.visible > :nth-child(4) { transition-delay: .2s; }
+.reveal-children.visible > :nth-child(5) { transition-delay: .25s; }
+.reveal-children.visible > :nth-child(6) { transition-delay: .3s; }
+.reveal-children.visible > :nth-child(7) { transition-delay: .35s; }
+.reveal-children.visible > :nth-child(8) { transition-delay: .4s; }
+
+.manifesto-inner.reveal {
+  transform: translateY(0) scale(.97);
+}
+.manifesto-inner.reveal.visible {
+  transform: translateY(0) scale(1);
+}
+
+/* ── SIDEBAR ── */
+.browse-sidebar{
+  padding:0 0 2rem 1.5rem;
+  border-left:1px solid var(--rule);
+  position:sticky;top:72px;
+  max-height:calc(100vh - 80px);
+  overflow-y:auto;
+}
+.sidebar-section{margin-bottom:1.75rem;}
+.sidebar-heading{
+  font-family:'JetBrains Mono',monospace;
+  font-size:.65rem;text-transform:uppercase;
+  letter-spacing:.1em;color:var(--ink-faint);
+  margin-bottom:.75rem;padding-bottom:.4rem;
+  border-bottom:1px solid var(--rule);
+}
+
+/* Sponsor card */
+.sponsor-card{
+  background:var(--surface2);
+  border:1px solid var(--surface3);
+  border-radius:6px;padding:.9rem;
+}
+.sponsor-label{
+  font-family:'JetBrains Mono',monospace;
+  font-size:.6rem;text-transform:uppercase;
+  letter-spacing:.1em;color:var(--ink-faint);
+  margin-bottom:.5rem;
+}
+.sponsor-name{
+  font-family:'Playfair Display',serif;
+  font-size:.9rem;font-weight:600;color:var(--ink);
+  margin-bottom:.25rem;
+}
+.sponsor-desc{
+  font-size:.68rem;color:var(--ink-muted);
+  line-height:1.55;margin-bottom:.5rem;
+}
+.sponsor-cta{
+  font-family:'JetBrains Mono',monospace;
+  font-size:.6rem;color:var(--gold);
+  text-decoration:none;letter-spacing:.04em;
+}
+
+/* Recently updated */
+.recent-item{
+  padding:.6rem 0;
+  border-bottom:1px solid var(--surface2);
+  cursor:pointer;
+}
+.recent-item:last-child{border-bottom:none;}
+.recent-item:hover .recent-company{color:var(--gold);}
+.recent-date{
+  font-family:'JetBrains Mono',monospace;
+  font-size:.65rem;color:var(--ink-faint);
+  letter-spacing:.04em;margin-bottom:.15rem;
+}
+.recent-company{
+  font-family:'Source Serif 4',serif;
+  font-size:.78rem;font-weight:600;color:var(--ink);
+  margin-bottom:.1rem;transition:color .2s;
+}
+.recent-signal{
+  font-size:.68rem;color:var(--ink-muted);
+  line-height:1.4;
+}
+.recent-tag{
+  display:inline-block;
+  font-family:'JetBrains Mono',monospace;
+  font-size:.6rem;text-transform:uppercase;
+  letter-spacing:.05em;padding:.1rem .3rem;
+  border-radius:2px;margin-top:.2rem;
+  background:var(--surface2);color:var(--ink-muted);
+}
+.recent-tag.positive{background:var(--status-active-bg);color:var(--status-active);}
+.recent-tag.caution{background:var(--status-drift-bg);color:var(--status-drift);}
+.recent-tag.critical{background:var(--status-dropped-bg);color:var(--status-dropped);}
+
+/* Sector overview mini-chart */
+.sector-chart{display:flex;flex-direction:column;gap:.4rem;}
+.sc-row{display:flex;align-items:center;gap:.5rem;}
+.sc-label{
+  font-size:.65rem;color:var(--ink-light);
+  width:80px;flex-shrink:0;
+}
+.sc-track{
+  flex:1;height:4px;background:var(--surface2);
+  border-radius:2px;overflow:hidden;
+}
+.sc-fill{
+  height:100%;border-radius:2px;
+  background:var(--gold);
+}
+.sc-fill.hi{background:var(--status-active);}
+.sc-fill.lo{background:#C07A30;}
+.sc-pct{
+  font-family:'JetBrains Mono',monospace;
+  font-size:.65rem;color:var(--ink-faint);
+  width:30px;text-align:right;
+}
+
+/* ── MANIFESTO STRIP ── */
+.manifesto{
+  background:var(--surface2);
+  border-top:2px solid var(--rule);
+  border-bottom:2px solid var(--rule);
+  padding:3rem 2rem;
+  text-align:center;
+  position:relative;overflow:hidden;
+}
+.manifesto::before{
+  content:'❝';
+  position:absolute;top:-.5rem;left:2rem;
+  font-family:'Playfair Display',serif;
+  font-size:8rem;font-weight:900;
+  color:rgba(255,224,194,.07);
+  line-height:1;pointer-events:none;
+}
+.manifesto-inner{max-width:700px;margin:0 auto;position:relative;z-index:1;}
+.manifesto-quote{
+  font-family:'Playfair Display',serif;
+  font-size:clamp(1.1rem,2.5vw,1.5rem);
+  font-style:italic;font-weight:400;
+  color:var(--ink);line-height:1.55;
+  margin-bottom:1rem;
+}
+.manifesto-quote strong{font-weight:700;color:var(--gold);}
+.manifesto-attr{
+  font-family:'JetBrains Mono',monospace;
+  font-size:.6rem;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--ink-faint);
+}
+
+/* ── FOOTER ── */
+footer{
+  background:var(--bg-deep);color:var(--ink-faint);
+  padding:1.5rem 2rem;
+  border-top:2px solid var(--gold);
+}
+.footer-inner{
+  max-width:1400px;margin:0 auto;
+  display:grid;grid-template-columns:1fr auto 1fr;
+  align-items:center;gap:1rem;
+}
+.footer-brand{
+  font-family:'Playfair Display',serif;
+  font-size:1rem;font-weight:700;font-style:italic;color:var(--ink-faint);
+  letter-spacing:-.02em;
+}
+.footer-brand em,.footer-brand span{color:var(--gold-light);}
+.footer-tagline{
+  font-family:'JetBrains Mono',monospace;
+  font-size:.65rem;color:var(--ink-ghost);
+  letter-spacing:.08em;text-transform:uppercase;
+  margin-top:.2rem;
+}
+.footer-links{
+  display:flex;gap:1.25rem;justify-content:center;flex-wrap:wrap;
+}
+.footer-links a{
+  font-family:'JetBrains Mono',monospace;
+  font-size:.65rem;color:var(--ink-faint);
+  text-decoration:none;letter-spacing:.06em;
+  transition:color .2s;
+}
+.footer-links a:hover{color:var(--parchment);}
+.footer-right{
+  display:flex;flex-direction:column;align-items:flex-end;gap:.3rem;
+}
+.footer-ad-strip{
+  display:flex;align-items:center;gap:.5rem;
+  background:rgba(255,255,255,.04);
+  border:1px solid rgba(255,255,255,.08);
+  border-radius:3px;padding:.35rem .75rem;
+}
+.footer-ad-label{
+  font-family:'JetBrains Mono',monospace;
+  font-size:.6rem;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--ink-ghost);
+}
+.footer-ad-text{
+  font-family:'JetBrains Mono',monospace;
+  font-size:.65rem;color:var(--ink-faint);
+  letter-spacing:.04em;
+}
+.footer-copy{
+  font-family:'JetBrains Mono',monospace;
+  font-size:.65rem;color:var(--ink-ghost);
+  letter-spacing:.06em;
+}
+
+/* ─── RESPONSIVE ─── */
+@media (max-width:1100px){
+  .browse-section{grid-template-columns:1fr;padding:2rem 1.25rem 3rem;}
+  .browse-main{padding-right:0;}
+  .browse-sidebar{display:none;}
+  .how-inner{grid-template-columns:1fr;}
+  .how-steps{grid-template-columns:repeat(2,1fr);}
+  .footer-inner{grid-template-columns:1fr 1fr;}
+  .footer-right{grid-column:1/-1;align-items:flex-start;}
+}
+@media (max-width:768px){
+  .masthead{padding:0 1rem;}
+  .masthead-tagline,.masthead-nav,.masthead-cta{display:none;}
+  .nav-toggle{display:flex;}
+  .hero{padding:6rem 1rem 4rem;}
+  .hero-headline .verb-wrap{min-width:200px;}
+  .hero-actions{gap:.75rem;}
+  .btn-primary,.btn-ghost{font-size:.65rem;padding:.65rem 1.25rem;}
+  .hero-stats{gap:1.5rem;}
+  .hero-stat-num{font-size:1.5rem;}
+  .how-strip{padding:2rem 1rem;}
+  .how-steps{grid-template-columns:1fr 1fr;}
+  .leaderboard-ad-content{flex-direction:column;align-items:flex-start;gap:.3rem;}
+  .company-grid{grid-template-columns:1fr;}
+  .browse-header{flex-direction:column;align-items:flex-start;}
+  .footer-inner{grid-template-columns:1fr;}
+  .footer-right,.footer-links{justify-content:flex-start;align-items:flex-start;}
+  .footer-ad-strip{width:100%;}
+}
+@media (max-width:480px){
+  .hero-headline{font-size:2rem;}
+  .hero-stats{gap:1rem;}
+  .hero-stat-num{font-size:1.3rem;}
+  .how-steps{grid-template-columns:1fr;}
+  .sector-filters{gap:.35rem;}
+  .manifesto{padding:2rem 1rem;}
+  footer{padding:1.25rem 1rem;}
+}
+@supports (padding-bottom:env(safe-area-inset-bottom)){
+  footer{padding-bottom:calc(1.5rem + env(safe-area-inset-bottom));}
+}
+</style>
+</head>
+<body>
+
+<!-- ── MASTHEAD ── -->
+<header class="masthead" id="masthead">
+  <div class="masthead-brand">
+    <a href="/" class="drift-logo">Drift<span class="logo-dot">.</span></a>
+    <span class="masthead-tagline">Strategic Accountability Research</span>
+  </div>
+  <nav class="masthead-nav">
+    <a href="#" class="active">Companies</a>
+    <a href="#">Sectors</a>
+    <a href="#">Graveyard</a>
+    <a href="#">Methodology</a>
+    <a href="#">About</a>
+  </nav>
+  <a href="#browse" class="masthead-cta">Browse Research →</a>
+  <button class="nav-toggle" id="navToggle" aria-label="Open menu" aria-expanded="false">
+    <span></span><span></span><span></span>
+  </button>
+</header>
+
+<nav class="mobile-nav" id="mobileNav" aria-hidden="true">
+  <a href="#">Companies</a>
+  <a href="#">Sectors</a>
+  <a href="#">Graveyard</a>
+  <a href="#">Methodology</a>
+  <a href="#">About</a>
+</nav>
+
+<!-- ── HERO ── -->
+<section class="hero">
+  <div class="hero-inner reveal-stagger">
+    <div class="hero-edition">
+      <div class="hero-edition-line"></div>
+      <span class="hero-edition-text">Strategic Accountability Research · Est. 2024 · Public Sources Only</span>
+    </div>
+
+    <h1 class="hero-headline">
+      What companies
+      <br>
+      <span class="verb-wrap"><span class="hero-verb" id="heroVerb">promised</span></span>
+      <br>
+      — and what happened next.
+    </h1>
+
+    <p class="hero-sub">
+      Drift monitors public strategic commitments across major corporations — tracking how objectives evolve, weaken, morph, or quietly disappear over time. No proprietary data. No insider sources. Just the public record, held accountable.
+    </p>
+
+    <div class="hero-actions">
+      <a href="#browse" class="btn-primary">
+        Browse Companies <span class="arrow">→</span>
+      </a>
+      <a href="#how" class="btn-ghost">How it works</a>
+    </div>
+
+    <div class="hero-stats">
+      <div class="hero-stat">
+        <div class="hero-stat-num">24<span>+</span></div>
+        <div class="hero-stat-label">Companies Tracked</div>
+      </div>
+      <div class="hero-stat">
+        <div class="hero-stat-num">183</div>
+        <div class="hero-stat-label">Objectives Monitored</div>
+      </div>
+      <div class="hero-stat">
+        <div class="hero-stat-num">47</div>
+        <div class="hero-stat-label">In the Graveyard</div>
+      </div>
+      <div class="hero-stat">
+        <div class="hero-stat-num">6<span>mo</span></div>
+        <div class="hero-stat-label">Avg. Time to Drop</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="scroll-hint" aria-hidden="true">
+    <span class="scroll-hint-text">Scroll</span>
+    <span class="scroll-hint-arrow">↓</span>
+  </div>
+</section>
+
+<!-- ── LEADERBOARD AD ── -->
+<div class="leaderboard-ad-wrap">
+  <span class="leaderboard-ad-label">Sponsored</span>
+  <div class="leaderboard-ad-content">
+    <span class="leaderboard-ad-name">GlobalData Pharma Intelligence</span>
+    <span class="leaderboard-ad-desc">Pipeline, patents & deals — the strategic data layer behind the headlines.</span>
+  </div>
+  <a href="#" class="leaderboard-ad-cta">Learn more →</a>
+</div>
+
+<!-- ── HOW IT WORKS ── -->
+<section class="how-strip" id="how">
+  <div class="how-inner">
+    <div class="how-label-col">
+      <div class="how-big-label">How<br><span>Drift</span><br>works.</div>
+    </div>
+    <div class="how-steps reveal reveal-children">
+      <div class="how-step">
+        <div class="how-step-num" data-step="01">Step 01</div>
+        <div class="how-step-title">Commitments are logged at the moment of disclosure</div>
+        <p class="how-step-desc">Every strategic objective is captured from primary sources — prospectuses, earnings calls, investor days, annual reports — at the time of first public statement.</p>
+      </div>
+      <div class="how-step">
+        <div class="how-step-num" data-step="02">Step 02</div>
+        <div class="how-step-title">Language is tracked across all subsequent disclosures</div>
+        <p class="how-step-desc">Each reporting period, we re-read the source material and classify language: Reinforced, Softened, Reframed, or Absent. The delta is the signal.</p>
+      </div>
+      <div class="how-step">
+        <div class="how-step-num" data-step="03">Step 03</div>
+        <div class="how-step-title">Exits are classified by how they happen</div>
+        <p class="how-step-desc">Not all dropped objectives are equal. We classify each exit: Silent Drop, Transparent Retirement, Gradual Phase-out, or Morphed into a successor commitment.</p>
+      </div>
+      <div class="how-step">
+        <div class="how-step-num" data-step="04">Step 04</div>
+        <div class="how-step-title">The public record is the only source</div>
+        <p class="how-step-desc">No insider sources. No proprietary data. No financial model assumptions. Every classification is sourced, dated, and open to challenge. This is accountability, not analysis.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── MANIFESTO ── -->
+<div class="manifesto">
+  <div class="manifesto-inner reveal">
+    <p class="manifesto-quote">
+      "The most important thing a company can do is <strong>say what it means to do</strong> — and the most revealing thing it can do is quietly <strong>stop saying it</strong>."
+    </p>
+    <span class="manifesto-attr">Drift Editorial Principle</span>
+  </div>
+</div>
+
+<!-- ── BROWSE SECTION ── -->
+<div class="browse-section" id="browse">
+  <main class="browse-main">
+
+    <div class="browse-header">
+      <div>
+        <h2 class="browse-title">Tracked <span>Companies</span></h2>
+        <span class="browse-count" id="browseCount">Showing 8 of 24 companies</span>
+      </div>
+    </div>
+
+    <!-- Search -->
+    <div class="browse-search-wrap">
+      <span class="search-icon">⌕</span>
+      <input
+        type="search"
+        class="browse-search"
+        id="browseSearch"
+        placeholder="Search companies, initiatives, sectors…"
+        autocomplete="off"
+      >
+    </div>
+
+    <!-- Sector filters -->
+    <div class="sector-filters" id="sectorFilters">
+      <button class="sector-btn active" data-sector="all">All Sectors</button>
+      <button class="sector-btn" data-sector="pharma">Pharma</button>
+      <button class="sector-btn" data-sector="tech">Technology</button>
+      <button class="sector-btn" data-sector="energy">Energy</button>
+      <button class="sector-btn" data-sector="consumer">Consumer</button>
+      <button class="sector-btn" data-sector="finance">Finance</button>
+    </div>
+
+    <!-- Sort bar -->
+    <div class="sort-bar">
+      <span class="sort-label">Sort by</span>
+      <div class="sort-options">
+        <span class="sort-opt active" data-sort="recent">Most Recent</span>
+        <span class="sort-opt" data-sort="commitment">Commitment Index</span>
+        <span class="sort-opt" data-sort="graveyard">Most Dropped</span>
+        <span class="sort-opt" data-sort="alpha">A–Z</span>
+      </div>
+    </div>
+
+    <!-- Company Cards -->
+    <div class="company-grid reveal reveal-children" id="companyGrid">
+
+      <!-- Sandoz -->
+      <a class="company-card accent-green" href="strategic-promise-tracker.html" data-sector="pharma" data-name="Sandoz Golden Decade biosimilars generics" data-commitment="94">
+        <div class="card-top">
+          <div class="card-logo">SDZ</div>
+          <span class="card-sector">Pharma</span>
+        </div>
+        <div class="card-company">Sandoz AG</div>
+        <div class="card-initiative">"The Golden Decade of Biosimilars & Generics"</div>
+        <p class="card-desc">Spin-off from Novartis (2023). Self-declared strategic window 2024–2033 to capitalise on expiring originator patents and become the global biosimilar leader.</p>
+        <div class="card-objectives">
+          <div class="obj-pip active" title="Biosimilar Leadership — Active"></div>
+          <div class="obj-pip active" title="US Penetration — Active"></div>
+          <div class="obj-pip watch" title="EM Volume Growth — Watch"></div>
+          <div class="obj-pip active" title="Next-Wave Pipeline — Active"></div>
+          <div class="obj-pip drift" title="Mfg Simplification — Drifting"></div>
+          <div class="obj-pip active" title="Margin 24-26% — Active"></div>
+          <div class="obj-pip graveyard" title="China Platform — Graveyard"></div>
+          <div class="obj-pip graveyard" title="2025 Revenue Target — Graveyard"></div>
+          <div class="obj-pip graveyard" title="MENA Branded Generics — Graveyard"></div>
+        </div>
+        <div class="card-footer">
+          <div class="card-stats">
+            <span class="card-stat-item"><strong>6</strong> active</span>
+            <span class="card-stat-item"><strong>3</strong> in graveyard</span>
+            <span class="card-stat-item">Updated <strong>Mar 2026</strong></span>
+          </div>
+          <span class="card-arrow">→</span>
+        </div>
+      </a>
+
+      <!-- Roche -->
+      <a class="company-card accent-blue" href="#" data-sector="pharma" data-name="Roche personalised medicine oncology pipeline" data-commitment="81">
+        <div class="card-top">
+          <div class="card-logo">ROG</div>
+          <span class="card-sector">Pharma</span>
+        </div>
+        <div class="card-company">Roche Holding</div>
+        <div class="card-initiative">"Personalised Healthcare at Scale"</div>
+        <p class="card-desc">Dual pharma/diagnostics leader navigating a major biosimilar threat to its own flagship products while pivoting toward personalised oncology and neurological indications.</p>
+        <div class="card-objectives">
+          <div class="obj-pip active" title="PHC Strategy — Active"></div>
+          <div class="obj-pip active" title="Oncology Pipeline — Active"></div>
+          <div class="obj-pip drift" title="Neuroscience expansion — Drifting"></div>
+          <div class="obj-pip watch" title="Diagnostics integration — Watch"></div>
+          <div class="obj-pip graveyard" title="Alzheimer's treatment — Graveyard"></div>
+        </div>
+        <div class="card-footer">
+          <div class="card-stats">
+            <span class="card-stat-item"><strong>4</strong> active</span>
+            <span class="card-stat-item"><strong>1</strong> in graveyard</span>
+            <span class="card-stat-item">Updated <strong>Feb 2026</strong></span>
+          </div>
+          <span class="card-arrow">→</span>
+        </div>
+      </a>
+
+      <!-- BP -->
+      <a class="company-card accent-amber" href="#" data-sector="energy" data-name="BP net zero energy transition renewables" data-commitment="38">
+        <div class="card-top">
+          <div class="card-logo">BP</div>
+          <span class="card-sector">Energy</span>
+        </div>
+        <div class="card-company">BP plc</div>
+        <div class="card-initiative">"Net Zero by 2050" Energy Transition</div>
+        <p class="card-desc">The most extensively documented strategic reversal currently tracked. Multiple renewables investment targets have been publicly walked back, restructured, or reframed since 2022.</p>
+        <div class="card-objectives">
+          <div class="obj-pip active" title="Net Zero 2050 — Active (reaffirmed)"></div>
+          <div class="obj-pip drift" title="Oil output reduction — Drifting"></div>
+          <div class="obj-pip graveyard" title="40GW renewables by 2030 — Graveyard"></div>
+          <div class="obj-pip graveyard" title="$15B low-carbon 2023-2025 — Graveyard"></div>
+          <div class="obj-pip graveyard" title="10x renewables from 2020 — Graveyard"></div>
+          <div class="obj-pip graveyard" title="Convenience & mobility growth — Graveyard"></div>
+        </div>
+        <div class="card-footer">
+          <div class="card-stats">
+            <span class="card-stat-item"><strong>2</strong> active</span>
+            <span class="card-stat-item"><strong>4</strong> in graveyard</span>
+            <span class="card-stat-item">Updated <strong>Mar 2026</strong></span>
+          </div>
+          <span class="card-arrow">→</span>
+        </div>
+      </a>
+
+      <!-- Microsoft -->
+      <a class="company-card accent-green" href="#" data-sector="tech" data-name="Microsoft AI cloud copilot enterprise" data-commitment="89">
+        <div class="card-top">
+          <div class="card-logo">MSFT</div>
+          <span class="card-sector">Technology</span>
+        </div>
+        <div class="card-company">Microsoft</div>
+        <div class="card-initiative">"AI-First Enterprise Cloud"</div>
+        <p class="card-desc">Since the OpenAI partnership, Microsoft has reoriented its entire product and infrastructure narrative around AI. Tracking coherence between stated AI democratisation goals and actual access and pricing decisions.</p>
+        <div class="card-objectives">
+          <div class="obj-pip active" title="Copilot everywhere — Active"></div>
+          <div class="obj-pip active" title="Azure AI infrastructure — Active"></div>
+          <div class="obj-pip active" title="AI safety leadership — Active"></div>
+          <div class="obj-pip watch" title="SMB AI access — Watch"></div>
+          <div class="obj-pip graveyard" title="Metaverse/Mixed Reality — Graveyard"></div>
+        </div>
+        <div class="card-footer">
+          <div class="card-stats">
+            <span class="card-stat-item"><strong>4</strong> active</span>
+            <span class="card-stat-item"><strong>1</strong> in graveyard</span>
+            <span class="card-stat-item">Updated <strong>Mar 2026</strong></span>
+          </div>
+          <span class="card-arrow">→</span>
+        </div>
+      </a>
+
+      <!-- Nestlé -->
+      <a class="company-card accent-gold" href="#" data-sector="consumer" data-name="Nestle nutrition health wellness portfolio" data-commitment="55">
+        <div class="card-top">
+          <div class="card-logo">NESN</div>
+          <span class="card-sector">Consumer</span>
+        </div>
+        <div class="card-company">Nestlé S.A.</div>
+        <div class="card-initiative">"Nutrition, Health & Wellness" Pivot</div>
+        <p class="card-desc">A decade-long commitment to repositioning the portfolio toward nutrition and health, tracked against actual divestment activity, sugar reduction targets, and the sustained profitability of core confectionery.</p>
+        <div class="card-objectives">
+          <div class="obj-pip active" title="Nutrition portfolio growth — Active"></div>
+          <div class="obj-pip drift" title="Sugar reduction targets — Drifting"></div>
+          <div class="obj-pip watch" title="Pet care expansion — Watch"></div>
+          <div class="obj-pip graveyard" title="Skin health division — Graveyard (sold)"></div>
+          <div class="obj-pip graveyard" title="3x premium water revenue — Graveyard"></div>
+        </div>
+        <div class="card-footer">
+          <div class="card-stats">
+            <span class="card-stat-item"><strong>3</strong> active</span>
+            <span class="card-stat-item"><strong>2</strong> in graveyard</span>
+            <span class="card-stat-item">Updated <strong>Jan 2026</strong></span>
+          </div>
+          <span class="card-arrow">→</span>
+        </div>
+      </a>
+
+      <!-- Deutsche Bank -->
+      <a class="company-card accent-blue" href="#" data-sector="finance" data-name="Deutsche Bank transformation strategy profit" data-commitment="62">
+        <div class="card-top">
+          <div class="card-logo">DBK</div>
+          <span class="card-sector">Finance</span>
+        </div>
+        <div class="card-company">Deutsche Bank</div>
+        <div class="card-initiative">"Global Hausbank" Transformation</div>
+        <p class="card-desc">Tracking the third major restructuring in a decade. The "Global Hausbank" strategy has produced more consistent language retention than its predecessors — but cost targets have quietly shifted twice.</p>
+        <div class="card-objectives">
+          <div class="obj-pip active" title="Global Hausbank positioning — Active"></div>
+          <div class="obj-pip active" title="Return on equity target — Active"></div>
+          <div class="obj-pip drift" title="Cost/income ratio — Drifting"></div>
+          <div class="obj-pip graveyard" title="Investment bank IPO — Graveyard"></div>
+        </div>
+        <div class="card-footer">
+          <div class="card-stats">
+            <span class="card-stat-item"><strong>3</strong> active</span>
+            <span class="card-stat-item"><strong>1</strong> in graveyard</span>
+            <span class="card-stat-item">Updated <strong>Feb 2026</strong></span>
+          </div>
+          <span class="card-arrow">→</span>
+        </div>
+      </a>
+
+      <!-- Volkswagen -->
+      <a class="company-card accent-red" href="#" data-sector="consumer" data-name="Volkswagen EV electric vehicle ID software" data-commitment="31">
+        <div class="card-top">
+          <div class="card-logo">VOW</div>
+          <span class="card-sector">Consumer</span>
+        </div>
+        <div class="card-company">Volkswagen Group</div>
+        <div class="card-initiative">"New Auto" Electrification Strategy</div>
+        <p class="card-desc">One of the most closely watched reversals in Drift. Multiple EV volume targets, software timelines, and factory commitments have been restructured, delayed, or retracted since 2022.</p>
+        <div class="card-objectives">
+          <div class="obj-pip active" title="EV platform leadership — Active"></div>
+          <div class="obj-pip drift" title="Software-defined vehicle — Drifting"></div>
+          <div class="obj-pip graveyard" title="22 EV models by 2025 — Graveyard"></div>
+          <div class="obj-pip graveyard" title="50% EV mix by 2030 — Graveyard"></div>
+          <div class="obj-pip graveyard" title="Trinity flagship on schedule — Graveyard"></div>
+          <div class="obj-pip graveyard" title="CARIAD software targets — Graveyard"></div>
+        </div>
+        <div class="card-footer">
+          <div class="card-stats">
+            <span class="card-stat-item"><strong>2</strong> active</span>
+            <span class="card-stat-item"><strong>4</strong> in graveyard</span>
+            <span class="card-stat-item">Updated <strong>Mar 2026</strong></span>
+          </div>
+          <span class="card-arrow">→</span>
+        </div>
+      </a>
+
+      <!-- Novartis -->
+      <a class="company-card accent-green" href="#" data-sector="pharma" data-name="Novartis pure play medicines radioligand cell gene therapy" data-commitment="77">
+        <div class="card-top">
+          <div class="card-logo">NVS</div>
+          <span class="card-sector">Pharma</span>
+        </div>
+        <div class="card-company">Novartis AG</div>
+        <div class="card-initiative">"Pure Play Innovative Medicines"</div>
+        <p class="card-desc">Post-Sandoz spin-off, Novartis has committed to a focused innovative medicines strategy with radioligand therapy and cell & gene therapy as the defining bets. Tracking pipeline-versus-promise coherence.</p>
+        <div class="card-objectives">
+          <div class="obj-pip active" title="Radioligand therapy leadership — Active"></div>
+          <div class="obj-pip active" title="Cell & gene therapy — Active"></div>
+          <div class="obj-pip active" title="Cardiovascular pipeline — Active"></div>
+          <div class="obj-pip watch" title="Emerging market access — Watch"></div>
+        </div>
+        <div class="card-footer">
+          <div class="card-stats">
+            <span class="card-stat-item"><strong>4</strong> active</span>
+            <span class="card-stat-item"><strong>0</strong> in graveyard</span>
+            <span class="card-stat-item">Updated <strong>Feb 2026</strong></span>
+          </div>
+          <span class="card-arrow">→</span>
+        </div>
+      </a>
+
+    </div><!-- /company-grid -->
+
+    <div class="no-results" id="noResults" style="display:none;">
+      No companies match your search. Try a different term or sector.
+    </div>
+
+  </main>
+
+  <!-- SIDEBAR -->
+  <aside class="browse-sidebar">
+
+    <div class="sidebar-section">
+      <div class="sidebar-heading">Partner</div>
+      <div class="sponsor-card">
+        <div class="sponsor-label">Sponsored</div>
+        <div class="sponsor-name">Evaluate Pharma</div>
+        <p class="sponsor-desc">The definitive source for commercial intelligence on pharma and biotech. Pipeline, sales forecasts and deal analysis.</p>
+        <a href="#" class="sponsor-cta">Access platform →</a>
+      </div>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="sidebar-heading">Recently Updated</div>
+      <div class="recent-item">
+        <div class="recent-date">15 MAR 2026</div>
+        <div class="recent-company">Sandoz AG</div>
+        <div class="recent-signal">FY2025 Annual Report reviewed — biosimilar narrative intact, EM language shift confirmed</div>
+        <span class="recent-tag positive">Reaffirmed</span>
+      </div>
+      <div class="recent-item">
+        <div class="recent-date">12 MAR 2026</div>
+        <div class="recent-company">Volkswagen Group</div>
+        <div class="recent-signal">2030 EV mix target revised downward for second time</div>
+        <span class="recent-tag critical">Graveyard Entry</span>
+      </div>
+      <div class="recent-item">
+        <div class="recent-date">8 MAR 2026</div>
+        <div class="recent-company">BP plc</div>
+        <div class="recent-signal">Q4 2025 results: renewables capex further reduced; strategy update deferred</div>
+        <span class="recent-tag caution">Softening</span>
+      </div>
+      <div class="recent-item">
+        <div class="recent-date">4 MAR 2026</div>
+        <div class="recent-company">Microsoft</div>
+        <div class="recent-signal">Copilot pricing update — SMB access concern elevated to Watch status</div>
+        <span class="recent-tag caution">Watch</span>
+      </div>
+      <div class="recent-item">
+        <div class="recent-date">28 FEB 2026</div>
+        <div class="recent-company">Novartis AG</div>
+        <div class="recent-signal">Radioligand therapy Phase III results — pipeline commitment strengthened</div>
+        <span class="recent-tag positive">Milestone</span>
+      </div>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="sidebar-heading">Average Commitment by Sector</div>
+      <div class="sector-chart">
+        <div class="sc-row">
+          <span class="sc-label">Technology</span>
+          <div class="sc-track"><div class="sc-fill hi" style="width:78%"></div></div>
+          <span class="sc-pct">78%</span>
+        </div>
+        <div class="sc-row">
+          <span class="sc-label">Pharma</span>
+          <div class="sc-track"><div class="sc-fill hi" style="width:72%"></div></div>
+          <span class="sc-pct">72%</span>
+        </div>
+        <div class="sc-row">
+          <span class="sc-label">Finance</span>
+          <div class="sc-track"><div class="sc-fill" style="width:58%"></div></div>
+          <span class="sc-pct">58%</span>
+        </div>
+        <div class="sc-row">
+          <span class="sc-label">Consumer</span>
+          <div class="sc-track"><div class="sc-fill lo" style="width:48%"></div></div>
+          <span class="sc-pct">48%</span>
+        </div>
+        <div class="sc-row">
+          <span class="sc-label">Energy</span>
+          <div class="sc-track"><div class="sc-fill lo" style="width:32%"></div></div>
+          <span class="sc-pct">32%</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="sidebar-heading">Methodology</div>
+      <p style="font-size:.68rem;color:var(--ink-muted);line-height:1.65;">
+        All classifications derived from public primary sources only. Language graded on a four-tier scale: <em>Stated → Reinforced → Softened → Absent</em>. Exit manner classified as: Silent / Phased / Morphed / Transparent. No AI-generated summaries — every entry is human-reviewed.
+      </p>
+    </div>
+
+  </aside>
+</div>
+
+<!-- ── FOOTER ── -->
+<footer>
+  <div class="footer-inner">
+    <div>
+      <div class="footer-brand">Dri<span>ft</span></div>
+      <div class="footer-tagline">Strategic Accountability Research · Public Sources Only</div>
+    </div>
+    <div class="footer-links">
+      <a href="#">Companies</a>
+      <a href="#">Sectors</a>
+      <a href="#">Graveyard</a>
+      <a href="#">Methodology</a>
+      <a href="#">Advertise</a>
+      <a href="#">About</a>
+    </div>
+    <div class="footer-right">
+      <div class="footer-ad-strip">
+        <span class="footer-ad-label">AD</span>
+        <span class="footer-ad-text">Citeline · Clinical trial intelligence · citeline.com</span>
+      </div>
+      <span class="footer-copy">© 2026 Drift · All data from public disclosures</span>
+    </div>
+  </div>
+</footer>
+
+<script>
+/* ── MASTHEAD SCROLL STATE ── */
+const masthead = document.getElementById('masthead');
+window.addEventListener('scroll', () => {
+  masthead.classList.toggle('scrolled', window.scrollY > 60);
+}, { passive: true });
+
+/* ── HAMBURGER ── */
+const navToggle = document.getElementById('navToggle');
+const mobileNav = document.getElementById('mobileNav');
+navToggle.addEventListener('click', () => {
+  const open = mobileNav.classList.toggle('open');
+  navToggle.classList.toggle('open', open);
+  navToggle.setAttribute('aria-expanded', open);
+  mobileNav.setAttribute('aria-hidden', !open);
+});
+document.addEventListener('click', e => {
+  if (!navToggle.contains(e.target) && !mobileNav.contains(e.target)) {
+    mobileNav.classList.remove('open');
+    navToggle.classList.remove('open');
+    navToggle.setAttribute('aria-expanded', false);
+    mobileNav.setAttribute('aria-hidden', true);
+  }
+});
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') {
+    mobileNav.classList.remove('open');
+    navToggle.classList.remove('open');
+  }
+});
+
+/* ── HERO VERB CYCLING ── */
+const verbs = ['promised', 'committed', 'pledged', 'declared', 'announced', 'said'];
+let vi = 0;
+const verbEl = document.getElementById('heroVerb');
+setInterval(() => {
+  verbEl.classList.add('fading');
+  setTimeout(() => {
+    vi = (vi + 1) % verbs.length;
+    verbEl.textContent = verbs[vi];
+    verbEl.classList.remove('fading');
+  }, 260);
+}, 2200);
+
+/* ── SECTOR FILTERS ── */
+const sectorBtns = document.querySelectorAll('.sector-btn');
+let activeSector = 'all';
+sectorBtns.forEach(btn => {
+  btn.addEventListener('click', () => {
+    sectorBtns.forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    activeSector = btn.dataset.sector;
+    filterCards();
+  });
+});
+
+/* ── SORT ── */
+const sortOpts = document.querySelectorAll('.sort-opt');
+let activeSort = 'recent';
+sortOpts.forEach(opt => {
+  opt.addEventListener('click', () => {
+    sortOpts.forEach(o => o.classList.remove('active'));
+    opt.classList.add('active');
+    activeSort = opt.dataset.sort;
+    filterCards();
+  });
+});
+
+/* ── SEARCH ── */
+const searchInput = document.getElementById('browseSearch');
+searchInput.addEventListener('input', filterCards);
+
+/* ── FILTER + SORT ENGINE ── */
+function filterCards() {
+  const query = searchInput.value.toLowerCase().trim();
+  const grid = document.getElementById('companyGrid');
+  const cards = Array.from(grid.querySelectorAll('.company-card'));
+  const noResults = document.getElementById('noResults');
+  const countEl = document.getElementById('browseCount');
+
+  let visible = cards.filter(card => {
+    const sectorMatch = activeSector === 'all' || card.dataset.sector === activeSector;
+    const nameMatch = !query || card.dataset.name.toLowerCase().includes(query);
+    return sectorMatch && nameMatch;
+  });
+
+  // Sort
+  if (activeSort === 'commitment') {
+    visible.sort((a, b) => +b.dataset.commitment - +a.dataset.commitment);
+  } else if (activeSort === 'graveyard') {
+    visible.sort((a, b) => {
+      const ga = a.querySelectorAll('.obj-pip.graveyard').length;
+      const gb = b.querySelectorAll('.obj-pip.graveyard').length;
+      return gb - ga;
+    });
+  } else if (activeSort === 'alpha') {
+    visible.sort((a, b) => {
+      const na = a.querySelector('.card-company')?.textContent || '';
+      const nb = b.querySelector('.card-company')?.textContent || '';
+      return na.localeCompare(nb);
+    });
+  }
+  // 'recent' keeps DOM order
+
+  // Re-order DOM and show/hide
+  const hiddenCards = cards.filter(c => !visible.includes(c));
+  hiddenCards.forEach(c => { c.style.display = 'none'; });
+
+  if (visible.length === 0) {
+    noResults.style.display = 'block';
+  } else {
+    noResults.style.display = 'none';
+    visible.forEach((c, i) => {
+      c.style.display = '';
+      grid.appendChild(c); // re-order
+    });
+  }
+
+  const total = cards.length;
+  countEl.textContent = `Showing ${visible.length} of ${total} companies`;
+}
+
+/* ── SCROLL REVEALS ── */
+const revealEls = document.querySelectorAll('.reveal');
+const revealObs = new IntersectionObserver((entries) => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      e.target.classList.add('visible');
+      revealObs.unobserve(e.target);
+    }
+  });
+}, { threshold: 0.15 });
+revealEls.forEach(el => revealObs.observe(el));
+
+/* ── HERO STAT COUNTER ── */
+const statsWrap = document.querySelector('.hero-stats');
+let statsCounted = false;
+const statsObs = new IntersectionObserver((entries) => {
+  entries.forEach(e => {
+    if (e.isIntersecting && !statsCounted) {
+      statsCounted = true;
+      document.querySelectorAll('.hero-stat-num').forEach(el => {
+        const originalHTML = el.innerHTML;
+        const numMatch = el.textContent.match(/(\d+)/);
+        if (!numMatch) return;
+        const target = parseInt(numMatch[1]);
+        const duration = 1200;
+        const start = performance.now();
+        (function tick(now) {
+          const t = Math.min((now - start) / duration, 1);
+          const ease = 1 - Math.pow(1 - t, 3);
+          const current = Math.round(target * ease);
+          el.innerHTML = originalHTML.replace(target, current);
+          if (t < 1) requestAnimationFrame(tick);
+        })(performance.now());
+      });
+      statsObs.unobserve(e.target);
+    }
+  });
+}, { threshold: 0.3 });
+if (statsWrap) statsObs.observe(statsWrap);
+</script>
+</body>
+</html>

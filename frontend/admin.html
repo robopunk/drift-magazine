@@ -1,0 +1,1383 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="color-scheme" content="dark">
+<title>Drift · Admin</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;1,400&family=Source+Serif+4:opsz,wght@8..60,300;8..60,400;8..60,600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:         #111111;
+  --surface:    #191919;
+  --surface2:   #222222;
+  --surface3:   #2a2a2a;
+  --border:     rgba(255,224,194,.12);
+  --border2:    rgba(255,224,194,.22);
+  --ink:        #eeeeee;
+  --muted:      rgba(238,238,238,.55);
+  --faint:      rgba(238,238,238,.38);
+  --gold:       #ffe0c2;
+  --gold-dim:   rgba(255,224,194,.15);
+  --green:      #4ade80;
+  --green-bg:   #0F2B1F;
+  --amber:      #f59e0b;
+  --amber-bg:   #2a1a05;
+  --red:        #f87171;
+  --red-bg:     #1E0A0A;
+}
+
+::selection { background: rgba(255,224,194,.25); color: #eeeeee; }
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { font-size: 16px; }
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: 'Source Serif 4', Georgia, serif;
+  font-weight: 300;
+  min-height: 100vh;
+  line-height: 1.6;
+}
+
+/* ── LAYOUT ── */
+.shell {
+  display: grid;
+  grid-template-columns: 220px 1fr;
+  min-height: 100vh;
+}
+
+/* ── SIDEBAR NAV ── */
+.sidenav {
+  background: var(--surface);
+  border-right: 1px solid var(--border);
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  overflow-y: auto;
+}
+.sidenav-brand {
+  padding: 1.25rem 1rem 1rem;
+  border-bottom: 1px solid var(--border);
+}
+.brand-name {
+  font-family: 'Playfair Display', serif;
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--ink);
+  letter-spacing: -.02em;
+}
+.brand-name span { color: var(--gold); }
+.brand-sub {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: .65rem;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-top: .15rem;
+}
+.sidenav-section {
+  padding: .75rem 0 .5rem;
+  border-bottom: 1px solid var(--border);
+}
+.sidenav-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: .65rem;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: var(--muted);
+  padding: 0 1rem .4rem;
+}
+.sidenav-link {
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+  padding: .45rem 1rem;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: .68rem;
+  letter-spacing: .04em;
+  color: var(--muted);
+  cursor: pointer;
+  border: none;
+  background: none;
+  width: 100%;
+  text-align: left;
+  transition: all .15s;
+  border-left: 2px solid transparent;
+  min-width: 0;
+}
+.sidenav-link span:not(.dot) {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  min-width: 0;
+}
+.sidenav-link:hover { color: var(--ink); background: rgba(255,255,255,.03); }
+.sidenav-link.active {
+  color: var(--gold);
+  background: var(--gold-dim);
+  border-left-color: var(--gold);
+}
+.sidenav-link .dot {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.dot-green  { background: var(--green); }
+.dot-amber  { background: var(--amber); }
+.dot-red    { background: var(--red); }
+
+.sidenav-footer {
+  margin-top: auto;
+  padding: 1rem;
+  border-top: 1px solid var(--border);
+}
+.agent-status {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: .65rem;
+  color: var(--muted);
+  letter-spacing: .06em;
+}
+.agent-status .pulse {
+  display: inline-block;
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: var(--green);
+  margin-right: .3rem;
+  animation: pulse 2s infinite;
+}
+@keyframes pulse {
+  0%,100% { opacity: 1; }
+  50%      { opacity: .3; }
+}
+
+/* ── MAIN CONTENT ── */
+.main {
+  padding: 2rem;
+  max-width: 900px;
+}
+
+/* ── PAGE HEADERS ── */
+.page-header {
+  margin-bottom: 2rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--border);
+}
+.page-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--ink);
+  letter-spacing: -.03em;
+  margin-bottom: .25rem;
+}
+.page-subtitle {
+  font-size: .78rem;
+  color: var(--muted);
+  line-height: 1.5;
+}
+
+/* ── CARDS / PANELS ── */
+.panel {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  margin-bottom: 1.25rem;
+  overflow: hidden;
+}
+.panel-header {
+  padding: .85rem 1.25rem;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.panel-title {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: .65rem;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.panel-body { padding: 1.25rem; }
+
+/* ── FORMS ── */
+.form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+.form-grid.full { grid-template-columns: 1fr; }
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: .4rem;
+}
+.field.span2 { grid-column: 1 / -1; }
+
+label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: .65rem;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+label .req { color: var(--gold); margin-left: .15rem; }
+
+input[type="text"],
+input[type="url"],
+input[type="date"],
+select,
+textarea {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: .55rem .75rem;
+  font-family: 'Source Serif 4', serif;
+  font-size: .82rem;
+  color: var(--ink);
+  outline: none;
+  transition: border-color .2s, box-shadow .2s;
+  width: 100%;
+}
+input:focus, select:focus, textarea:focus {
+  border-color: rgba(255,224,194,.5);
+  box-shadow: 0 0 0 3px rgba(255,224,194,.18);
+}
+textarea { resize: vertical; min-height: 80px; line-height: 1.55; }
+select option { background: var(--surface2); }
+::placeholder { color: var(--muted); }
+
+/* ── BUTTONS ── */
+.btn {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: .62rem;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  border: none;
+  border-radius: 4px;
+  padding: .6rem 1.25rem;
+  cursor: pointer;
+  transition: all .2s;
+  display: inline-flex;
+  align-items: center;
+  gap: .4rem;
+}
+.btn-primary {
+  background: var(--gold);
+  color: #0F0E0C;
+  font-weight: 600;
+}
+.btn-primary:hover { background: #D4A840; transform: translateY(-1px); }
+.btn-primary:disabled { opacity: .4; cursor: not-allowed; transform: none; }
+
+.btn-ghost {
+  background: transparent;
+  color: var(--muted);
+  border: 1px solid var(--border2);
+}
+.btn-ghost:hover { color: var(--ink); border-color: rgba(255,255,255,.25); }
+
+.btn-danger {
+  background: var(--red-bg);
+  color: #F08080;
+  border: 1px solid rgba(176,64,64,.3);
+}
+.btn-danger:hover { background: rgba(176,64,64,.22); }
+
+.btn-success {
+  background: var(--green-bg);
+  color: #6DD8A0;
+  border: 1px solid rgba(61,154,106,.3);
+}
+.btn-success:hover { background: rgba(61,154,106,.22); }
+
+.btn-row {
+  display: flex;
+  gap: .75rem;
+  align-items: center;
+  margin-top: 1.25rem;
+  flex-wrap: wrap;
+}
+
+/* ── STATUS BADGES ── */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: .25rem;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: .65rem;
+  font-weight: 500;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  padding: .2rem .5rem;
+  border-radius: 3px;
+}
+.badge-green  { background: var(--green-bg);  color: #6DD8A0; }
+.badge-amber  { background: var(--amber-bg);  color: #E0A060; }
+.badge-red    { background: var(--red-bg);    color: #F08080; }
+.badge-blue   { background: var(--blue-bg);   color: #80B8F0; }
+.badge-muted  { background: var(--faint);     color: var(--muted); }
+.badge-gold   { background: var(--gold-dim);  color: var(--gold); }
+
+/* ── COMPANY LIST ── */
+.company-row {
+  display: grid;
+  grid-template-columns: 40px 1fr auto auto auto;
+  gap: 1rem;
+  align-items: center;
+  padding: .85rem 1.25rem;
+  border-bottom: 1px solid var(--border);
+  transition: background .15s;
+}
+.company-row:last-child { border-bottom: none; }
+.company-row:hover { background: rgba(255,255,255,.02); }
+
+.co-logo {
+  width: 36px; height: 36px;
+  background: var(--surface2);
+  border: 1px solid var(--border2);
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Playfair Display', serif;
+  font-size: .75rem;
+  font-weight: 700;
+  color: var(--gold);
+}
+.co-name {
+  font-family: 'Source Serif 4', serif;
+  font-size: .88rem;
+  font-weight: 600;
+  color: var(--ink);
+  margin-bottom: .1rem;
+}
+.co-initiative {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: .65rem;
+  color: var(--muted);
+  letter-spacing: .04em;
+}
+.co-last-run {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: .65rem;
+  color: var(--muted);
+  letter-spacing: .04em;
+  text-align: right;
+}
+
+/* ── SIGNAL REVIEW CARDS ── */
+.signal-card {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 1rem 1.1rem;
+  margin-bottom: .75rem;
+  border-left: 3px solid var(--border2);
+}
+.signal-card.reinforced { border-left-color: var(--green); }
+.signal-card.softened   { border-left-color: var(--amber); }
+.signal-card.absent     { border-left-color: var(--red); }
+.signal-card.reframed   { border-left-color: var(--blue); }
+.signal-card.stated     { border-left-color: var(--muted); }
+
+.signal-meta {
+  display: flex;
+  gap: .75rem;
+  align-items: center;
+  flex-wrap: wrap;
+  margin-bottom: .6rem;
+}
+.signal-company {
+  font-family: 'Source Serif 4', serif;
+  font-size: .82rem;
+  font-weight: 600;
+  color: var(--ink);
+}
+.signal-objective {
+  font-size: .72rem;
+  color: var(--muted);
+  font-style: italic;
+}
+.signal-date {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: .65rem;
+  color: var(--muted);
+  letter-spacing: .04em;
+  margin-left: auto;
+}
+.signal-excerpt {
+  font-size: .78rem;
+  color: rgba(240,235,224,.7);
+  line-height: 1.6;
+  margin-bottom: .5rem;
+  font-style: italic;
+  border-left: 2px solid var(--faint);
+  padding-left: .65rem;
+}
+.signal-reasoning {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: .6rem;
+  color: var(--muted);
+  line-height: 1.55;
+  margin-bottom: .75rem;
+}
+.signal-actions {
+  display: flex;
+  gap: .5rem;
+  align-items: center;
+}
+.confidence-indicator {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: .65rem;
+  color: var(--muted);
+  letter-spacing: .04em;
+  margin-left: auto;
+}
+
+/* ── RUN LOG ── */
+.run-row {
+  display: grid;
+  grid-template-columns: 1fr auto auto auto auto;
+  gap: 1rem;
+  align-items: center;
+  padding: .7rem 1.25rem;
+  border-bottom: 1px solid var(--border);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: .6rem;
+  letter-spacing: .04em;
+}
+.run-row:last-child { border-bottom: none; }
+.run-company { color: var(--ink); font-size: .68rem; }
+.run-date    { color: var(--muted); }
+.run-signals { color: var(--ink); }
+.run-cost    { color: var(--muted); }
+
+/* ── TOAST NOTIFICATIONS ── */
+.toast-container {
+  position: fixed;
+  bottom: 1.5rem;
+  right: 1.5rem;
+  z-index: 999;
+  display: flex;
+  flex-direction: column;
+  gap: .5rem;
+}
+.toast {
+  background: var(--surface);
+  border: 1px solid var(--border2);
+  border-radius: 6px;
+  padding: .75rem 1rem;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: .62rem;
+  letter-spacing: .04em;
+  color: var(--ink);
+  animation: toastIn .25s ease;
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+  max-width: 320px;
+}
+.toast.success { border-left: 3px solid var(--green); }
+.toast.error   { border-left: 3px solid var(--red); }
+.toast.info    { border-left: 3px solid var(--gold); }
+@keyframes toastIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ── STAT STRIP ── */
+.stat-strip {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1px;
+  background: var(--border);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  overflow: hidden;
+  margin-bottom: 1.5rem;
+}
+.stat-cell {
+  background: var(--surface);
+  padding: .85rem 1rem;
+  text-align: center;
+}
+.stat-num {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: var(--ink);
+  line-height: 1;
+  margin-bottom: .2rem;
+}
+.stat-num span { color: var(--gold); }
+.stat-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: .65rem;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+/* ── TABS ── */
+.tabs {
+  display: flex;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 1.5rem;
+  gap: 0;
+}
+.tab-btn {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: .62rem;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  padding: .6rem 1.25rem;
+  border: none;
+  background: none;
+  color: var(--muted);
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1px;
+  transition: all .2s;
+}
+.tab-btn:hover { color: var(--ink); }
+.tab-btn.active { color: var(--gold); border-bottom-color: var(--gold); }
+
+.tab-panel { display: none; }
+.tab-panel.active { display: block; }
+
+/* ── EMPTY STATE ── */
+.empty-state {
+  text-align: center;
+  padding: 3rem 1rem;
+  color: var(--muted);
+}
+.empty-state-icon { font-size: 2rem; margin-bottom: .75rem; opacity: .3; }
+.empty-state-text {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: .65rem;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+}
+
+/* ── AGENT LOG OUTPUT ── */
+.log-box {
+  background: #0A0908;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 1rem;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: .65rem;
+  line-height: 1.7;
+  color: rgba(255,224,194,.7);
+  max-height: 220px;
+  overflow-y: auto;
+  display: none;
+  letter-spacing: .02em;
+}
+.log-box.visible { display: block; }
+.log-box .log-ok   { color: #6DD8A0; }
+.log-box .log-warn { color: #E0A060; }
+.log-box .log-err  { color: #F08080; }
+
+/* ── PROGRESS BAR ── */
+.progress-bar {
+  height: 2px;
+  background: var(--faint);
+  border-radius: 1px;
+  overflow: hidden;
+  margin-top: .75rem;
+  display: none;
+}
+.progress-bar.visible { display: block; }
+.progress-fill {
+  height: 100%;
+  background: var(--gold);
+  border-radius: 1px;
+  transition: width .3s ease;
+  width: 0%;
+}
+
+/* ── PAGES ── */
+.page { display: none; }
+.page.active { display: block; }
+
+/* ── CONFIG NOTE ── */
+.config-note {
+  background: var(--gold-dim);
+  border: 1px solid rgba(255,224,194,.2);
+  border-radius: 6px;
+  padding: .85rem 1.1rem;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: .62rem;
+  color: rgba(255,224,194,.8);
+  line-height: 1.7;
+  letter-spacing: .02em;
+  margin-bottom: 1.5rem;
+}
+.config-note code {
+  background: rgba(0,0,0,.3);
+  padding: .1rem .35rem;
+  border-radius: 2px;
+  font-size: .6rem;
+}
+</style>
+</head>
+<body>
+
+<div class="shell">
+
+  <!-- SIDEBAR -->
+  <nav class="sidenav">
+    <div class="sidenav-brand">
+      <div class="brand-name" style="font-style:italic;">Dri<span>ft</span></div>
+      <div class="brand-sub">Admin Console</div>
+    </div>
+
+    <div class="sidenav-section">
+      <div class="sidenav-label">Research</div>
+      <button class="sidenav-link active" onclick="showPage('dashboard')">
+        Dashboard
+      </button>
+      <button class="sidenav-link" onclick="showPage('add-company')">
+        + Add Company
+      </button>
+      <button class="sidenav-link" onclick="showPage('review')">
+        <span class="dot dot-amber"></span>
+        Review Queue
+        <span id="reviewBadge" style="margin-left:auto;font-size:.65rem;background:rgba(192,122,48,.2);color:#E0A060;padding:.1rem .35rem;border-radius:2px;display:none;"></span>
+      </button>
+    </div>
+
+    <div class="sidenav-section">
+      <div class="sidenav-label">Companies</div>
+      <div id="companyNavList">
+        <button class="sidenav-link" onclick="showPage('companies')">
+          All Companies
+        </button>
+      </div>
+    </div>
+
+    <div class="sidenav-section">
+      <div class="sidenav-label">System</div>
+      <button class="sidenav-link" onclick="showPage('runs')">
+        Agent Runs
+      </button>
+      <button class="sidenav-link" onclick="showPage('settings')">
+        Settings
+      </button>
+    </div>
+
+    <div class="sidenav-footer">
+      <div class="agent-status">
+        <span class="pulse"></span>Agent ready
+      </div>
+    </div>
+  </nav>
+
+  <!-- MAIN -->
+  <main class="main">
+
+    <!-- ── DASHBOARD ── -->
+    <div class="page active" id="page-dashboard">
+      <div class="page-header">
+        <h1 class="page-title">Dashboard</h1>
+        <p class="page-subtitle">Overview of tracked companies, pending signals, and recent agent activity.</p>
+      </div>
+
+      <div class="stat-strip">
+        <div class="stat-cell">
+          <div class="stat-num" id="statCompanies">—</div>
+          <div class="stat-label">Companies</div>
+        </div>
+        <div class="stat-cell">
+          <div class="stat-num" id="statObjectives">—</div>
+          <div class="stat-label">Objectives</div>
+        </div>
+        <div class="stat-cell">
+          <div class="stat-num" id="statGraveyard">—</div>
+          <div class="stat-label">In Graveyard</div>
+        </div>
+        <div class="stat-cell">
+          <div class="stat-num" id="statPending"><span>—</span></div>
+          <div class="stat-label">Pending Review</div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-header">
+          <span class="panel-title">Companies Due for Research</span>
+          <button class="btn btn-primary btn-sm" onclick="runAllDue()" id="btnRunAll">
+            Run All Due →
+          </button>
+        </div>
+        <div id="dueList">
+          <div class="empty-state">
+            <div class="empty-state-icon">✓</div>
+            <div class="empty-state-text">All companies up to date</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-header">
+          <span class="panel-title">Recent Agent Runs</span>
+        </div>
+        <div id="recentRunsList">
+          <div style="padding:1rem 1.25rem;">
+            <div class="run-row" style="font-weight:500;color:var(--muted);padding-bottom:.5rem;">
+              <span>Company</span><span>Triggered</span><span>Signals</span><span>Cost</span><span>Status</span>
+            </div>
+            <div class="empty-state" style="padding:1.5rem;">
+              <div class="empty-state-text">No runs yet</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── ADD COMPANY ── -->
+    <div class="page" id="page-add-company">
+      <div class="page-header">
+        <h1 class="page-title">Add Company</h1>
+        <p class="page-subtitle">Fill in the basics. The agent will do the research and propose objectives automatically.</p>
+      </div>
+
+      <div class="config-note">
+        After saving, click <strong>Run Intake</strong> to trigger the research agent.
+        It will search for founding documents (prospectus, investor day, annual report),
+        identify all stated objectives, and propose initial signals for your review.
+        Intake typically takes 2–4 minutes and costs ~$1–3 in API usage.
+      </div>
+
+      <div class="panel">
+        <div class="panel-header"><span class="panel-title">Company Identity</span></div>
+        <div class="panel-body">
+          <div class="form-grid">
+            <div class="field">
+              <label>Company Name <span class="req">*</span></label>
+              <input type="text" id="f-name" placeholder="e.g. Sandoz AG">
+            </div>
+            <div class="field">
+              <label>Ticker Symbol</label>
+              <input type="text" id="f-ticker" placeholder="e.g. SDZ">
+            </div>
+            <div class="field">
+              <label>Sector <span class="req">*</span></label>
+              <select id="f-sector">
+                <option value="">— Select sector —</option>
+                <option value="pharma">Pharma</option>
+                <option value="tech">Technology</option>
+                <option value="energy">Energy</option>
+                <option value="consumer">Consumer</option>
+                <option value="finance">Finance</option>
+                <option value="industrials">Industrials</option>
+                <option value="healthcare">Healthcare</option>
+                <option value="telecom">Telecom</option>
+                <option value="other">Other</option>
+              </select>
+            </div>
+            <div class="field">
+              <label>HQ Country</label>
+              <input type="text" id="f-country" placeholder="e.g. Switzerland">
+            </div>
+            <div class="field">
+              <label>Logo Initials (2–4 chars)</label>
+              <input type="text" id="f-initials" placeholder="e.g. SDZ" maxlength="4">
+            </div>
+            <div class="field">
+              <label>Card Accent Color</label>
+              <select id="f-accent">
+                <option value="green">Green (strong / active)</option>
+                <option value="amber">Amber (mixed / drifting)</option>
+                <option value="red">Red (significant drops)</option>
+                <option value="blue">Blue (transformation)</option>
+                <option value="gold">Gold (watch)</option>
+              </select>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-header"><span class="panel-title">Strategic Initiative</span></div>
+        <div class="panel-body">
+          <div class="form-grid">
+            <div class="field">
+              <label>Initiative Name <span class="req">*</span></label>
+              <input type="text" id="f-initiative" placeholder='e.g. "The Golden Decade"'>
+            </div>
+            <div class="field">
+              <label>Subtitle</label>
+              <input type="text" id="f-subtitle" placeholder='e.g. "of Biosimilars & Generics"'>
+            </div>
+            <div class="field">
+              <label>Initiative Start Date</label>
+              <input type="date" id="f-start-date">
+            </div>
+            <div class="field">
+              <label>Horizon / Timeframe</label>
+              <input type="text" id="f-horizon" placeholder="e.g. 2024–2033">
+            </div>
+            <div class="field span2">
+              <label>Investor Relations URL</label>
+              <input type="url" id="f-ir-url" placeholder="https://ir.company.com">
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-header"><span class="panel-title">Research Context for Agent</span></div>
+        <div class="panel-body">
+          <div class="form-grid full">
+            <div class="field">
+              <label>Intake Context <span class="req">*</span></label>
+              <textarea id="f-context" rows="5" placeholder="Tell the agent what to focus on. E.g.:&#10;&#10;Track all references to the Golden Decade narrative. Key objectives to look for: global biosimilar leadership, US market penetration (Hyrimoz as flagship), emerging markets volume, next-wave pipeline (immunology/oncology/ophthalmology), manufacturing simplification, EBITDA margin target 24–26%. Watch for any China-specific language."></textarea>
+            </div>
+            <div class="field">
+              <label>Additional Search Keywords (comma-separated)</label>
+              <input type="text" id="f-keywords" placeholder="e.g. Sandoz biosimilar strategy, Sandoz annual report 2025, SDZ investor day">
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="btn-row">
+        <button class="btn btn-primary" onclick="saveCompany()" id="btnSave">
+          Save Company
+        </button>
+        <button class="btn btn-ghost" onclick="showPage('dashboard')">Cancel</button>
+      </div>
+
+      <div class="progress-bar" id="saveProgress">
+        <div class="progress-fill" id="saveProgressFill"></div>
+      </div>
+      <div class="log-box" id="saveLog"></div>
+    </div>
+
+    <!-- ── COMPANIES LIST ── -->
+    <div class="page" id="page-companies">
+      <div class="page-header">
+        <h1 class="page-title">All Companies</h1>
+        <p class="page-subtitle">Manage tracked companies, trigger individual research runs.</p>
+      </div>
+      <div class="panel">
+        <div class="panel-header">
+          <span class="panel-title">Tracked Companies</span>
+          <button class="btn btn-primary" onclick="showPage('add-company')">+ Add Company</button>
+        </div>
+        <div id="allCompaniesList">
+          <div class="empty-state">
+            <div class="empty-state-icon">○</div>
+            <div class="empty-state-text">No companies yet — add one above</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── REVIEW QUEUE ── -->
+    <div class="page" id="page-review">
+      <div class="page-header">
+        <h1 class="page-title">Review Queue</h1>
+        <p class="page-subtitle">Draft signals proposed by the agent. Review each one before it goes live.</p>
+      </div>
+      <div id="reviewQueue">
+        <div class="empty-state">
+          <div class="empty-state-icon">✓</div>
+          <div class="empty-state-text">No signals pending review</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── AGENT RUNS ── -->
+    <div class="page" id="page-runs">
+      <div class="page-header">
+        <h1 class="page-title">Agent Runs</h1>
+        <p class="page-subtitle">Full audit trail of all research runs.</p>
+      </div>
+      <div class="panel" id="runsPanel">
+        <div class="panel-header"><span class="panel-title">Run History</span></div>
+        <div id="runHistory">
+          <div class="empty-state"><div class="empty-state-text">No runs yet</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── SETTINGS ── -->
+    <div class="page" id="page-settings">
+      <div class="page-header">
+        <h1 class="page-title">Settings</h1>
+        <p class="page-subtitle">Configure the agent and database connection.</p>
+      </div>
+
+      <div class="config-note">
+        This admin UI connects to your Supabase project and calls the agent via
+        the Anthropic API. Set these in your <code>.env</code> file alongside <code>agent.py</code>:
+        <br><br>
+        <code>ANTHROPIC_API_KEY=sk-ant-…</code><br>
+        <code>SUPABASE_URL=https://xxxx.supabase.co</code><br>
+        <code>SUPABASE_SERVICE_KEY=eyJ…</code>
+        <br><br>
+        The admin UI reads <code>SUPABASE_URL</code> and the public anon key for read operations.
+        The agent Python script uses the service key for write operations.
+        Never expose the service key in the browser.
+      </div>
+
+      <div class="panel">
+        <div class="panel-header"><span class="panel-title">Supabase Connection (Read-only via anon key)</span></div>
+        <div class="panel-body">
+          <div class="form-grid">
+            <div class="field">
+              <label>Supabase Project URL</label>
+              <input type="url" id="s-supabase-url" placeholder="https://xxxx.supabase.co" oninput="saveSettings()">
+            </div>
+            <div class="field">
+              <label>Supabase Anon Key (public, read-only)</label>
+              <input type="text" id="s-anon-key" placeholder="eyJ…" oninput="saveSettings()">
+            </div>
+          </div>
+          <div class="btn-row">
+            <button class="btn btn-ghost" onclick="testConnection()">Test Connection</button>
+            <span id="connStatus" style="font-family:'JetBrains Mono',monospace;font-size:.6rem;color:var(--muted);"></span>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-header"><span class="panel-title">Research Schedule</span></div>
+        <div class="panel-body">
+          <div class="form-grid">
+            <div class="field">
+              <label>Default Research Frequency</label>
+              <select id="s-frequency" oninput="saveSettings()">
+                <option value="monthly">Monthly</option>
+                <option value="quarterly">Quarterly</option>
+              </select>
+            </div>
+            <div class="field">
+              <label>Auto-approve High-confidence Signals (≥ 9/10)</label>
+              <select id="s-auto-approve" oninput="saveSettings()">
+                <option value="false">No — always require human review</option>
+                <option value="true">Yes — auto-approve ≥ 9/10 confidence</option>
+              </select>
+            </div>
+          </div>
+          <p style="font-size:.68rem;color:var(--muted);margin-top:.75rem;line-height:1.6;">
+            To run the agent on a true schedule, set up a cron job on your server:<br>
+            <code style="font-size:.6rem;background:var(--faint);padding:.15rem .4rem;border-radius:2px;">0 8 1 * * cd /path/to/drift && python agent.py</code>
+          </p>
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<!-- TOAST CONTAINER -->
+<div class="toast-container" id="toastContainer"></div>
+
+<script>
+/* ══════════════════════════════════════════════════════
+   CONFIG — loaded from localStorage (set in Settings)
+══════════════════════════════════════════════════════ */
+let SUPABASE_URL = '';
+let SUPABASE_ANON_KEY = '';
+
+function loadSettings() {
+  SUPABASE_URL      = localStorage.getItem('pt_supabase_url') || '';
+  SUPABASE_ANON_KEY = localStorage.getItem('pt_anon_key') || '';
+  if (document.getElementById('s-supabase-url')) {
+    document.getElementById('s-supabase-url').value = SUPABASE_URL;
+    document.getElementById('s-anon-key').value = SUPABASE_ANON_KEY;
+  }
+}
+
+function saveSettings() {
+  localStorage.setItem('pt_supabase_url',  document.getElementById('s-supabase-url').value.trim());
+  localStorage.setItem('pt_anon_key',      document.getElementById('s-anon-key').value.trim());
+  loadSettings();
+}
+
+/* ══════════════════════════════════════════════════════
+   SUPABASE REST API HELPERS
+══════════════════════════════════════════════════════ */
+async function sbFetch(table, params = '', method = 'GET', body = null) {
+  if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
+    throw new Error('Supabase not configured — go to Settings.');
+  }
+  const url = `${SUPABASE_URL}/rest/v1/${table}${params ? '?' + params : ''}`;
+  const opts = {
+    method,
+    headers: {
+      'apikey':        SUPABASE_ANON_KEY,
+      'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+      'Content-Type':  'application/json',
+      'Prefer':        'return=representation',
+    },
+  };
+  if (body) opts.body = JSON.stringify(body);
+  const res = await fetch(url, opts);
+  if (!res.ok) throw new Error(await res.text());
+  return res.json();
+}
+
+async function testConnection() {
+  const el = document.getElementById('connStatus');
+  el.textContent = 'Testing…';
+  try {
+    await sbFetch('companies', 'select=id&limit=1');
+    el.textContent = '✓ Connected';
+    el.style.color = '#6DD8A0';
+    toast('Connected to Supabase', 'success');
+  } catch (e) {
+    el.textContent = '✗ ' + e.message;
+    el.style.color = '#F08080';
+    toast('Connection failed: ' + e.message, 'error');
+  }
+}
+
+/* ══════════════════════════════════════════════════════
+   PAGE NAVIGATION
+══════════════════════════════════════════════════════ */
+function showPage(id) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.sidenav-link').forEach(l => l.classList.remove('active'));
+  const page = document.getElementById(`page-${id}`);
+  if (page) page.classList.add('active');
+  event?.currentTarget?.classList?.add('active');
+
+  // Load data for each page
+  if (id === 'dashboard') loadDashboard();
+  if (id === 'companies') loadAllCompanies();
+  if (id === 'review')    loadReviewQueue();
+  if (id === 'runs')      loadRunHistory();
+  if (id === 'settings')  loadSettings();
+}
+
+/* ══════════════════════════════════════════════════════
+   DASHBOARD
+══════════════════════════════════════════════════════ */
+async function loadDashboard() {
+  if (!SUPABASE_URL) return;
+  try {
+    const companies  = await sbFetch('companies',  'select=id,tracking_active&tracking_active=eq.true');
+    const objectives = await sbFetch('objectives', 'select=id,is_in_graveyard');
+    const pending    = await sbFetch('signals',    'select=id&is_draft=eq.true');
+
+    const graveyard = objectives.filter(o => o.is_in_graveyard).length;
+
+    document.getElementById('statCompanies').textContent  = companies.length;
+    document.getElementById('statObjectives').textContent = objectives.length - graveyard;
+    document.getElementById('statGraveyard').textContent  = graveyard;
+    document.getElementById('statPending').innerHTML =
+      pending.length > 0
+        ? `<span style="color:var(--gold)">${pending.length}</span>`
+        : pending.length;
+
+    // Update review badge
+    const badge = document.getElementById('reviewBadge');
+    if (pending.length > 0) {
+      badge.textContent = pending.length;
+      badge.style.display = 'inline';
+    }
+
+    loadDueCompanies(companies);
+    loadRecentRuns();
+  } catch (e) {
+    // If not connected yet, just silently skip
+    if (!SUPABASE_URL) return;
+    console.warn('Dashboard load:', e.message);
+  }
+}
+
+async function loadDueCompanies(companies) {
+  // Would query agent_runs to find which are due — simplified for demo
+  document.getElementById('dueList').innerHTML = companies.length === 0
+    ? `<div class="empty-state"><div class="empty-state-icon">○</div><div class="empty-state-text">No companies tracked yet</div></div>`
+    : `<div style="padding:.75rem 1.25rem;font-family:'JetBrains Mono',monospace;font-size:.62rem;color:var(--muted);">
+        ${companies.length} compan${companies.length === 1 ? 'y' : 'ies'} tracked — run <code>python agent.py</code> from terminal to research all due companies.
+       </div>`;
+}
+
+async function loadRecentRuns() {
+  if (!SUPABASE_URL) return;
+  try {
+    const runs = await sbFetch('agent_runs',
+      'select=*,companies(name)&order=created_at.desc&limit=5'
+    );
+    const el = document.getElementById('recentRunsList');
+    if (!runs || runs.length === 0) {
+      el.innerHTML = `<div class="empty-state" style="padding:1.5rem;"><div class="empty-state-text">No runs yet</div></div>`;
+      return;
+    }
+    el.innerHTML = runs.map(r => `
+      <div class="run-row">
+        <span class="run-company">${r.companies?.name || '—'}</span>
+        <span class="run-date">${r.triggered_by} · ${r.created_at?.slice(0,10)}</span>
+        <span class="run-signals">${r.signals_proposed ?? 0} signals</span>
+        <span class="run-cost">${r.estimated_cost_usd ? '$' + r.estimated_cost_usd : '—'}</span>
+        <span>${statusBadge(r.status)}</span>
+      </div>
+    `).join('');
+  } catch(e) { /* silent */ }
+}
+
+function statusBadge(s) {
+  const map = {
+    completed:      'badge-green',
+    pending_review: 'badge-amber',
+    running:        'badge-blue',
+    failed:         'badge-red',
+  };
+  return `<span class="badge ${map[s] || 'badge-muted'}">${s}</span>`;
+}
+
+function runAllDue() {
+  toast('Run python agent.py from your terminal to research all due companies.', 'info');
+}
+
+/* ══════════════════════════════════════════════════════
+   ADD COMPANY
+══════════════════════════════════════════════════════ */
+async function saveCompany() {
+  const name = document.getElementById('f-name').value.trim();
+  const sector = document.getElementById('f-sector').value;
+  const initiative = document.getElementById('f-initiative').value.trim();
+  const context = document.getElementById('f-context').value.trim();
+
+  if (!name || !sector || !initiative || !context) {
+    toast('Please fill in all required fields (marked with *)', 'error');
+    return;
+  }
+
+  const keywords = document.getElementById('f-keywords').value
+    .split(',').map(k => k.trim()).filter(Boolean);
+
+  const payload = {
+    name,
+    ticker:             document.getElementById('f-ticker').value.trim() || null,
+    sector,
+    hq_country:         document.getElementById('f-country').value.trim() || null,
+    logo_initials:      document.getElementById('f-initials').value.trim() || name.slice(0,3).toUpperCase(),
+    accent_color:       document.getElementById('f-accent').value,
+    initiative_name:    initiative,
+    initiative_subtitle:document.getElementById('f-subtitle').value.trim() || null,
+    initiative_start_date: document.getElementById('f-start-date').value || null,
+    initiative_horizon: document.getElementById('f-horizon').value.trim() || null,
+    ir_page_url:        document.getElementById('f-ir-url').value.trim() || null,
+    intake_context:     context,
+    search_keywords:    keywords,
+    tracking_active:    true,
+  };
+
+  const btn = document.getElementById('btnSave');
+  const progress = document.getElementById('saveProgress');
+  const progressFill = document.getElementById('saveProgressFill');
+  const log = document.getElementById('saveLog');
+
+  btn.disabled = true;
+  btn.textContent = 'Saving…';
+  progress.classList.add('visible');
+  log.classList.add('visible');
+  log.innerHTML = '<span class="log-ok">→ Saving company to database…</span>\n';
+  progressFill.style.width = '30%';
+
+  try {
+    const result = await sbFetch('companies', '', 'POST', payload);
+    const companyId = result[0]?.id;
+
+    progressFill.style.width = '70%';
+    log.innerHTML += `<span class="log-ok">✓ Company saved. ID: ${companyId}</span>\n`;
+    log.innerHTML += `<span style="color:var(--gold)">→ To run intake research, execute in terminal:</span>\n`;
+    log.innerHTML += `<span style="color:var(--ink)">  python agent.py --intake ${companyId}</span>\n`;
+    log.innerHTML += `<span style="color:var(--muted)">→ This will take 2–4 minutes and cost ~$1–3</span>\n`;
+    progressFill.style.width = '100%';
+
+    toast(`${name} added successfully`, 'success');
+    await loadDashboard();
+
+  } catch (e) {
+    log.innerHTML += `<span class="log-err">✗ Error: ${e.message}</span>\n`;
+    toast('Save failed: ' + e.message, 'error');
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Save Company';
+  }
+}
+
+/* ══════════════════════════════════════════════════════
+   ALL COMPANIES
+══════════════════════════════════════════════════════ */
+async function loadAllCompanies() {
+  if (!SUPABASE_URL) return;
+  const el = document.getElementById('allCompaniesList');
+  try {
+    const companies = await sbFetch('companies',
+      'select=*&tracking_active=eq.true&order=name'
+    );
+    if (!companies || companies.length === 0) {
+      el.innerHTML = `<div class="empty-state"><div class="empty-state-icon">○</div><div class="empty-state-text">No companies yet</div></div>`;
+      return;
+    }
+    el.innerHTML = companies.map(c => `
+      <div class="company-row">
+        <div class="co-logo">${c.logo_initials || c.name.slice(0,3)}</div>
+        <div>
+          <div class="co-name">${c.name}</div>
+          <div class="co-initiative">${c.initiative_name}${c.initiative_subtitle ? ' ' + c.initiative_subtitle : ''}</div>
+        </div>
+        <span class="badge badge-muted">${c.sector}</span>
+        <span class="badge ${c.overall_commitment_score >= 75 ? 'badge-green' : c.overall_commitment_score >= 50 ? 'badge-amber' : 'badge-red'}">
+          ${c.overall_commitment_score ?? '—'}/100
+        </span>
+        <div class="co-last-run">
+          Last run<br>${c.last_research_run ? c.last_research_run.slice(0,10) : 'Never'}
+          <br>
+          <button class="btn btn-ghost" style="margin-top:.4rem;padding:.3rem .6rem;font-size:.65rem;"
+            onclick="copyRunCommand('${c.id}')">
+            Copy run cmd
+          </button>
+        </div>
+      </div>
+    `).join('');
+  } catch (e) {
+    el.innerHTML = `<div style="padding:1rem;color:var(--red);font-family:'JetBrains Mono',monospace;font-size:.65rem;">Error: ${e.message}</div>`;
+  }
+}
+
+function copyRunCommand(id) {
+  navigator.clipboard.writeText(`python agent.py --company-id ${id}`);
+  toast('Command copied to clipboard', 'info');
+}
+
+/* ══════════════════════════════════════════════════════
+   REVIEW QUEUE
+══════════════════════════════════════════════════════ */
+async function loadReviewQueue() {
+  if (!SUPABASE_URL) return;
+  const el = document.getElementById('reviewQueue');
+  try {
+    const signals = await sbFetch('v_pending_review', 'select=*&order=created_at.desc');
+    if (!signals || signals.length === 0) {
+      el.innerHTML = `<div class="empty-state"><div class="empty-state-icon">✓</div><div class="empty-state-text">No signals pending review</div></div>`;
+      return;
+    }
+    el.innerHTML = signals.map(s => `
+      <div class="signal-card ${s.classification}" id="sig-${s.id}">
+        <div class="signal-meta">
+          <span class="signal-company">${s.company_name}</span>
+          <span class="badge ${classificationBadgeClass(s.classification)}">${s.classification}</span>
+          <span class="signal-date">${s.signal_date} · ${s.source_name}</span>
+        </div>
+        <div class="signal-objective">Objective: ${s.objective_title}</div>
+        <br>
+        <div class="signal-excerpt">${s.excerpt || '(no excerpt)'}</div>
+        <div class="signal-reasoning">Agent reasoning: ${s.agent_reasoning || '(none)'}</div>
+        <div class="signal-actions">
+          <button class="btn btn-success" onclick="approveSignal('${s.id}')">✓ Approve</button>
+          <button class="btn btn-danger"  onclick="rejectSignal('${s.id}')">✗ Reject</button>
+          <span class="confidence-indicator">Confidence: ${s.confidence ?? '?'}/10</span>
+        </div>
+      </div>
+    `).join('');
+  } catch (e) {
+    el.innerHTML = `<div style="padding:1rem;color:var(--red);font-family:'JetBrains Mono',monospace;font-size:.65rem;">Error: ${e.message}</div>`;
+  }
+}
+
+function classificationBadgeClass(c) {
+  return {
+    reinforced:           'badge-green',
+    stated:               'badge-muted',
+    softened:             'badge-amber',
+    absent:               'badge-red',
+    reframed:             'badge-blue',
+    achieved:             'badge-green',
+    retired_transparent:  'badge-blue',
+    retired_silent:       'badge-red',
+  }[c] || 'badge-muted';
+}
+
+async function approveSignal(id) {
+  try {
+    await sbFetch(`signals?id=eq.${id}`, '', 'PATCH', {
+      is_draft: false,
+      reviewed_at: new Date().toISOString(),
+      reviewed_by: 'admin',
+    });
+    document.getElementById(`sig-${id}`)?.remove();
+    toast('Signal approved and published', 'success');
+  } catch (e) {
+    toast('Error: ' + e.message, 'error');
+  }
+}
+
+async function rejectSignal(id) {
+  try {
+    await sbFetch(`signals?id=eq.${id}`, '', 'DELETE');
+    document.getElementById(`sig-${id}`)?.remove();
+    toast('Signal rejected and deleted', 'info');
+  } catch (e) {
+    toast('Error: ' + e.message, 'error');
+  }
+}
+
+/* ══════════════════════════════════════════════════════
+   RUN HISTORY
+══════════════════════════════════════════════════════ */
+async function loadRunHistory() {
+  if (!SUPABASE_URL) return;
+  const el = document.getElementById('runHistory');
+  try {
+    const runs = await sbFetch('agent_runs',
+      'select=*,companies(name)&order=created_at.desc&limit=25'
+    );
+    if (!runs || runs.length === 0) {
+      el.innerHTML = `<div class="empty-state"><div class="empty-state-text">No runs yet</div></div>`;
+      return;
+    }
+    el.innerHTML = `
+      <div class="run-row" style="color:var(--muted);padding-bottom:.4rem;font-size:.65rem;">
+        <span>Company</span><span>Triggered</span><span>Signals</span><span>Cost</span><span>Status</span>
+      </div>
+      ${runs.map(r => `
+        <div class="run-row">
+          <span class="run-company">${r.companies?.name || '—'}</span>
+          <span class="run-date">${r.triggered_by} · ${r.created_at?.slice(0,10)}</span>
+          <span class="run-signals">${r.signals_proposed ?? 0} proposed</span>
+          <span class="run-cost">${r.estimated_cost_usd ? '$' + r.estimated_cost_usd : '—'}</span>
+          <span>${statusBadge(r.status)}</span>
+        </div>
+      `).join('')}
+    `;
+  } catch (e) {
+    el.innerHTML = `<div style="padding:1rem;color:var(--red);font-family:'JetBrains Mono',monospace;font-size:.65rem;">${e.message}</div>`;
+  }
+}
+
+/* ══════════════════════════════════════════════════════
+   TOAST
+══════════════════════════════════════════════════════ */
+function toast(msg, type = 'info') {
+  const container = document.getElementById('toastContainer');
+  const t = document.createElement('div');
+  t.className = `toast ${type}`;
+  t.textContent = msg;
+  container.appendChild(t);
+  setTimeout(() => t.remove(), 4000);
+}
+
+/* ══════════════════════════════════════════════════════
+   INIT
+══════════════════════════════════════════════════════ */
+loadSettings();
+loadDashboard();
+</script>
+</body>
+</html>

@@ -1,0 +1,1325 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="color-scheme" content="dark">
+<title>Drift — Concept: The Commitment Timeline</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;0,900;1,400;1,700&family=Source+Serif+4:ital,opsz,wght@0,8..60,300;0,8..60,400;0,8..60,600;1,8..60,300;1,8..60,400&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* ═══════════════════════════════════════════════
+   DESIGN TOKENS
+═══════════════════════════════════════════════ */
+:root {
+  /* Backgrounds */
+  --bg:               #111111;
+  --bg-deep:          #0d0d0d;
+  --surface:          #191919;
+  --surface2:         #222222;
+  --surface3:         #2a2a2a;
+  --surface-soil:     #1a1510;
+  --surface-sky:      #111a11;
+  --parchment:        #eeeeee;
+  --parchment-dark:   #cccccc;
+  --parchment-deeper: #aaaaaa;
+
+  /* Text */
+  --ink:          #eeeeee;
+  --ink-light:    #cccccc;
+  --ink-muted:    #999999;
+  --ink-faint:    #666666;
+  --ink-ghost:    #444444;
+
+  /* Brand Crema */
+  --gold:         #ffe0c2;
+  --gold-light:   #ffe0c2;
+  --gold-d:       #c4a882;
+  --gold-accent:  #ffe0c2;
+  --gold-pale:    #393028;
+  --rule:         #2a2520;
+  --border:       rgba(255,224,194,.12);
+  --border2:      rgba(255,224,194,.22);
+
+  /* Status */
+  --status-active:    #4ade80;
+  --status-active-bg: #0f2b1f;
+  --status-watch:     #f59e0b;
+  --status-watch-bg:  #2a1a05;
+  --status-drift:     #f87171;
+  --status-drift-bg:  #2a1010;
+  --status-dead:      #f87171;
+  --status-dead-bg:   #1e0a0a;
+
+  /* Momentum scale — CANONICAL values */
+  --c-orbit:  #6EE7B7;
+  --c-fly:    #86EFAC;
+  --c-run:    #BBF7D0;
+  --c-walk:   #FDE68A;
+  --c-watch:  #FCD34D;
+  --c-crawl:  #FCA5A5;
+  --c-drag:   #F87171;
+  --c-sink:   #EF4444;
+  --c-buried: #991B1B;
+
+  /* Elevation */
+  --shadow-sm:   0 2px 6px rgba(0,0,0,.35), 0 1px 2px rgba(0,0,0,.25);
+  --shadow-md:   0 6px 20px rgba(0,0,0,.4), 0 2px 6px rgba(0,0,0,.3);
+  --shadow-lg:   0 12px 40px rgba(0,0,0,.5), 0 4px 12px rgba(0,0,0,.35);
+  --shadow-gold: 0 0 24px rgba(255,224,194,.08);
+}
+
+::selection { background: rgba(255,224,194,.25); color: #eeeeee; }
+
+/* ═══════════════════════════════════════════════
+   RESET + BASE
+═══════════════════════════════════════════════ */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { font-size: 16px; scroll-behavior: smooth; }
+
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: 'Source Serif 4', Georgia, serif;
+  font-weight: 300;
+  line-height: 1.6;
+  overflow-x: hidden;
+}
+
+/* ═══════════════════════════════════════════════
+   MASTHEAD
+═══════════════════════════════════════════════ */
+.masthead {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 200;
+  height: 52px;
+  background: var(--bg-deep);
+  border-bottom: 2px solid var(--gold);
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 2rem;
+}
+.drift-logo {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.8rem; font-weight: 700; font-style: italic;
+  color: var(--parchment); letter-spacing: -.02em;
+  text-decoration: none;
+}
+.drift-logo .logo-dot { color: var(--gold-light); }
+.mast-tag {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: .6rem; letter-spacing: .14em; text-transform: uppercase;
+  color: var(--ink-faint);
+}
+.mast-nav { display: flex; gap: 1.5rem; }
+.mast-nav a {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: .62rem; letter-spacing: .06em; text-transform: uppercase;
+  color: var(--ink-faint); text-decoration: none;
+  transition: color .2s;
+}
+.mast-nav a:hover { color: var(--parchment); }
+.mast-nav a.active { color: var(--gold); }
+
+/* ═══════════════════════════════════════════════
+   HERO
+═══════════════════════════════════════════════ */
+.hero {
+  min-height: 100vh;
+  display: flex; flex-direction: column; justify-content: center;
+  padding: 8rem 2rem 4rem;
+  position: relative; overflow: hidden;
+}
+
+/* subtle background */
+.hero-bg {
+  position: absolute; inset: 0;
+  background: radial-gradient(ellipse at 20% 30%, rgba(255,255,255,.03) 0%, transparent 60%),
+              radial-gradient(ellipse at 80% 70%, rgba(255,224,194,.04) 0%, transparent 50%),
+              var(--bg);
+}
+
+.hero-inner {
+  max-width: 900px; margin: 0 auto; width: 100%;
+  position: relative; z-index: 1;
+}
+
+.hero-kicker {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: .6rem; letter-spacing: .16em; text-transform: uppercase;
+  color: rgba(255,224,194,.5); margin-bottom: 1.25rem;
+  display: flex; align-items: center; gap: .75rem;
+}
+.hero-kicker::before {
+  content: ''; width: 40px; height: 1px;
+  background: linear-gradient(to right, transparent, var(--gold));
+}
+
+.hero-headline {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(2.8rem, 7vw, 5.5rem);
+  font-weight: 900; letter-spacing: -.05em; line-height: 1.0;
+  margin-bottom: 1.25rem;
+}
+.hero-headline .line2 {
+  font-style: italic; color: var(--gold);
+  display: block;
+}
+.hero-headline .line3 {
+  color: var(--ink-faint);
+  display: block; font-size: 75%;
+}
+
+.hero-desc {
+  font-size: clamp(.875rem, 1.6vw, 1rem);
+  color: var(--ink-muted); max-width: 560px;
+  line-height: 1.8; margin-bottom: 2.5rem;
+}
+
+.hero-scroll {
+  display: flex; align-items: center; gap: .75rem;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: .6rem; letter-spacing: .1em; text-transform: uppercase;
+  color: rgba(255,224,194,.3);
+  animation: float 3s ease infinite;
+  cursor: pointer;
+}
+.hero-scroll-arrow { font-size: 1rem; }
+@keyframes float {
+  0%,100%{ transform: translateY(0); }
+  50%    { transform: translateY(6px); }
+}
+
+/* ═══════════════════════════════════════════════
+   MOMENTUM SCALE — ICON SHOWCASE
+═══════════════════════════════════════════════ */
+.scale-section {
+  padding: 5rem 2rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.scale-section-bg {
+  position: absolute; inset: 0;
+  background: linear-gradient(to bottom,
+    var(--bg) 0%,
+    var(--surface-sky) 30%,
+    var(--surface2) 50%,
+    var(--bg) 70%,
+    var(--bg) 100%
+  );
+}
+
+.scale-inner {
+  max-width: 1100px; margin: 0 auto;
+  position: relative; z-index: 1;
+}
+
+.scale-header { text-align: center; margin-bottom: 3rem; }
+.scale-title {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(1.6rem, 3.5vw, 2.6rem);
+  font-weight: 700; letter-spacing: -.04em;
+  color: var(--ink); margin-bottom: .6rem;
+}
+.scale-subtitle {
+  font-size: .875rem; color: var(--ink-muted);
+  max-width: 480px; margin: 0 auto; line-height: 1.7;
+}
+
+/* The ground line visual divider */
+.ground-divider {
+  position: relative;
+  height: 32px;
+  margin: 1.5rem 0;
+  display: flex; align-items: center;
+}
+.ground-divider-line {
+  position: absolute; left: 0; right: 0;
+  height: 2px;
+  background: linear-gradient(to right,
+    transparent,
+    rgba(255,224,194,.32) 8%,
+    rgba(255,224,194,.18) 50%,
+    rgba(255,224,194,.32) 92%,
+    transparent
+  );
+}
+.ground-divider-label {
+  position: absolute; left: 50%; transform: translateX(-50%);
+  background: var(--surface);
+  padding: .25rem 1rem;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: .6rem; letter-spacing: .14em; text-transform: uppercase;
+  color: rgba(255,224,194,.4);
+  border: 1px solid rgba(255,224,194,.15);
+  border-radius: 20px;
+  white-space: nowrap;
+}
+
+/* Above ground stages */
+.stages-above {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: .75rem;
+  margin-bottom: 0;
+}
+
+/* Below ground stages */
+.stages-below {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: .75rem;
+  margin-top: 0;
+}
+
+/* Individual stage card */
+.stage-card {
+  background: var(--surface);
+  border: 1px solid rgba(255,255,255,.05);
+  border-radius: 10px;
+  padding: 1.25rem .85rem;
+  text-align: center;
+  cursor: pointer;
+  transition: all .3s ease;
+  position: relative;
+  overflow: hidden;
+}
+.stage-card::before {
+  content: '';
+  position: absolute; top: 0; left: 0; right: 0;
+  height: 3px;
+  background: var(--stage-color, var(--gold));
+  border-radius: 2px 2px 0 0;
+}
+.stage-card:hover {
+  background: var(--surface2);
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-md);
+}
+
+/* Below-ground cards have a different atmospheric feel */
+.stage-card.below {
+  background: var(--surface2);
+  border-color: rgba(255,255,255,.06);
+}
+.stage-card.below:hover { transform: translateY(3px); } /* sinks further */
+
+/* The SVG icon container */
+.stage-icon {
+  width: 64px; height: 64px;
+  margin: 0 auto .75rem;
+  display: flex; align-items: center; justify-content: center;
+  position: relative;
+}
+
+/* Stage name */
+.stage-name {
+  font-family: 'Playfair Display', serif;
+  font-size: .92rem; font-weight: 700;
+  color: var(--stage-color, var(--ink));
+  letter-spacing: -.01em; margin-bottom: .2rem;
+}
+.stage-score {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: .6rem; letter-spacing: .1em; text-transform: uppercase;
+  color: var(--ink-ghost); margin-bottom: .4rem;
+}
+.stage-desc {
+  font-size: .7rem; color: var(--ink-faint);
+  line-height: 1.5;
+}
+
+/* ═══════════════════════════════════════════════
+   THE TIMELINE — CENTREPIECE
+═══════════════════════════════════════════════ */
+.timeline-section {
+  padding: 4rem 0 6rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.timeline-bg {
+  position: absolute; inset: 0;
+  background: linear-gradient(to bottom,
+    rgba(255,255,255,0.0) 0%,
+    rgba(255,255,255,0.02) 20%,
+    rgba(255,224,194,0.04) calc(50% - 20px),
+    rgba(255,224,194,0.06) calc(50% + 20px),
+    rgba(255,224,194,0.03) 70%,
+    rgba(17,17,17,0.0) 100%
+  ), var(--bg);
+}
+
+.timeline-wrap {
+  position: relative;
+  overflow-x: auto;
+  overflow-y: visible;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255,224,194,.2) transparent;
+  padding: 0 2rem;
+}
+.timeline-wrap::-webkit-scrollbar { height: 4px; }
+.timeline-wrap::-webkit-scrollbar-track { background: transparent; }
+.timeline-wrap::-webkit-scrollbar-thumb {
+  background: rgba(255,224,194,.2); border-radius: 2px;
+}
+
+.timeline-canvas {
+  position: relative;
+  width: 1400px;        /* scrollable width */
+  height: 680px;
+}
+
+/* THE GROUND LINE */
+.ground-line {
+  position: absolute;
+  left: 0; right: 0;
+  top: 50%;
+  height: 0;
+  border: none;
+}
+
+.ground-line-bar {
+  position: absolute;
+  left: 0; right: 0;
+  top: 50%;
+  height: 2px;
+  background: linear-gradient(to right,
+    transparent,
+    rgba(255,224,194,.32) 8%,
+    rgba(255,224,194,.18) 50%,
+    rgba(255,224,194,.32) 92%,
+    transparent
+  );
+  transform: translateY(-50%);
+}
+
+/* Ground texture — the soil surface */
+.ground-surface {
+  position: absolute;
+  left: 0; right: 0;
+  top: calc(50% + 1px);
+  height: 40px;
+  background: linear-gradient(to bottom,
+    rgba(255,224,194,.06) 0%,
+    rgba(255,224,194,.03) 60%,
+    transparent 100%
+  );
+}
+
+/* Ground label */
+.ground-label {
+  position: absolute;
+  left: 24px;
+  top: calc(50% - 10px);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: .6rem; letter-spacing: .14em; text-transform: uppercase;
+  color: rgba(255,224,194,.4);
+  background: var(--surface);
+  padding: .1rem .4rem;
+  border: 1px solid rgba(255,224,194,.1);
+  border-radius: 3px;
+  z-index: 10;
+  white-space: nowrap;
+}
+
+/* TIME AXIS */
+.time-axis {
+  position: absolute;
+  bottom: 40px; left: 80px; right: 40px;
+  height: 1px;
+  background: rgba(255,255,255,.06);
+}
+.time-label {
+  position: absolute;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: .6rem; letter-spacing: .08em; text-transform: uppercase;
+  color: var(--ink-ghost);
+  top: 8px; transform: translateX(-50%);
+}
+.time-tick {
+  position: absolute;
+  top: -3px;
+  width: 1px; height: 7px;
+  background: rgba(255,255,255,.08);
+  transform: translateX(-50%);
+}
+
+/* COMPANY LABEL */
+.company-label {
+  position: absolute;
+  left: 24px;
+  top: calc(50% - 120px);
+  z-index: 10;
+}
+.company-label-name {
+  font-family: 'Playfair Display', serif;
+  font-size: .875rem; font-weight: 700;
+  color: var(--ink-muted);
+  letter-spacing: -.02em;
+}
+.company-label-init {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: .6rem; letter-spacing: .1em; text-transform: uppercase;
+  color: rgba(255,224,194,.25);
+}
+
+/* ── OBJECTIVE TRACK ── */
+.obj-track {
+  position: absolute;
+  left: 80px; right: 40px;
+}
+
+/* The track line connecting nodes */
+.track-path {
+  position: absolute;
+  top: 0; left: 0; right: 0; height: 0;
+  pointer-events: none;
+}
+.track-path svg {
+  position: absolute;
+  top: -200px; left: 0;
+  width: 100%; height: 400px;
+  overflow: visible;
+}
+
+/* ── OBJECTIVE NODE ── */
+.obj-node {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  cursor: pointer;
+  z-index: 20;
+}
+
+.node-icon-wrap {
+  width: 52px; height: 52px;
+  display: flex; align-items: center; justify-content: center;
+  border-radius: 50%;
+  background: var(--surface);
+  border: 2px solid var(--node-color, rgba(255,255,255,.15));
+  box-shadow: var(--shadow-sm);
+  transition: all .3s ease;
+  position: relative;
+}
+.obj-node:hover .node-icon-wrap {
+  box-shadow: var(--shadow-md);
+  transform: scale(1.15);
+}
+
+.node-label {
+  position: absolute;
+  top: 58px; left: 50%;
+  transform: translateX(-50%);
+  white-space: nowrap;
+  text-align: center;
+  pointer-events: none;
+}
+.node-label-name {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: .6rem; letter-spacing: .06em;
+  color: var(--ink-faint);
+  display: block;
+}
+.node-label-stage {
+  font-family: 'Source Serif 4', serif;
+  font-size: .6rem; font-style: italic;
+  color: var(--node-color, var(--ink-faint));
+  display: block; margin-top: .1rem;
+}
+
+/* Stage glow — atmospheric halo above ground nodes */
+.node-glow {
+  position: absolute;
+  border-radius: 50%;
+  pointer-events: none;
+  opacity: .15;
+  transition: opacity .3s;
+}
+.obj-node:hover .node-glow { opacity: .3; }
+
+/* Tooltip */
+.node-tooltip {
+  position: absolute;
+  bottom: calc(100% + 12px); left: 50%;
+  transform: translateX(-50%);
+  background: var(--surface);
+  border: 1px solid rgba(255,224,194,.12);
+  border-radius: 6px;
+  padding: .65rem .85rem;
+  width: 220px;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity .2s ease;
+  z-index: 100;
+  box-shadow: var(--shadow-lg);
+}
+.obj-node:hover .node-tooltip { opacity: 1; }
+.node-tooltip.below-ground {
+  bottom: auto; top: calc(100% + 12px);
+}
+.tt-stage {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: .6rem; letter-spacing: .1em; text-transform: uppercase;
+  margin-bottom: .35rem;
+}
+.tt-obj {
+  font-family: 'Source Serif 4', serif;
+  font-size: .8rem; font-weight: 600;
+  color: var(--ink); line-height: 1.3;
+  margin-bottom: .35rem;
+}
+.tt-signal {
+  font-size: .7rem; color: var(--ink-muted);
+  line-height: 1.5; font-style: italic;
+}
+.tt-date {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: .6rem; color: var(--ink-ghost);
+  margin-top: .35rem; letter-spacing: .04em;
+}
+
+/* Connector line between nodes of same objective */
+.connector {
+  position: absolute;
+  pointer-events: none;
+  z-index: 5;
+}
+
+/* Ground crossing marker */
+.cross-marker {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  z-index: 15;
+}
+.cross-marker-ring {
+  width: 16px; height: 16px;
+  border-radius: 50%;
+  border: 2px solid #F87171;
+  animation: ringPulse 2s ease infinite;
+  position: relative;
+}
+.cross-marker-ring::before {
+  content: '';
+  position: absolute; inset: 3px;
+  border-radius: 50%;
+  background: #F87171;
+  opacity: .6;
+}
+@keyframes ringPulse {
+  0%,100%{ box-shadow: 0 0 0 0 rgba(248,113,113,.3); }
+  50%    { box-shadow: 0 0 0 8px rgba(248,113,113,0); }
+}
+.cross-label {
+  position: absolute;
+  top: 20px; left: 50%; transform: translateX(-50%);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: .6rem; letter-spacing: .08em; text-transform: uppercase;
+  color: #F87171; white-space: nowrap;
+  background: var(--surface);
+  padding: .1rem .4rem; border-radius: 2px;
+}
+
+/* Roots effect for below-ground nodes */
+.roots {
+  position: absolute;
+  pointer-events: none;
+  z-index: 4;
+}
+
+/* ── LEGEND BAR ── */
+.timeline-legend {
+  position: absolute;
+  right: 40px;
+  top: 20px;
+  display: flex; flex-direction: column; gap: .35rem;
+  z-index: 10;
+}
+.leg-item {
+  display: flex; align-items: center; gap: .4rem;
+}
+.leg-dot {
+  width: 8px; height: 8px; border-radius: 50%;
+  flex-shrink: 0;
+}
+.leg-text {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: .6rem; letter-spacing: .06em; text-transform: uppercase;
+  color: var(--ink-ghost);
+}
+
+/* ── SCROLL HINT ── */
+.scroll-hint-h {
+  position: absolute;
+  right: 20px; top: 50%;
+  transform: translateY(-50%);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: .6rem; letter-spacing: .1em; text-transform: uppercase;
+  color: rgba(255,224,194,.2);
+  writing-mode: vertical-rl;
+  display: flex; align-items: center; gap: .3rem;
+  animation: slideRight 2s ease infinite;
+}
+@keyframes slideRight {
+  0%,100%{ opacity: .3; }
+  50%    { opacity: .6; }
+}
+
+/* ═══════════════════════════════════════════════
+   CONCEPT EXPLAINER
+═══════════════════════════════════════════════ */
+.explainer {
+  padding: 5rem 2rem;
+  max-width: 1100px; margin: 0 auto;
+}
+.explainer-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 1.5rem;
+}
+.exp-card {
+  padding: 1.5rem;
+  border: 1px solid rgba(255,224,194,.08);
+  border-radius: 8px;
+  background: var(--surface);
+  transition: background .25s;
+}
+.exp-card:hover { background: var(--surface2); }
+.exp-num {
+  font-family: 'Playfair Display', serif;
+  font-size: 3rem; font-weight: 900;
+  color: rgba(255,224,194,.1); line-height: 1;
+  margin-bottom: .5rem;
+}
+.exp-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 1rem; font-weight: 700;
+  color: var(--ink); margin-bottom: .5rem;
+  font-style: italic;
+}
+.exp-desc {
+  font-size: .875rem; color: var(--ink-muted);
+  line-height: 1.7;
+}
+
+/* ═══════════════════════════════════════════════
+   RESPONSIVE
+═══════════════════════════════════════════════ */
+@media (max-width: 900px) {
+  .stages-above { grid-template-columns: repeat(3,1fr); }
+  .stages-below { grid-template-columns: repeat(2,1fr); }
+  .explainer-grid { grid-template-columns: 1fr; }
+  .mast-nav { display: none; }
+  .hero-headline { font-size: 2.4rem; }
+}
+@media (max-width: 600px) {
+  .stages-above { grid-template-columns: repeat(2,1fr); }
+  .scale-section { padding: 3rem 1rem; }
+  .timeline-section { padding: 3rem 0 4rem; }
+  .explainer { padding: 3rem 1rem; }
+}
+</style>
+</head>
+<body>
+
+<!-- MASTHEAD -->
+<header class="masthead">
+  <a href="/" class="drift-logo">Drift<span class="logo-dot">.</span></a>
+  <div class="mast-tag">Concept Preview — Timeline Centrepiece</div>
+  <nav class="mast-nav">
+    <a href="#scale">The Scale</a>
+    <a href="#timeline" class="active">Timeline</a>
+    <a href="#concept">Concept</a>
+  </nav>
+</header>
+
+<!-- ═══════ HERO ═══════ -->
+<section class="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-inner">
+    <div class="hero-kicker">Design Concept · The Commitment Timeline</div>
+    <h1 class="hero-headline">
+      Above the line —
+      <span class="line2">alive.</span>
+      <span class="line3">Below it — six feet under.</span>
+    </h1>
+    <p class="hero-desc">
+      Every strategic commitment a company makes starts above the ground line.
+      Some soar. Some crawl along the surface. Some pierce through it and
+      disappear — silently, slowly, or all at once. This is how we show that.
+    </p>
+    <div class="hero-scroll" onclick="document.getElementById('scale').scrollIntoView({behavior:'smooth'})">
+      <span class="hero-scroll-arrow">↓</span>
+      <span>Scroll to explore the momentum scale</span>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════ MOMENTUM SCALE ═══════ -->
+<section class="scale-section" id="scale">
+  <div class="scale-section-bg"></div>
+  <div class="scale-inner">
+
+    <div class="scale-header">
+      <h2 class="scale-title">The Momentum Scale</h2>
+      <p class="scale-subtitle">Nine stages from orbit to burial. Each is an editorial classification — not a calculation. Every stage has a character.</p>
+    </div>
+
+    <!-- ABOVE GROUND -->
+    <div class="stages-above">
+
+      <!-- ORBIT -->
+      <div class="stage-card" style="--stage-color:var(--c-orbit)">
+        <div class="stage-icon">
+          <svg width="56" height="56" viewBox="0 0 56 56" fill="none">
+            <!-- rocket body -->
+            <ellipse cx="28" cy="24" rx="5" ry="11" fill="#6EE7B7" opacity=".9"/>
+            <!-- nose -->
+            <path d="M28 11 L23 20 Q28 16 33 20 Z" fill="#A7F3D0"/>
+            <!-- fins -->
+            <path d="M23 30 L18 36 L23 34 Z" fill="#6EE7B7" opacity=".6"/>
+            <path d="M33 30 L38 36 L33 34 Z" fill="#6EE7B7" opacity=".6"/>
+            <!-- flame -->
+            <ellipse cx="28" cy="38" rx="4" ry="6" fill="#FFD080" opacity=".8">
+              <animate attributeName="ry" values="6;8;5;7;6" dur=".8s" repeatCount="indefinite"/>
+              <animate attributeName="opacity" values=".8;.6;.9;.7;.8" dur=".8s" repeatCount="indefinite"/>
+            </ellipse>
+            <ellipse cx="28" cy="39" rx="2.5" ry="4" fill="#FF9040" opacity=".9">
+              <animate attributeName="ry" values="4;5;3;4.5;4" dur=".6s" repeatCount="indefinite"/>
+            </ellipse>
+            <!-- stars -->
+            <circle cx="12" cy="14" r="1" fill="#6EE7B7" opacity=".5"/>
+            <circle cx="44" cy="18" r="1" fill="#6EE7B7" opacity=".4"/>
+            <circle cx="8" cy="28" r=".8" fill="#6EE7B7" opacity=".3"/>
+          </svg>
+        </div>
+        <div class="stage-name">Orbit</div>
+        <div class="stage-score">Stage +4</div>
+        <div class="stage-desc">Objective exceeded. Company redefined the ambition entirely.</div>
+      </div>
+
+      <!-- FLY -->
+      <div class="stage-card" style="--stage-color:var(--c-fly)">
+        <div class="stage-icon">
+          <svg width="56" height="56" viewBox="0 0 56 56" fill="none">
+            <!-- bird in full flight — spread wings -->
+            <path d="M28 30 Q18 22 8 24 Q14 26 16 30 Q20 26 28 30Z" fill="#86EFAC" opacity=".9">
+              <animateTransform attributeName="transform" type="rotate" values="0 28 30;-3 28 30;0 28 30;2 28 30;0 28 30" dur="1.4s" repeatCount="indefinite"/>
+            </path>
+            <path d="M28 30 Q38 22 48 24 Q42 26 40 30 Q36 26 28 30Z" fill="#86EFAC" opacity=".9">
+              <animateTransform attributeName="transform" type="rotate" values="0 28 30;3 28 30;0 28 30;-2 28 30;0 28 30" dur="1.4s" repeatCount="indefinite"/>
+            </path>
+            <!-- body -->
+            <ellipse cx="28" cy="31" rx="4" ry="2.5" fill="#6EE7B7"/>
+            <!-- head -->
+            <circle cx="33" cy="29" r="3" fill="#6EE7B7"/>
+            <!-- tail -->
+            <path d="M24 32 L19 36 M24 32 L20 38 M24 32 L22 39" stroke="#86EFAC" stroke-width="1.5" stroke-linecap="round" opacity=".7"/>
+            <!-- eye -->
+            <circle cx="34.5" cy="28.2" r=".8" fill="#111111"/>
+            <!-- beak -->
+            <path d="M36 29 L39 28.5 L36 30Z" fill="#D4A840"/>
+          </svg>
+        </div>
+        <div class="stage-name">Fly</div>
+        <div class="stage-score">Stage +3</div>
+        <div class="stage-desc">Ahead of schedule. Language explicitly reinforced with results.</div>
+      </div>
+
+      <!-- RUN -->
+      <div class="stage-card" style="--stage-color:var(--c-run)">
+        <div class="stage-icon">
+          <svg width="56" height="56" viewBox="0 0 56 56" fill="none">
+            <!-- running figure -->
+            <!-- head -->
+            <circle cx="32" cy="14" r="5" fill="#BBF7D0"/>
+            <!-- torso -->
+            <path d="M30 19 L26 32" stroke="#BBF7D0" stroke-width="3" stroke-linecap="round"/>
+            <!-- arms -->
+            <path d="M29 22 L20 18" stroke="#BBF7D0" stroke-width="2.5" stroke-linecap="round">
+              <animateTransform attributeName="transform" type="rotate" values="0 29 22;8 29 22;0 29 22;-8 29 22;0 29 22" dur=".6s" repeatCount="indefinite"/>
+            </path>
+            <path d="M28 24 L37 28" stroke="#BBF7D0" stroke-width="2.5" stroke-linecap="round">
+              <animateTransform attributeName="transform" type="rotate" values="0 28 24;-8 28 24;0 28 24;8 28 24;0 28 24" dur=".6s" repeatCount="indefinite"/>
+            </path>
+            <!-- legs -->
+            <path d="M26 32 L20 42 L24 42" stroke="#BBF7D0" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <animateTransform attributeName="transform" type="rotate" values="0 26 32;12 26 32;0 26 32;-6 26 32;0 26 32" dur=".6s" repeatCount="indefinite"/>
+            </path>
+            <path d="M26 32 L32 40 L36 38" stroke="#BBF7D0" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <animateTransform attributeName="transform" type="rotate" values="0 26 32;-12 26 32;0 26 32;6 26 32;0 26 32" dur=".6s" repeatCount="indefinite"/>
+            </path>
+            <!-- speed lines -->
+            <line x1="14" y1="24" x2="20" y2="24" stroke="#BBF7D0" stroke-width="1.5" stroke-linecap="round" opacity=".4">
+              <animate attributeName="opacity" values=".4;0;.4" dur=".6s" repeatCount="indefinite"/>
+            </line>
+            <line x1="12" y1="30" x2="19" y2="30" stroke="#BBF7D0" stroke-width="1.5" stroke-linecap="round" opacity=".3">
+              <animate attributeName="opacity" values=".3;0;.3" dur=".6s" begin=".2s" repeatCount="indefinite"/>
+            </line>
+          </svg>
+        </div>
+        <div class="stage-name">Run</div>
+        <div class="stage-score">Stage +2</div>
+        <div class="stage-desc">On track, strong momentum, language reinforced with specifics.</div>
+      </div>
+
+      <!-- WALK -->
+      <div class="stage-card" style="--stage-color:var(--c-walk)">
+        <div class="stage-icon">
+          <svg width="56" height="56" viewBox="0 0 56 56" fill="none">
+            <!-- walking figure -->
+            <circle cx="28" cy="13" r="5" fill="#FDE68A"/>
+            <path d="M26 18 L24 31" stroke="#FDE68A" stroke-width="3" stroke-linecap="round"/>
+            <!-- arms swinging gently -->
+            <path d="M25 22 L17 26" stroke="#FDE68A" stroke-width="2.5" stroke-linecap="round">
+              <animateTransform attributeName="transform" type="rotate" values="0 25 22;10 25 22;0 25 22;-10 25 22;0 25 22" dur="1.2s" repeatCount="indefinite"/>
+            </path>
+            <path d="M25 22 L33 24" stroke="#FDE68A" stroke-width="2.5" stroke-linecap="round">
+              <animateTransform attributeName="transform" type="rotate" values="0 25 22;-10 25 22;0 25 22;10 25 22;0 25 22" dur="1.2s" repeatCount="indefinite"/>
+            </path>
+            <!-- legs -->
+            <path d="M24 31 L20 43" stroke="#FDE68A" stroke-width="2.5" stroke-linecap="round">
+              <animateTransform attributeName="transform" type="rotate" values="0 24 31;-15 24 31;0 24 31;15 24 31;0 24 31" dur="1.2s" repeatCount="indefinite"/>
+            </path>
+            <path d="M24 31 L30 42" stroke="#FDE68A" stroke-width="2.5" stroke-linecap="round">
+              <animateTransform attributeName="transform" type="rotate" values="0 24 31;15 24 31;0 24 31;-15 24 31;0 24 31" dur="1.2s" repeatCount="indefinite"/>
+            </path>
+          </svg>
+        </div>
+        <div class="stage-name">Walk</div>
+        <div class="stage-score">Stage +1</div>
+        <div class="stage-desc">Active, progressing, no concerns. Objective mentioned, progressing.</div>
+      </div>
+
+      <!-- WATCH -->
+      <div class="stage-card" style="--stage-color:var(--c-watch)">
+        <div class="stage-icon">
+          <svg width="56" height="56" viewBox="0 0 56 56" fill="none">
+            <!-- standing figure, hand over eyes looking around -->
+            <circle cx="28" cy="13" r="5" fill="#FCD34D"/>
+            <path d="M26 18 L26 34" stroke="#FCD34D" stroke-width="3" stroke-linecap="round"/>
+            <!-- arm shielding eyes -->
+            <path d="M26 22 L18 20" stroke="#FCD34D" stroke-width="2.5" stroke-linecap="round"/>
+            <path d="M18 20 L22 18" stroke="#FCD34D" stroke-width="2" stroke-linecap="round"/>
+            <!-- other arm out -->
+            <path d="M26 22 L34 26" stroke="#FCD34D" stroke-width="2.5" stroke-linecap="round"/>
+            <!-- legs standing -->
+            <path d="M26 34 L22 44" stroke="#FCD34D" stroke-width="2.5" stroke-linecap="round"/>
+            <path d="M26 34 L30 44" stroke="#FCD34D" stroke-width="2.5" stroke-linecap="round"/>
+            <!-- question marks / uncertainty dashes -->
+            <text x="36" y="16" font-family="serif" font-size="8" fill="#FCD34D" opacity=".5">?</text>
+            <animate attributeName="opacity" values=".5;.9;.5" dur="2s" repeatCount="indefinite"/>
+          </svg>
+        </div>
+        <div class="stage-name">Watch</div>
+        <div class="stage-score">Stage 0</div>
+        <div class="stage-desc">Standing still. No progress signal. Monitoring required.</div>
+      </div>
+    </div>
+
+    <!-- GROUND DIVIDER -->
+    <div class="ground-divider">
+      <div class="ground-divider-line"></div>
+      <div class="ground-divider-label">ground line — the commitment threshold</div>
+    </div>
+
+    <!-- BELOW GROUND -->
+    <div class="stages-below">
+
+      <!-- CRAWL -->
+      <div class="stage-card below" style="--stage-color:var(--c-crawl)">
+        <div class="stage-icon">
+          <svg width="56" height="56" viewBox="0 0 56 56" fill="none">
+            <!-- crawling figure — low to ground -->
+            <circle cx="38" cy="24" r="5" fill="#FCA5A5"/>
+            <!-- body low -->
+            <path d="M36 28 L22 32" stroke="#FCA5A5" stroke-width="3" stroke-linecap="round"/>
+            <!-- arms forward on ground -->
+            <path d="M36 28 L42 34" stroke="#FCA5A5" stroke-width="2.5" stroke-linecap="round"/>
+            <path d="M36 28 L44 30" stroke="#FCA5A5" stroke-width="2.5" stroke-linecap="round"/>
+            <!-- legs dragging -->
+            <path d="M22 32 L16 36 L14 40" stroke="#FCA5A5" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M22 32 L18 38" stroke="#FCA5A5" stroke-width="2.5" stroke-linecap="round"/>
+            <!-- sweat drops -->
+            <circle cx="46" cy="22" r="1.5" fill="#FCA5A5" opacity=".4"/>
+            <circle cx="49" cy="26" r="1" fill="#FCA5A5" opacity=".3"/>
+          </svg>
+        </div>
+        <div class="stage-name">Crawl</div>
+        <div class="stage-score">Stage −1</div>
+        <div class="stage-desc">Slowing. Language softening, timelines slipping, hedging detected.</div>
+      </div>
+
+      <!-- DRAG -->
+      <div class="stage-card below" style="--stage-color:var(--c-drag)">
+        <div class="stage-icon">
+          <svg width="56" height="56" viewBox="0 0 56 56" fill="none">
+            <!-- figure being dragged along -->
+            <circle cx="36" cy="20" r="5" fill="#F87171"/>
+            <path d="M34 25 L20 30" stroke="#F87171" stroke-width="2.5" stroke-linecap="round"/>
+            <!-- arms limp -->
+            <path d="M30 26 L24 22" stroke="#F87171" stroke-width="2" stroke-linecap="round" opacity=".6"/>
+            <path d="M30 27 L34 33" stroke="#F87171" stroke-width="2" stroke-linecap="round" opacity=".6"/>
+            <!-- legs dragging on ground -->
+            <path d="M20 30 L10 34" stroke="#F87171" stroke-width="2.5" stroke-linecap="round"/>
+            <path d="M20 31 L12 38" stroke="#F87171" stroke-width="2.5" stroke-linecap="round"/>
+            <!-- ground drag marks -->
+            <path d="M10 37 L8 38 M12 39 L10 40 M14 38 L12 39" stroke="#F87171" stroke-width="1" stroke-linecap="round" opacity=".35"/>
+            <!-- XXX eyes -->
+            <text x="32" y="20" font-size="5" fill="#F87171" opacity=".7">x x</text>
+          </svg>
+        </div>
+        <div class="stage-name">Drag</div>
+        <div class="stage-score">Stage −2</div>
+        <div class="stage-desc">Significant drift. Reframing underway. Accountability breaking down.</div>
+      </div>
+
+      <!-- SINK -->
+      <div class="stage-card below" style="--stage-color:var(--c-sink)">
+        <div class="stage-icon">
+          <svg width="56" height="56" viewBox="0 0 56 56" fill="none">
+            <!-- figure waist deep in ground -->
+            <!-- soil surface line -->
+            <rect x="8" y="35" width="40" height="14" rx="2" fill="#1a1510" opacity=".6"/>
+            <!-- upper body sticking out -->
+            <circle cx="28" cy="20" r="5" fill="#EF4444"/>
+            <path d="M26 25 L24 35" stroke="#EF4444" stroke-width="3" stroke-linecap="round"/>
+            <!-- arms raised (help!) -->
+            <path d="M25 27 L16 22" stroke="#EF4444" stroke-width="2.5" stroke-linecap="round">
+              <animateTransform attributeName="transform" type="rotate" values="0 25 27;15 25 27;0 25 27;-8 25 27;0 25 27" dur="1.8s" repeatCount="indefinite"/>
+            </path>
+            <path d="M26 27 L36 22" stroke="#EF4444" stroke-width="2.5" stroke-linecap="round">
+              <animateTransform attributeName="transform" type="rotate" values="0 26 27;-15 26 27;0 26 27;8 26 27;0 26 27" dur="1.8s" repeatCount="indefinite"/>
+            </path>
+            <!-- soil particles -->
+            <circle cx="20" cy="33" r="1.5" fill="#6B4A14" opacity=".5"/>
+            <circle cx="35" cy="34" r="1" fill="#6B4A14" opacity=".4"/>
+            <circle cx="30" cy="32" r="1.2" fill="#8B6018" opacity=".35"/>
+          </svg>
+        </div>
+        <div class="stage-name">Sink</div>
+        <div class="stage-score">Stage −3</div>
+        <div class="stage-desc">Entering graveyard. Mostly absent. Multiple signals of silence.</div>
+      </div>
+
+      <!-- BURIED -->
+      <div class="stage-card below" style="--stage-color:var(--c-buried)">
+        <div class="stage-icon">
+          <svg width="56" height="56" viewBox="0 0 56 56" fill="none">
+            <!-- soil surface -->
+            <rect x="8" y="26" width="40" height="22" rx="2" fill="#1a1510" opacity=".7"/>
+            <!-- just a hand reaching up -->
+            <path d="M28 26 L28 14" stroke="#991B1B" stroke-width="3" stroke-linecap="round"/>
+            <!-- hand -->
+            <path d="M28 14 L24 10" stroke="#991B1B" stroke-width="2" stroke-linecap="round"/>
+            <path d="M28 14 L26 9" stroke="#991B1B" stroke-width="2" stroke-linecap="round"/>
+            <path d="M28 14 L28 8" stroke="#991B1B" stroke-width="2" stroke-linecap="round"/>
+            <path d="M28 14 L30 9" stroke="#991B1B" stroke-width="2" stroke-linecap="round"/>
+            <path d="M28 14 L32 10" stroke="#991B1B" stroke-width="2" stroke-linecap="round"/>
+            <!-- small gravestone shape hinting -->
+            <rect x="22" y="24" width="12" height="3" rx="1" fill="#4A3010" opacity=".4"/>
+            <path d="M24 24 Q28 20 32 24" fill="#4A3010" opacity=".3"/>
+            <!-- worms etc -->
+            <path d="M14 36 Q16 34 18 36 Q20 38 22 36" stroke="#5A3A10" stroke-width="1.5" stroke-linecap="round" fill="none" opacity=".4"/>
+            <!-- animate the hand slightly -->
+            <animateTransform attributeName="transform" type="translate" values="0 0;0 -2;0 0;0 -1;0 0" dur="3s" repeatCount="indefinite"/>
+          </svg>
+        </div>
+        <div class="stage-name">Buried</div>
+        <div class="stage-score">Stage −4</div>
+        <div class="stage-desc">Confirmed graveyard. Gone without announcement. Just a hand reaching up.</div>
+      </div>
+
+    </div><!-- /stages-below -->
+  </div>
+</section>
+
+<!-- ═══════ THE TIMELINE ═══════ -->
+<section class="timeline-section" id="timeline">
+  <div class="timeline-bg"></div>
+
+  <div style="max-width:1100px;margin:0 auto;padding:0 2rem 1.5rem;position:relative;z-index:1;">
+    <div style="display:flex;align-items:flex-end;justify-content:space-between;flex-wrap:wrap;gap:1rem;">
+      <div>
+        <div style="font-family:'JetBrains Mono',monospace;font-size:.6rem;letter-spacing:.14em;text-transform:uppercase;color:rgba(255,224,194,.4);margin-bottom:.4rem;">Sandoz AG · The Golden Decade</div>
+        <h2 style="font-family:'Playfair Display',serif;font-size:clamp(1.4rem,3vw,2rem);font-weight:700;letter-spacing:-.04em;color:var(--ink);">Commitment Timeline — 2023 to Present</h2>
+      </div>
+      <div style="font-family:'JetBrains Mono',monospace;font-size:.6rem;color:var(--ink-ghost);letter-spacing:.06em;">← Scroll to explore →</div>
+    </div>
+  </div>
+
+  <div class="timeline-wrap">
+    <div class="timeline-canvas" id="timelineCanvas">
+
+      <!-- GROUND LINE -->
+      <div class="ground-line-bar" style="top:340px;"></div>
+      <div class="ground-surface" style="top:341px;"></div>
+      <div class="ground-label" style="top:330px;">Ground Line · The Commitment Threshold</div>
+
+      <!-- TIME AXIS -->
+      <div class="time-axis" style="bottom:36px;left:80px;right:40px;">
+        <!-- ticks injected by JS -->
+      </div>
+
+      <!-- TIMELINE LEGEND -->
+      <div class="timeline-legend">
+        <div class="leg-item"><div class="leg-dot" style="background:var(--c-fly)"></div><span class="leg-text">Biosimilar Leadership</span></div>
+        <div class="leg-item"><div class="leg-dot" style="background:var(--c-run)"></div><span class="leg-text">US Penetration</span></div>
+        <div class="leg-item"><div class="leg-dot" style="background:var(--c-walk)"></div><span class="leg-text">EM Growth</span></div>
+        <div class="leg-item"><div class="leg-dot" style="background:var(--c-crawl)"></div><span class="leg-text">Mfg Simplification</span></div>
+        <div class="leg-item"><div class="leg-dot" style="background:var(--c-buried)"></div><span class="leg-text">China Platform ⬛</span></div>
+      </div>
+
+      <!-- SVG connector paths rendered here -->
+      <svg id="connectorSvg" style="position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;overflow:visible;"></svg>
+
+      <!-- Nodes injected by JS -->
+      <div id="nodesLayer"></div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ═══════ CONCEPT EXPLAINER ═══════ -->
+<section class="explainer" id="concept">
+  <div style="text-align:center;margin-bottom:3rem;">
+    <div style="font-family:'JetBrains Mono',monospace;font-size:.6rem;letter-spacing:.14em;text-transform:uppercase;color:rgba(255,224,194,.4);margin-bottom:.75rem;">The design concept</div>
+    <h2 style="font-family:'Playfair Display',serif;font-size:clamp(1.6rem,3vw,2.4rem);font-weight:700;letter-spacing:-.04em;color:var(--ink);">Three things one line communicates</h2>
+  </div>
+  <div class="explainer-grid">
+    <div class="exp-card">
+      <div class="exp-num">01</div>
+      <div class="exp-title">Time flows left to right</div>
+      <div class="exp-desc">The horizontal axis is the calendar. Every node is a signal event — the moment a disclosure was classified. The distance between nodes shows the silence between disclosures.</div>
+    </div>
+    <div class="exp-card">
+      <div class="exp-num">02</div>
+      <div class="exp-title">Height is momentum</div>
+      <div class="exp-desc">Higher above the ground line means stronger commitment — more specific language, results cited, targets reaffirmed. Sinking toward the line means drifting. Below it means the graveyard.</div>
+    </div>
+    <div class="exp-card">
+      <div class="exp-num">03</div>
+      <div class="exp-title">Crossing is the editorial event</div>
+      <div class="exp-desc">The moment an objective's trajectory pierces the ground line downward is when the alert fires, the social post goes out, and the story is written. That crossing is the whole product, made visible.</div>
+    </div>
+  </div>
+</section>
+
+<script>
+/* ═══════════════════════════════════════════════════════════
+   STAGE ICON SVGs for nodes (inline, compact versions)
+═══════════════════════════════════════════════════════════ */
+const stageIcons = {
+  orbit: `<svg width="30" height="30" viewBox="0 0 56 56" fill="none"><ellipse cx="28" cy="24" rx="5" ry="11" fill="#6EE7B7" opacity=".9"/><path d="M28 11 L23 20 Q28 16 33 20 Z" fill="#A7F3D0"/><path d="M23 30 L18 36 L23 34 Z" fill="#6EE7B7" opacity=".6"/><path d="M33 30 L38 36 L33 34 Z" fill="#6EE7B7" opacity=".6"/><ellipse cx="28" cy="38" rx="4" ry="6" fill="#FFD080" opacity=".8"><animate attributeName="ry" values="6;8;5;6" dur=".8s" repeatCount="indefinite"/></ellipse></svg>`,
+  fly: `<svg width="30" height="30" viewBox="0 0 56 56" fill="none"><path d="M28 30 Q18 22 8 24 Q14 26 16 30 Q20 26 28 30Z" fill="#86EFAC" opacity=".9"/><path d="M28 30 Q38 22 48 24 Q42 26 40 30 Q36 26 28 30Z" fill="#86EFAC" opacity=".9"/><ellipse cx="28" cy="31" rx="4" ry="2.5" fill="#6EE7B7"/><circle cx="33" cy="29" r="3" fill="#6EE7B7"/><circle cx="34.5" cy="28.2" r=".8" fill="#111111"/></svg>`,
+  run: `<svg width="30" height="30" viewBox="0 0 56 56" fill="none"><circle cx="32" cy="14" r="5" fill="#BBF7D0"/><path d="M30 19 L26 32" stroke="#BBF7D0" stroke-width="3" stroke-linecap="round"/><path d="M29 22 L20 18" stroke="#BBF7D0" stroke-width="2.5" stroke-linecap="round"/><path d="M28 24 L37 28" stroke="#BBF7D0" stroke-width="2.5" stroke-linecap="round"/><path d="M26 32 L20 42 L24 42" stroke="#BBF7D0" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M26 32 L32 40 L36 38" stroke="#BBF7D0" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>`,
+  walk: `<svg width="30" height="30" viewBox="0 0 56 56" fill="none"><circle cx="28" cy="13" r="5" fill="#FDE68A"/><path d="M26 18 L24 31" stroke="#FDE68A" stroke-width="3" stroke-linecap="round"/><path d="M25 22 L17 26" stroke="#FDE68A" stroke-width="2.5" stroke-linecap="round"/><path d="M25 22 L33 24" stroke="#FDE68A" stroke-width="2.5" stroke-linecap="round"/><path d="M24 31 L20 43" stroke="#FDE68A" stroke-width="2.5" stroke-linecap="round"/><path d="M24 31 L30 42" stroke="#FDE68A" stroke-width="2.5" stroke-linecap="round"/></svg>`,
+  watch: `<svg width="30" height="30" viewBox="0 0 56 56" fill="none"><circle cx="28" cy="13" r="5" fill="#FCD34D"/><path d="M26 18 L26 34" stroke="#FCD34D" stroke-width="3" stroke-linecap="round"/><path d="M26 22 L18 20" stroke="#FCD34D" stroke-width="2.5" stroke-linecap="round"/><path d="M26 22 L34 26" stroke="#FCD34D" stroke-width="2.5" stroke-linecap="round"/><path d="M26 34 L22 44" stroke="#FCD34D" stroke-width="2.5" stroke-linecap="round"/><path d="M26 34 L30 44" stroke="#FCD34D" stroke-width="2.5" stroke-linecap="round"/></svg>`,
+  crawl: `<svg width="30" height="30" viewBox="0 0 56 56" fill="none"><circle cx="38" cy="24" r="5" fill="#FCA5A5"/><path d="M36 28 L22 32" stroke="#FCA5A5" stroke-width="3" stroke-linecap="round"/><path d="M36 28 L42 34" stroke="#FCA5A5" stroke-width="2.5" stroke-linecap="round"/><path d="M22 32 L16 36 L14 40" stroke="#FCA5A5" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>`,
+  drag: `<svg width="30" height="30" viewBox="0 0 56 56" fill="none"><circle cx="36" cy="20" r="5" fill="#F87171"/><path d="M34 25 L20 30" stroke="#F87171" stroke-width="2.5" stroke-linecap="round"/><path d="M20 30 L10 34" stroke="#F87171" stroke-width="2.5" stroke-linecap="round"/><path d="M20 31 L12 38" stroke="#F87171" stroke-width="2.5" stroke-linecap="round"/></svg>`,
+  sink: `<svg width="30" height="30" viewBox="0 0 56 56" fill="none"><rect x="8" y="35" width="40" height="14" rx="2" fill="#1a1510" opacity=".6"/><circle cx="28" cy="20" r="5" fill="#EF4444"/><path d="M26 25 L24 35" stroke="#EF4444" stroke-width="3" stroke-linecap="round"/><path d="M25 27 L16 22" stroke="#EF4444" stroke-width="2.5" stroke-linecap="round"/><path d="M26 27 L36 22" stroke="#EF4444" stroke-width="2.5" stroke-linecap="round"/></svg>`,
+  buried: `<svg width="30" height="30" viewBox="0 0 56 56" fill="none"><rect x="8" y="26" width="40" height="22" rx="2" fill="#1a1510" opacity=".7"/><path d="M28 26 L28 14" stroke="#991B1B" stroke-width="3" stroke-linecap="round"/><path d="M28 14 L24 10" stroke="#991B1B" stroke-width="2" stroke-linecap="round"/><path d="M28 14 L26 9" stroke="#991B1B" stroke-width="2" stroke-linecap="round"/><path d="M28 14 L28 8" stroke="#991B1B" stroke-width="2" stroke-linecap="round"/><path d="M28 14 L30 9" stroke="#991B1B" stroke-width="2" stroke-linecap="round"/><path d="M28 14 L32 10" stroke="#991B1B" stroke-width="2" stroke-linecap="round"/></svg>`,
+};
+
+const stageColors = {
+  orbit:'#6EE7B7', fly:'#86EFAC', run:'#BBF7D0', walk:'#FDE68A',
+  watch:'#FCD34D', crawl:'#FCA5A5', drag:'#F87171', sink:'#EF4444', buried:'#991B1B'
+};
+
+/* ═══════════════════════════════════════════════════════════
+   TIMELINE DATA — Sandoz objectives
+═══════════════════════════════════════════════════════════ */
+const GROUND = 340;    // px from top — the ground line
+const STAGE_H = 52;    // vertical pixels per stage unit
+const T_START = 100;   // left margin in px
+const T_END   = 1360;  // right end in px
+const DATE_START = new Date('2023-10-01');
+const DATE_END   = new Date('2026-06-01');
+const T_RANGE = T_END - T_START;
+const D_RANGE = DATE_END - DATE_START;
+
+function dateToX(dateStr) {
+  const d = new Date(dateStr);
+  return T_START + ((d - DATE_START) / D_RANGE) * T_RANGE;
+}
+function stageToY(stage) {
+  // positive stage = above ground (lower Y number)
+  // negative stage = below ground (higher Y number)
+  return GROUND - (stage * STAGE_H);
+}
+
+const objectives = [
+  {
+    id: 'bio',
+    label: 'Biosimilar Leadership',
+    color: stageColors.fly,
+    nodes: [
+      { date:'2023-10-15', stage: 2, stageName:'run',  objName:'Biosimilar Leadership', signal:'Stated at IPO: "world leading biosimilar company"', source:'Spin-off Prospectus' },
+      { date:'2024-03-10', stage: 3, stageName:'fly',  objName:'Biosimilar Leadership', signal:'Capital Markets Day reaffirmation — pipeline specifics added', source:'CMD 2024' },
+      { date:'2025-02-14', stage: 3, stageName:'fly',  objName:'Biosimilar Leadership', signal:'FY2024 results: objective leads investor narrative', source:'FY2024 Results' },
+      { date:'2026-03-15', stage: 3, stageName:'fly',  objName:'Biosimilar Leadership', signal:'FY2025: third consecutive year leading with biosimilar thesis', source:'FY2025 Annual Report' },
+    ]
+  },
+  {
+    id: 'us',
+    label: 'US Penetration',
+    color: stageColors.run,
+    nodes: [
+      { date:'2023-11-01', stage: 2, stageName:'run', objName:'US Market Penetration', signal:'US launch strategy disclosed — Hyrimoz as flagship', source:'US Strategy Briefing' },
+      { date:'2024-04-01', stage: 3, stageName:'fly', objName:'US Market Penetration', signal:'FDA interchangeability granted — structural US market enabler', source:'FDA Announcement' },
+      { date:'2025-08-01', stage: 3, stageName:'fly', objName:'US Market Penetration', signal:'US biosimilar revenues confirmed fastest-growing segment', source:'H1 2025 Results' },
+      { date:'2026-03-15', stage: 3, stageName:'fly', objName:'US Market Penetration', signal:'Portfolio expanding beyond adalimumab — strategy intact', source:'FY2025 Annual Report' },
+    ]
+  },
+  {
+    id: 'em',
+    label: 'EM Volume Growth',
+    color: stageColors.walk,
+    nodes: [
+      { date:'2023-10-15', stage: 2, stageName:'run',   objName:'EM Volume Growth', signal:'Volume leadership in EM named as strategic pillar', source:'Spin-off Prospectus' },
+      { date:'2024-03-10', stage: 1, stageName:'walk',  objName:'EM Volume Growth', signal:'Reaffirmed with caveat — China separated into its own workstream', source:'CMD 2024' },
+      { date:'2024-09-01', stage: 0, stageName:'watch', objName:'EM Volume Growth', signal:'Language shift: "profitability-led growth" replaces volume targets', source:'H1 2024 Results' },
+      { date:'2026-03-15', stage:-1, stageName:'crawl', objName:'EM Volume Growth', signal:'Volume targets absent. "Selective profitable growth" now the frame.', source:'FY2025 Annual Report' },
+    ]
+  },
+  {
+    id: 'mfg',
+    label: 'Mfg Simplification',
+    color: stageColors.crawl,
+    nodes: [
+      { date:'2023-10-15', stage: 2, stageName:'run',   objName:'Manufacturing Simplification', signal:'Site reduction targets stated — 26 to 18–20 sites', source:'Spin-off Prospectus' },
+      { date:'2024-03-10', stage: 1, stageName:'walk',  objName:'Manufacturing Simplification', signal:'Targets reaffirmed broadly, no numeric update', source:'CMD 2024' },
+      { date:'2024-12-01', stage:-1, stageName:'crawl', objName:'Manufacturing Simplification', signal:'Headcount language removed. Site count not disclosed.', source:'H2 2024 Results' },
+      { date:'2026-03-15', stage:-2, stageName:'drag',  objName:'Manufacturing Simplification', signal:'"Efficiency-led network" framing. Original targets unmentioned.', source:'FY2025 Annual Report' },
+    ]
+  },
+  {
+    id: 'china',
+    label: 'China Platform',
+    color: stageColors.buried,
+    nodes: [
+      { date:'2023-10-15', stage: 2, stageName:'run',    objName:'China Growth Platform', signal:'China as strategic cornerstone — named in prospectus', source:'Spin-off Prospectus' },
+      { date:'2023-11-20', stage: 2, stageName:'run',    objName:'China Growth Platform', signal:'CEO cites China biosimilar regulatory tailwinds', source:'Post-listing Roadshow' },
+      { date:'2024-03-10', stage: 0, stageName:'watch',  objName:'China Growth Platform', signal:'Absent from top-5 markets at CMD. Described as "long-term optionality".', source:'CMD 2024' },
+      { date:'2024-09-01', stage:-3, stageName:'sink',   objName:'China Growth Platform', signal:'Not mentioned in H1 results. Third consecutive absence.', source:'H1 2024 Results' },
+      { date:'2025-06-01', stage:-4, stageName:'buried', objName:'China Growth Platform', signal:'Confirmed absent from all 2024–2025 investor materials. No exit statement.', source:'FY2024 Annual Report' },
+    ]
+  },
+];
+
+/* ═══════════════════════════════════════════════════════════
+   RENDER TIMELINE
+═══════════════════════════════════════════════════════════ */
+function renderTimeline() {
+  const canvas   = document.getElementById('timelineCanvas');
+  const nodesDiv = document.getElementById('nodesLayer');
+  const svg      = document.getElementById('connectorSvg');
+  svg.setAttribute('viewBox', `0 0 1400 680`);
+  svg.setAttribute('width', '1400');
+  svg.setAttribute('height', '680');
+
+  // Render time axis labels
+  const months = ['Oct 23','Jan 24','Apr 24','Jul 24','Oct 24','Jan 25','Apr 25','Jul 25','Oct 25','Jan 26','Apr 26'];
+  const monthDates = ['2023-10-01','2024-01-01','2024-04-01','2024-07-01','2024-10-01','2025-01-01','2025-04-01','2025-07-01','2025-10-01','2026-01-01','2026-04-01'];
+  const axisEl = canvas.querySelector('.time-axis');
+  if (!axisEl) {
+    const ax = document.createElement('div');
+    ax.className = 'time-axis';
+    ax.style.cssText = `position:absolute;bottom:36px;left:${T_START}px;right:${1400-T_END}px;height:1px;background:rgba(255,255,255,.06);`;
+    canvas.appendChild(ax);
+    months.forEach((m, i) => {
+      const x = dateToX(monthDates[i]) - T_START;
+      const tick = document.createElement('div');
+      tick.className = 'time-tick';
+      tick.style.left = x + 'px';
+      ax.appendChild(tick);
+      const lbl = document.createElement('div');
+      lbl.className = 'time-label';
+      lbl.textContent = m;
+      lbl.style.left = x + 'px';
+      ax.appendChild(lbl);
+    });
+  }
+
+  // Render each objective
+  objectives.forEach((obj, oi) => {
+    const pts = obj.nodes.map(n => ({ x: dateToX(n.date), y: stageToY(n.stage), ...n }));
+
+    // Draw SVG connector path
+    if (pts.length > 1) {
+      let d = `M ${pts[0].x} ${pts[0].y}`;
+      for (let i = 1; i < pts.length; i++) {
+        const cp1x = pts[i-1].x + (pts[i].x - pts[i-1].x) * 0.45;
+        const cp1y = pts[i-1].y;
+        const cp2x = pts[i-1].x + (pts[i].x - pts[i-1].x) * 0.55;
+        const cp2y = pts[i].y;
+        d += ` C ${cp1x} ${cp1y}, ${cp2x} ${cp2y}, ${pts[i].x} ${pts[i].y}`;
+      }
+      const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+      path.setAttribute('d', d);
+      path.setAttribute('stroke', obj.color);
+      path.setAttribute('stroke-width', '1.5');
+      path.setAttribute('stroke-opacity', '0.35');
+      path.setAttribute('fill', 'none');
+      path.setAttribute('stroke-dasharray', '4 3');
+      svg.appendChild(path);
+
+      // Detect ground crossing — add marker
+      for (let i = 1; i < pts.length; i++) {
+        if ((pts[i-1].y < GROUND && pts[i].y > GROUND) ||
+            (pts[i-1].y > GROUND && pts[i].y < GROUND && pts[i-1].stage > 0)) {
+          // Interpolate crossing X
+          const t = (GROUND - pts[i-1].y) / (pts[i].y - pts[i-1].y);
+          const cx = pts[i-1].x + t * (pts[i].x - pts[i-1].x);
+          const marker = document.createElement('div');
+          marker.className = 'cross-marker';
+          marker.style.left = cx + 'px';
+          marker.style.top  = GROUND + 'px';
+          marker.innerHTML = `
+            <div class="cross-marker-ring"></div>
+            <div class="cross-label">↓ crossed</div>
+          `;
+          nodesDiv.appendChild(marker);
+        }
+      }
+    }
+
+    // Render nodes
+    pts.forEach((pt, ni) => {
+      const isBelow = pt.stage < 0;
+      const node = document.createElement('div');
+      node.className = 'obj-node';
+      node.style.left = pt.x + 'px';
+      node.style.top  = pt.y + 'px';
+
+      // Glow size proportional to distance above ground
+      const glowSize = Math.max(30, Math.abs(pt.stage) * 20 + 20);
+
+      node.innerHTML = `
+        <div class="node-glow" style="
+          width:${glowSize*2}px;height:${glowSize*2}px;
+          background:radial-gradient(circle,${obj.color}33 0%,transparent 70%);
+          top:${-(glowSize)}px;left:${-(glowSize)}px;
+        "></div>
+        <div class="node-icon-wrap" style="--node-color:${obj.color}">
+          ${stageIcons[pt.stageName] || ''}
+        </div>
+        <div class="node-label">
+          <span class="node-label-name">${obj.label}</span>
+          <span class="node-label-stage" style="color:${obj.color}">${pt.stageName}</span>
+        </div>
+        <div class="node-tooltip ${isBelow ? 'below-ground' : ''}">
+          <div class="tt-stage" style="color:${obj.color}">${pt.stageName.toUpperCase()} · Stage ${pt.stage >= 0 ? '+' : ''}${pt.stage}</div>
+          <div class="tt-obj">${pt.objName}</div>
+          <div class="tt-signal">${pt.signal}</div>
+          <div class="tt-date">${pt.source} · ${new Date(pt.date).toLocaleDateString('en-GB',{month:'short',year:'numeric'})}</div>
+        </div>
+      `;
+      nodesDiv.appendChild(node);
+    });
+  });
+}
+
+renderTimeline();
+</script>
+
+</body>
+</html>
