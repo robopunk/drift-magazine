@@ -3,7 +3,7 @@
 import { useRef, useState, useEffect, useMemo, useCallback } from "react";
 import Panzoom, { type PanzoomObject } from "@panzoom/panzoom";
 import type { Objective, Signal } from "@/lib/types";
-import { STAGES, getStage, scoreToStage, formatQuarter } from "@/lib/momentum";
+import { STAGES, getStage, scoreToStage, formatQuarter, classificationToScore } from "@/lib/momentum";
 import { TimelineLegend } from "./TimelineLegend";
 import { TimelineNode } from "./TimelineNode";
 import { TimelinePath } from "./TimelinePath";
@@ -119,11 +119,15 @@ export function TimelineCanvas({ objectives, signals, onNavigateToEvidence }: Ti
   const objectiveNodes = useMemo(() => {
     return objectives.map((obj) => {
       const objSignals = signalsByObjective.get(obj.id) || [];
-      const points = objSignals.map((s) => ({
-        x: dateToX(s.signal_date),
-        y: scoreToY(obj.momentum_score),
-        signal: s,
-      }));
+      const points = objSignals.map((s) => {
+        const signalScore = classificationToScore(s.classification);
+        return {
+          x: dateToX(s.signal_date),
+          y: scoreToY(signalScore),
+          signal: s,
+          score: signalScore,
+        };
+      });
       return { objective: obj, points };
     });
   }, [objectives, signalsByObjective, dateToX, scoreToY]);
@@ -201,9 +205,10 @@ export function TimelineCanvas({ objectives, signals, onNavigateToEvidence }: Ti
               ))}
             </svg>
             {objectiveNodes.map(({ objective, points }) => {
-              const stage = scoreToStage(objective.momentum_score);
-              const stageInfo = getStage(stage);
-              return points.map((pt, i) => (
+              return points.map((pt, i) => {
+                const stage = scoreToStage(pt.score);
+                const stageInfo = getStage(stage);
+                return (
                 <TimelineNode
                   key={`${objective.id}-${i}`}
                   emoji={stageInfo.emoji}
@@ -214,7 +219,8 @@ export function TimelineCanvas({ objectives, signals, onNavigateToEvidence }: Ti
                   onLeave={() => { if (!lockedIds.has(objective.id)) setHoveredId(null); setTooltip(null); }}
                   onClick={() => { if (pt.signal) onNavigateToEvidence(); }}
                 />
-              ));
+                );
+              });
             })}
             {crossings.map(({ objective, x, y }) => (
               <CrossingMarker key={`cross-${objective.id}`} x={x} y={y} label={`Crossing ${formatQuarter(objective.last_confirmed_date!)}`} editorialNote={`${objective.title} crossed the ground line.`} />

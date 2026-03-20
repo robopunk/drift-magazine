@@ -85,6 +85,21 @@ export function scoreToStage(score: number): MomentumStage {
   return (stageByScore.get(rounded) ?? FALLBACK_STAGE).name;
 }
 
+/** Map a signal classification to an approximate momentum score for timeline Y positioning */
+export function classificationToScore(classification: string): number {
+  switch (classification) {
+    case "achieved": return 4;
+    case "reinforced": return 3;
+    case "stated": return 1;
+    case "softened": return -1;
+    case "reframed": return -2;
+    case "absent": return -3;
+    case "retired_transparent": return -3;
+    case "retired_silent": return -4;
+    default: return 0;
+  }
+}
+
 export function formatQuarter(dateStr: string): string {
   const d = new Date(dateStr);
   const q = Math.ceil((d.getMonth() + 1) / 3);
