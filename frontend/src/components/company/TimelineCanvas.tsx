@@ -13,7 +13,7 @@ import { CrossingMarker } from "./CrossingMarker";
 interface TimelineCanvasProps {
   objectives: Objective[];
   signals: Signal[];
-  onNavigateToEvidence: (signalId: string) => void;
+  onNavigateToEvidence: () => void;
 }
 
 const OBJECTIVE_COLOURS = [
@@ -74,12 +74,14 @@ export function TimelineCanvas({ objectives, signals, onNavigateToEvidence }: Ti
   }, []);
 
   useEffect(() => {
-    if (!canvasRef.current) return;
-    const instance = Panzoom(canvasRef.current, { maxScale: 5, minScale: 0.5, contain: "outside" });
-    canvasRef.current.parentElement?.addEventListener("wheel", instance.zoomWithWheel);
+    const el = canvasRef.current;
+    if (!el) return;
+    const parent = el.parentElement;
+    const instance = Panzoom(el, { maxScale: 5, minScale: 0.5, contain: "outside" });
+    parent?.addEventListener("wheel", instance.zoomWithWheel);
     panzoomRef.current = instance;
     return () => {
-      canvasRef.current?.parentElement?.removeEventListener("wheel", instance.zoomWithWheel);
+      parent?.removeEventListener("wheel", instance.zoomWithWheel);
       instance.destroy();
     };
   }, []);
@@ -210,7 +212,7 @@ export function TimelineCanvas({ objectives, signals, onNavigateToEvidence }: Ti
                   label={objective.title}
                   onHover={() => { setHoveredId(objective.id); setTooltip({ objectiveId: objective.id, x: pt.x, y: pt.y }); }}
                   onLeave={() => { if (!lockedIds.has(objective.id)) setHoveredId(null); setTooltip(null); }}
-                  onClick={() => { if (pt.signal) onNavigateToEvidence(pt.signal.id); }}
+                  onClick={() => { if (pt.signal) onNavigateToEvidence(); }}
                 />
               ));
             })}

@@ -1,6 +1,7 @@
 "use client";
 import { useState } from "react";
 import type { Signal, Objective, SignalClassification } from "@/lib/types";
+import { CLASSIFICATION_COLOURS } from "@/lib/classifications";
 
 interface EvidenceTableProps { signals: Signal[]; objectives: Objective[]; }
 
@@ -14,12 +15,6 @@ const FILTER_OPTIONS: { label: string; value: SignalClassification | "all" }[] =
   { label: "Achieved", value: "achieved" },
   { label: "Retired", value: "retired_transparent" },
 ];
-
-const CLASSIFICATION_COLOURS: Record<string, string> = {
-  reinforced: "#22c55e", stated: "#22c55e", softened: "#d97706",
-  reframed: "#3b82f6", absent: "#dc2626", achieved: "#059669",
-  retired_transparent: "#6b7280", retired_silent: "#dc2626",
-};
 
 const PAGE_SIZE = 20;
 

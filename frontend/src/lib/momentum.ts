@@ -61,26 +61,28 @@ export const STAGES: StageDefinition[] = [
 const stageByName = new Map(STAGES.map((s) => [s.name, s]));
 const stageByScore = new Map(STAGES.map((s) => [s.score, s]));
 
+const FALLBACK_STAGE = STAGES.find((s) => s.score === 0)!;
+
 export function getStage(name: MomentumStage): StageDefinition {
-  return stageByName.get(name)!;
+  return stageByName.get(name) ?? FALLBACK_STAGE;
 }
 
 export function getStageColour(name: MomentumStage): string {
-  return stageByName.get(name)!.colour;
+  return (stageByName.get(name) ?? FALLBACK_STAGE).colour;
 }
 
 export function getStageEmoji(name: MomentumStage): string {
-  return stageByName.get(name)!.emoji;
+  return (stageByName.get(name) ?? FALLBACK_STAGE).emoji;
 }
 
 export function getStageCaption(name: MomentumStage): string {
-  return stageByName.get(name)!.caption;
+  return (stageByName.get(name) ?? FALLBACK_STAGE).caption;
 }
 
 export function scoreToStage(score: number): MomentumStage {
   const clamped = Math.max(-4, Math.min(4, score));
   const rounded = Math.round(clamped);
-  return stageByScore.get(rounded)!.name;
+  return (stageByScore.get(rounded) ?? FALLBACK_STAGE).name;
 }
 
 export function formatQuarter(dateStr: string): string {

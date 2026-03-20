@@ -7,7 +7,7 @@ interface CompanyHeaderProps {
 
 export function CompanyHeader({ company, editorialAssessment }: CompanyHeaderProps) {
   return (
-    <div className="sticky top-14 z-30 bg-background border-b border-border">
+    <div className="bg-background border-b border-border">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
         <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
           <div>
