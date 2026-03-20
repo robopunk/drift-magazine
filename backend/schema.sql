@@ -69,6 +69,7 @@ create table companies (
   -- Identity
   name                  text not null,
   ticker                text,
+  exchange              varchar(10),
   isin                  text,
   sector                sector_type not null,
   hq_country            text,
@@ -376,14 +377,14 @@ create policy "Service role full access to agent_runs"
 -- Pre-populate with the company we've already built UI for
 
 insert into companies (
-  name, ticker, sector, hq_country, stock_exchange,
+  name, ticker, exchange, sector, hq_country, stock_exchange,
   initiative_name, initiative_subtitle,
   initiative_start_date, initiative_horizon,
   initiative_desc, logo_initials, accent_color,
   ir_page_url, search_keywords, intake_context,
   overall_commitment_score
 ) values (
-  'Sandoz AG', 'SDZ', 'pharma', 'Switzerland', 'SIX',
+  'Sandoz AG', 'SDZ', 'SIX', 'pharma', 'Switzerland', 'SIX',
   'The Golden Decade', 'of Biosimilars & Generics',
   '2024-01-01', '2024–2033',
   'Spun off from Novartis in October 2023. Self-declared strategic window 2024–2033 to capitalise on expiring originator patents and become the global leader in off-patent medicines.',
@@ -396,3 +397,9 @@ insert into companies (
 
 -- Seed objectives for Sandoz
 -- (In production these would be created via the admin UI or agent intake)
+
+
+-- ── V2 MIGRATIONS ────────────────────────────────────────────
+-- Run these against existing installations to bring them up to v2 schema
+
+alter table companies add column if not exists exchange varchar(10);
