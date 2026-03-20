@@ -3,7 +3,7 @@
 import { useRef, useState, useEffect, useMemo, useCallback } from "react";
 import Panzoom, { type PanzoomObject } from "@panzoom/panzoom";
 import type { Objective, Signal } from "@/lib/types";
-import { STAGES, getStage, scoreToStage, formatQuarter, classificationToScore } from "@/lib/momentum";
+import { STAGES, getStage, scoreToStage, formatQuarter, computeRunningMomentum } from "@/lib/momentum";
 import { TimelineLegend } from "./TimelineLegend";
 import { TimelineNode } from "./TimelineNode";
 import { TimelinePath } from "./TimelinePath";
@@ -119,15 +119,13 @@ export function TimelineCanvas({ objectives, signals, onNavigateToEvidence }: Ti
   const objectiveNodes = useMemo(() => {
     return objectives.map((obj) => {
       const objSignals = signalsByObjective.get(obj.id) || [];
-      const points = objSignals.map((s) => {
-        const signalScore = classificationToScore(s.classification);
-        return {
-          x: dateToX(s.signal_date),
-          y: scoreToY(signalScore),
-          signal: s,
-          score: signalScore,
-        };
-      });
+      const runningScores = computeRunningMomentum(objSignals.map((s) => s.classification));
+      const points = objSignals.map((s, i) => ({
+        x: dateToX(s.signal_date),
+        y: scoreToY(runningScores[i]),
+        signal: s,
+        score: runningScores[i],
+      }));
       return { objective: obj, points };
     });
   }, [objectives, signalsByObjective, dateToX, scoreToY]);

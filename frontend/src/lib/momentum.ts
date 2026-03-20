@@ -85,19 +85,28 @@ export function scoreToStage(score: number): MomentumStage {
   return (stageByScore.get(rounded) ?? FALLBACK_STAGE).name;
 }
 
-/** Map a signal classification to an approximate momentum score for timeline Y positioning */
-export function classificationToScore(classification: string): number {
+/** Map a signal classification to a momentum delta for running score calculation */
+export function classificationToDelta(classification: string): number {
   switch (classification) {
-    case "achieved": return 4;
-    case "reinforced": return 3;
+    case "achieved": return 1.5;
+    case "reinforced": return 0.5;
     case "stated": return 1;
     case "softened": return -1;
-    case "reframed": return -2;
-    case "absent": return -3;
-    case "retired_transparent": return -3;
-    case "retired_silent": return -4;
+    case "reframed": return -1.5;
+    case "absent": return -2;
+    case "retired_transparent": return -2;
+    case "retired_silent": return -3;
     default: return 0;
   }
+}
+
+/** Compute running momentum scores for a chronologically sorted list of signals */
+export function computeRunningMomentum(classifications: string[]): number[] {
+  let score = 0;
+  return classifications.map((c) => {
+    score = Math.max(-4, Math.min(4, score + classificationToDelta(c)));
+    return score;
+  });
 }
 
 export function formatQuarter(dateStr: string): string {
