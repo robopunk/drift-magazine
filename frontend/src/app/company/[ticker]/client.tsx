@@ -7,6 +7,9 @@ import { TabBar, type TabId } from "@/components/company/TabBar";
 import { AdSlot } from "@/components/landing/AdSlot";
 import { TimelineCanvas } from "@/components/company/TimelineCanvas";
 import { MobileObjectiveList } from "@/components/mobile/MobileObjectiveList";
+import { ObjectiveCard } from "@/components/company/ObjectiveCard";
+import { BuriedCard } from "@/components/company/BuriedCard";
+import { EvidenceTable } from "@/components/company/EvidenceTable";
 
 interface CompanyPageClientProps {
   company: Company;
@@ -64,20 +67,38 @@ export function CompanyPageClient({
           </>
         )}
         {activeTab === "objectives" && (
-          <div className="text-center py-20 text-muted-foreground font-sans">
-            Objectives tab — implemented in Task 11.
-          </div>
+          activeObjectives.length === 0 ? (
+            <p className="text-center py-20 text-muted-foreground font-sans">No objectives tracked yet for {company.name}.</p>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {activeObjectives.map((obj) => (
+                <ObjectiveCard key={obj.id} objective={obj} signals={signals.filter((s) => s.objective_id === obj.id)} />
+              ))}
+            </div>
+          )
         )}
         {activeTab === "buried" && (
-          <div className="text-center py-20 text-muted-foreground font-sans">
-            Buried tab — implemented in Task 12.
-          </div>
+          buriedObjectives.length === 0 ? (
+            <div className="text-center py-20">
+              <p className="font-serif text-lg text-foreground">No buried objectives.</p>
+              <p className="font-sans text-sm text-muted-foreground mt-1">All commitments remain on record.</p>
+            </div>
+          ) : (
+            <>
+              <div className="mb-6 p-4 bg-muted rounded-lg">
+                <div className="flex items-center gap-2 mb-2">
+                  <span className="text-xl">{"\u26B0\uFE0F"}</span>
+                  <h2 className="font-serif font-bold text-lg text-foreground">The Buried</h2>
+                </div>
+                <p className="font-serif italic text-sm text-muted-foreground">Objectives that companies stated publicly and then quietly dropped, reframed, or allowed to disappear without announcement.</p>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {buriedObjectives.map((obj) => (<BuriedCard key={obj.id} objective={obj} />))}
+              </div>
+            </>
+          )
         )}
-        {activeTab === "evidence" && (
-          <div className="text-center py-20 text-muted-foreground font-sans">
-            Evidence tab — implemented in Task 13.
-          </div>
-        )}
+        {activeTab === "evidence" && (<EvidenceTable signals={signals} objectives={objectives} />)}
       </div>
       <AdSlot slot={3} className="max-w-7xl mx-auto px-4 mb-8" />
     </>
