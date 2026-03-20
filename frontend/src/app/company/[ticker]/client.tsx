@@ -58,7 +58,7 @@ export function CompanyPageClient({
               <TimelineCanvas
                 objectives={objectives}
                 signals={signals}
-                onNavigateToEvidence={(signalId) => handleTabChange("evidence")}
+                onNavigateToEvidence={() => handleTabChange("evidence")}
               />
             </div>
             <div className="block md:hidden">

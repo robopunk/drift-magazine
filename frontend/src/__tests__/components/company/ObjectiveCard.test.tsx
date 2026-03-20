@@ -1,8 +1,7 @@
-import { describe, it, expect, vi } from "vitest";
+import { describe, it, expect } from "vitest";
 import { render, screen } from "@testing-library/react";
-import userEvent from "@testing-library/user-event";
 import { ObjectiveCard } from "@/components/company/ObjectiveCard";
-import type { Objective, Signal } from "@/lib/types";
+import type { Objective } from "@/lib/types";
 
 const mockObjective: Objective = {
   id: "obj-1", company_id: "c-1", display_number: 1,

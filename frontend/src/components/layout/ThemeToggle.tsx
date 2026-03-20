@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { setThemeCookie, type Theme } from "@/lib/theme";
 
 interface ThemeToggleProps {
@@ -8,14 +8,13 @@ interface ThemeToggleProps {
 }
 
 export function ThemeToggle({ initialTheme }: ThemeToggleProps) {
-  const [theme, setTheme] = useState<Theme>(initialTheme ?? "light");
-
-  useEffect(() => {
-    if (!initialTheme) {
-      const isDark = document.documentElement.classList.contains("dark");
-      setTheme(isDark ? "dark" : "light");
+  const [theme, setTheme] = useState<Theme>(() => {
+    if (initialTheme) return initialTheme;
+    if (typeof document !== "undefined") {
+      return document.documentElement.classList.contains("dark") ? "dark" : "light";
     }
-  }, [initialTheme]);
+    return "light";
+  });
 
   function toggle() {
     const next: Theme = theme === "light" ? "dark" : "light";

@@ -2,7 +2,7 @@
 
 import { useRef, useState, useEffect, useMemo, useCallback } from "react";
 import Panzoom, { type PanzoomObject } from "@panzoom/panzoom";
-import type { Objective, Signal, MomentumStage } from "@/lib/types";
+import type { Objective, Signal } from "@/lib/types";
 import { STAGES, getStage, scoreToStage, formatQuarter } from "@/lib/momentum";
 import { TimelineLegend } from "./TimelineLegend";
 import { TimelineNode } from "./TimelineNode";
@@ -56,11 +56,12 @@ export function TimelineCanvas({ objectives, signals, onNavigateToEvidence }: Ti
     return map;
   }, [signals]);
 
+  const [now] = useState(() => Date.now());
   const { minDate, maxDate } = useMemo(() => {
     const dates = signals.map((s) => new Date(s.signal_date).getTime());
-    if (dates.length === 0) return { minDate: Date.now() - 86400000 * 365, maxDate: Date.now() };
-    return { minDate: Math.min(...dates), maxDate: Math.max(...dates, Date.now()) };
-  }, [signals]);
+    if (dates.length === 0) return { minDate: now - 86400000 * 365, maxDate: now };
+    return { minDate: Math.min(...dates), maxDate: Math.max(...dates, now) };
+  }, [signals, now]);
 
   const dateToX = useCallback((date: string): number => {
     const t = new Date(date).getTime();
