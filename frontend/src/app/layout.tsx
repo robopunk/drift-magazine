@@ -5,6 +5,7 @@ import "./globals.css";
 import { THEME_COOKIE_NAME } from "@/lib/theme";
 import { Masthead } from "@/components/layout/Masthead";
 import { Footer } from "@/components/layout/Footer";
+import { PageTransition } from "@/components/layout/PageTransition";
 
 const dmSans = DM_Sans({
   subsets: ["latin"],
@@ -47,7 +48,7 @@ export default async function RootLayout({
     >
       <body className="font-sans antialiased bg-background text-foreground min-h-screen flex flex-col">
         <Masthead initialTheme={isDark ? "dark" : "light"} />
-        <main className="flex-1">{children}</main>
+        <main className="flex-1"><PageTransition>{children}</PageTransition></main>
         <Footer />
       </body>
     </html>
