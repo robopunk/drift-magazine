@@ -5,6 +5,8 @@ import { useSearchParams, useRouter } from "next/navigation";
 import type { Company, Objective, Signal } from "@/lib/types";
 import { TabBar, type TabId } from "@/components/company/TabBar";
 import { AdSlot } from "@/components/landing/AdSlot";
+import { TimelineCanvas } from "@/components/company/TimelineCanvas";
+import { MobileObjectiveList } from "@/components/mobile/MobileObjectiveList";
 
 interface CompanyPageClientProps {
   company: Company;
@@ -48,9 +50,18 @@ export function CompanyPageClient({
       />
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {activeTab === "timeline" && (
-          <div className="text-center py-20 text-muted-foreground font-sans">
-            Timeline canvas — implemented in Task 10.
-          </div>
+          <>
+            <div className="hidden md:block">
+              <TimelineCanvas
+                objectives={objectives}
+                signals={signals}
+                onNavigateToEvidence={(signalId) => handleTabChange("evidence")}
+              />
+            </div>
+            <div className="block md:hidden">
+              <MobileObjectiveList objectives={objectives} />
+            </div>
+          </>
         )}
         {activeTab === "objectives" && (
           <div className="text-center py-20 text-muted-foreground font-sans">
