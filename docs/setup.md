@@ -1,14 +1,10 @@
-# PromiseTrack — Data Layer Setup
+# Drift — Setup Guide
 
-## What you have
+## Prerequisites
 
-| File | Purpose |
-|---|---|
-| `schema.sql` | Full Supabase database schema — run this once |
-| `agent.py` | Research agent — runs monthly, uses Claude + web search |
-| `admin.html` | Browser-based admin UI — add companies, review signals |
-| `promisetrack-landing.html` | Public landing page |
-| `strategic-promise-tracker.html` | Company detail page (Sandoz prototype) |
+- **Node.js 18+** and npm
+- **Python 3.11+** (for the research agent)
+- A **Supabase** project ([supabase.com](https://supabase.com))
 
 ---
 
@@ -18,7 +14,7 @@
 2. Choose a region close to you (Frankfurt for CH)
 3. Set a strong database password — save it
 4. Once the project is ready, go to **SQL Editor**
-5. Paste the entire contents of `schema.sql` and click **Run**
+5. Paste the entire contents of `backend/schema.sql` and click **Run**
 
 ---
 
@@ -27,14 +23,38 @@
 In Supabase: **Settings → API**
 
 - **Project URL** — looks like `https://abcdefgh.supabase.co`
-- **anon / public key** — for the admin UI (read operations)
+- **anon / public key** — for the frontend (read operations)
 - **service_role key** — for the agent (write operations) — **keep this secret**
 
 ---
 
-## Step 3 — Create a `.env` file
+## Step 3 — Frontend setup
 
-In the same folder as `agent.py`:
+```bash
+cd frontend
+npm install
+```
+
+Create a `.env.local` file in the `frontend/` directory:
+
+```
+NEXT_PUBLIC_SUPABASE_URL=https://abcdefgh.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIs...
+```
+
+Start the dev server:
+
+```bash
+npm run dev
+```
+
+The app runs at `http://localhost:3000`. Without Supabase credentials, pages render with empty data (no crash).
+
+---
+
+## Step 4 — Agent setup
+
+Create a `.env` file in the `backend/` directory:
 
 ```
 ANTHROPIC_API_KEY=sk-ant-api03-...
@@ -42,9 +62,7 @@ SUPABASE_URL=https://abcdefgh.supabase.co
 SUPABASE_SERVICE_KEY=eyJhbGciOiJIUzI1NiIs...
 ```
 
----
-
-## Step 4 — Install Python dependencies
+Install Python dependencies:
 
 ```bash
 pip install anthropic supabase python-dotenv schedule
@@ -52,39 +70,14 @@ pip install anthropic supabase python-dotenv schedule
 
 ---
 
-## Step 5 — Open the Admin UI
+## Step 5 — Add your first company
 
-Open `admin.html` in your browser.
-Go to **Settings** and paste in:
-- Your Supabase project URL
-- Your **anon** key (not service key — this is safe to use in the browser)
+### Option A: Admin UI
+Open `http://localhost:3000/admin` in your browser and use the Add Company form.
 
-Click **Test Connection** — it should go green.
-
----
-
-## Step 6 — Add your first company
-
-In the Admin UI → **Add Company**
-
-Fill in:
-- **Company Name**: e.g. Roche Holding
-- **Sector**: Pharma
-- **Initiative Name**: e.g. Personalised Healthcare at Scale
-- **Research Context**: This is the most important field.
-  Tell the agent what to look for. Be specific about objective names,
-  metrics, and any known language you want it to track.
-- **IR URL**: The investor relations page
-
-Click **Save Company** — you'll get a company UUID in the log.
-
----
-
-## Step 7 — Run Intake (first research run)
-
-In your terminal:
-
+### Option B: CLI
 ```bash
+cd backend
 python agent.py --intake <company-uuid>
 ```
 
@@ -93,11 +86,11 @@ The agent will:
 2. Read them and identify all stated strategic objectives
 3. Propose initial signals (draft, pending your review)
 
-Takes 2–5 minutes. Costs ~$1–3 depending on document volume.
+Takes 2-5 minutes. Costs ~$1-3 depending on document volume.
 
 ---
 
-## Step 8 — Review draft signals
+## Step 6 — Review draft signals
 
 Either in the terminal:
 ```bash
@@ -112,7 +105,7 @@ Once approved, signals are live and the company page will reflect them.
 
 ---
 
-## Step 9 — Set up the monthly schedule
+## Step 7 — Set up the bi-weekly schedule
 
 On a Linux/Mac server or a cloud VM, add a cron job:
 
@@ -120,9 +113,9 @@ On a Linux/Mac server or a cloud VM, add a cron job:
 crontab -e
 ```
 
-Add this line (runs at 8am on the 1st of each month):
+Add this line (runs at 8am every other Monday):
 ```
-0 8 1 * * cd /path/to/promisetrack && python agent.py >> logs/agent.log 2>&1
+0 8 */14 * * cd /path/to/drift/backend && python agent.py >> logs/agent.log 2>&1
 ```
 
 Or use a managed scheduler like:
@@ -132,26 +125,26 @@ Or use a managed scheduler like:
 
 ---
 
-## Workflow for adding companies at scale
+## Workflow summary
 
 ```
-You add company in Admin UI
+Add company (Admin UI or CLI)
         ↓
-python agent.py --intake <id>      ← one-time, you run manually
+python agent.py --intake <id>      ← one-time, run manually
         ↓
 Agent proposes objectives + signals
         ↓
-You review and approve in Admin UI  ← 5–10 min per company
+Review and approve in Admin UI     ← 5-10 min per company
         ↓
-Company goes live on the public site
+Company goes live on the site
         ↓
-python agent.py                     ← runs monthly automatically
+python agent.py                    ← runs bi-weekly automatically
         ↓
 Agent proposes new signals
         ↓
-You review (should be 2–5 signals per company per month)
+Review (should be 2-5 signals per company per run)
         ↓
-Approved signals update the public page
+Approved signals update the site
 ```
 
 ---
@@ -160,13 +153,12 @@ Approved signals update the public page
 
 | Action | Time | Cost |
 |---|---|---|
-| Intake (new company) | 2–5 min | $1–3 |
-| Monthly run (existing) | 1–3 min | $0.50–1.50 |
-| 10 companies / month | ~15 min | ~$8–15 |
-| 50 companies / month | ~60 min | ~$40–75 |
+| Intake (new company) | 2-5 min | $1-3 |
+| Bi-weekly run (existing) | 1-3 min | $0.50-1.50 |
+| 10 companies / run | ~15 min | ~$8-15 |
+| 50 companies / run | ~60 min | ~$40-75 |
 
-Costs are for Claude Opus. Using Claude Sonnet reduces cost by ~80%
-at some quality tradeoff — set `MODEL = "claude-sonnet-4-20250514"` in `agent.py`.
+Costs are for Claude Opus. Using Claude Sonnet reduces cost by ~80%.
 
 ---
 
@@ -175,7 +167,3 @@ at some quality tradeoff — set `MODEL = "claude-sonnet-4-20250514"` in `agent.
 The agent never publishes directly. Every signal is a draft until you approve it.
 This is intentional — the agent can misread context, and strategic accountability
 research requires editorial judgment.
-
-Expect to spend 15–30 minutes per month reviewing signals across all companies.
-High-confidence signals (9–10/10) are rarely wrong. Lower-confidence signals (6–7/10)
-often need a second read of the source.

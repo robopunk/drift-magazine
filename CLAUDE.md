@@ -29,37 +29,43 @@ The product's most distinctive feature is the **Graveyard** — a record of obje
 
 ## Current state — what exists
 
-### Frontend (HTML/CSS/JS — no framework yet)
+### Frontend (Next.js 15 + TypeScript + Tailwind CSS)
 
-| File | Status | Description |
-|---|---|---|
-| `frontend/sandoz.html` | ✅ MVP complete | Full company page — Sandoz AG, The Golden Decade. Timeline centrepiece, 6 objective cards, graveyard with 3 entries. THE reference implementation. |
-| `frontend/index.html` | ✅ Complete | Landing page — company browse grid, search, sector filters, sort, how-it-works strip, manifesto, ad placements |
-| `frontend/admin.html` | ✅ Complete | Dark admin UI — dashboard, add company form, review queue, agent run history. Connects to Supabase via anon key. |
-| `frontend/timeline-concept.html` | ✅ Complete | Standalone concept demo — the momentum scale showcase and above/below-ground timeline metaphor |
-| `frontend/_archive-v1.html` | 🗄 Archive | Earlier iteration of the Sandoz page (PromiseTrack branding, pre-Drift). Keep for reference only. |
+| Path | Description |
+|---|---|
+| `frontend/src/app/` | App Router pages: landing, company/[ticker], about, admin, 404 |
+| `frontend/src/components/` | React components: layout (Masthead, Footer, ThemeToggle), landing (Hero, CompanyGrid, SearchBar, SignalFeed), company (TimelineCanvas, ObjectiveCard, BuriedCard, EvidenceTable, TabBar), mobile, ui |
+| `frontend/src/lib/` | Shared utilities: types.ts, momentum.ts, theme.ts, search.ts, supabase.ts |
+| `frontend/src/__tests__/` | 11 test files, 41 tests (Vitest + React Testing Library) |
+
+### v1 Archive
+
+| Path | Description |
+|---|---|
+| `v1-archive/` | Original vanilla HTML/CSS/JS files (sandoz.html, index.html, admin.html, timeline-concept.html, _archive-v1.html). Reference only. |
 
 ### Backend
 
 | File | Status | Description |
 |---|---|---|
-| `backend/schema.sql` | ✅ Complete | Full Supabase/Postgres schema — companies, objectives, signals, agent_runs tables, views, RLS policies, triggers, Sandoz seed data |
-| `backend/agent.py` | ✅ Complete | Python research agent — monthly runs, intake for new companies, uses Claude API with web search, writes draft signals to Supabase for human review |
+| `backend/schema.sql` | ✅ Complete | Full Supabase/Postgres schema — companies (with exchange field), objectives, signals, agent_runs tables, views, RLS policies, triggers, Sandoz seed data |
+| `backend/agent.py` | ✅ Complete | Python research agent — bi-weekly runs, intake for new companies, uses Claude API with web search, writes draft signals to Supabase for human review |
 
 ### Brand
 
 | File | Status | Description |
 |---|---|---|
 | `brand/brand-language.html` | ✅ Complete | Full editorial standards doc — voice rules, classification system, momentum scale, graveyard exits, naming conventions, worked examples |
-| `brand/colour-palette.html` | ✅ Complete | Interactive visual style guide — all tokens, swatches, dark/light contexts, CSS token block |
-| `brand/SKILL.md` | ✅ Complete | Claude skill file — paste into your skills directory so Claude Code always applies Drift brand tokens |
+| `brand/colour-palette.html` | ⚠️ v1 reference | Interactive visual style guide — v1 caffeine dark tokens. See `docs/specs/2026-03-19-drift-v2-design.md` for current v2 palette. |
 
 ### Docs
 
 | File | Description |
 |---|---|
-| `docs/setup.md` | Step-by-step guide from zero to first company live (Supabase setup, agent install, cron) |
+| `docs/setup.md` | Setup guide: Supabase, Next.js frontend, agent install, bi-weekly cron |
 | `docs/revenue-model.html` | Interactive financial projection — adjustable sliders, 4 revenue streams, P&L chart, breakeven analysis |
+| `docs/specs/2026-03-19-drift-v2-design.md` | Complete v2 design specification — canonical reference for palette, typography, components, editorial voice |
+| `CHANGELOG.md` | Version history |
 
 ---
 
@@ -73,88 +79,54 @@ The horizontal timeline is the product's visual centrepiece. A **gold ground lin
 
 ### The Momentum Scale — 9 stages
 ```
-+4  Orbit   — exceeded, redefined upward       #6EE7B7
-+3  Fly     — ahead of schedule, reinforced     #86EFAC
-+2  Run     — on track, strong momentum         #BBF7D0
-+1  Walk    — active, progressing steadily      #FDE68A
- 0  Watch   — standing still, no signal         #FCD34D  ← GROUND LINE
--1  Crawl   — slowing, language softening       #FCA5A5
--2  Drag    — significant drift, reframing      #F87171
--3  Sink    — entering graveyard territory      #EF4444
--4  Buried  — confirmed off record              #991B1B
++4  Orbit   — exceeded, redefined upward       #059669
++3  Fly     — ahead of schedule, reinforced     #16a34a
++2  Run     — on track, strong momentum         #65a30d
++1  Walk    — active, progressing steadily      #ca8a04
+ 0  Watch   — standing still, no signal         #d97706  ← GROUND LINE
+-1  Crawl   — slowing, language softening       #ea580c
+-2  Drag    — significant drift, reframing      #dc2626
+-3  Sink    — entering graveyard territory      #b91c1c
+-4  Buried  — confirmed off record              #78716c
 ```
-Each stage has an animated SVG character icon (rocket, bird, running/walking/standing figure, crawling/dragging figure, figure waist-deep, hand reaching from ground). These icons are implemented inline in `sandoz.html` — reuse them exactly.
+Each stage has an emoji node on the interactive timeline canvas. Stages are defined in `frontend/src/lib/momentum.ts` with Boardroom Allegory captions.
 
 ---
 
 ## Brand & Design System
 
-### Typography (never substitute)
-- **Playfair Display** — display, headlines, brand wordmark "Drift" (always italic for the wordmark)
-- **Source Serif 4** — body copy, editorial prose
-- **JetBrains Mono** — all labels, classifications, dates, scores, metadata
+> **Canonical reference:** `docs/specs/2026-03-19-drift-v2-design.md`
 
-### Colour tokens (Caffeine dark — primary)
-```css
---bg:           #111111;   /* page base — espresso dark */
---bg-deep:      #0d0d0d;   /* masthead, footer, drawers — deepest surface */
---surface:      #191919;   /* cards, panels */
---surface2:     #222222;   /* hover, active cards */
---surface3:     #2a2a2a;   /* tertiary elements */
---ink:          #eeeeee;   /* primary text — light on dark */
---ink-light:    #cccccc;   /* secondary text */
---ink-muted:    #999999;   /* captions */
---ink-faint:    #666666;   /* labels, metadata */
---ink-ghost:    #444444;   /* disabled */
---parchment:    #eeeeee;   /* alias for primary light text */
---gold:         #ffe0c2;   /* crema — ground line + brand mark ONLY */
---gold-light:   #ffe0c2;   /* crema on all contexts */
---gold-pale:    #393028;   /* crema tint backgrounds */
---rule:         #2a2520;   /* section dividers, card borders */
---border:       rgba(255,224,194,.12);
---border2:      rgba(255,224,194,.22);
-/* Status — semantic only, never decorative */
---status-active-bg:  #0f2b1f;   /* On Record — dark green */
---status-active:     #4ade80;   /* On Record text */
---status-drift-bg:   #2a1a05;   /* Under Watch / Drifting — dark amber */
---status-drift:      #f59e0b;   /* Watch text */
---status-dropped-bg: #1e0a0a;   /* Off Record — dark red */
---status-dropped:    #f87171;   /* Dropped text */
---status-morphed-bg: #0a1e2e;   /* Morphed — dark blue */
---status-morphed:    #60a5fa;   /* Morphed text */
-```
-All pages now use the Caffeine dark palette. The admin UI shares the same token set.
-See `brand/colour-palette.html` for the complete token reference and `brand/SKILL.md` for the full specification.
+### Typography (never substitute)
+- **DM Sans** (`font-sans`) — UI labels, navigation, metadata
+- **Lora** (`font-serif`) — headlines, editorial prose, body copy
+- **IBM Plex Mono** (`font-mono`) — data labels, classifications, dates, scores
+
+### Colour palette — Emerald + Slate
+
+**Light mode** (primary): `#f0f8ff` background, `#374151` foreground, `#22c55e` primary
+**Dark mode** (toggle): `#0f172a` background, `#d1d5db` foreground, `#34d399` primary
+
+All CSS variables are defined in `frontend/src/app/globals.css`. Tailwind mappings in `frontend/tailwind.config.ts`.
 
 ### Critical design rules
-1. Crema (`--gold`) belongs to the ground line and brand wordmark only — not a general accent
-2. Status colours carry editorial meaning — never use them decoratively
-3. Momentum spectrum is sequential — never reorder or skip stages
-4. Graveyard exit badge colours are exclusive to graveyard entries
-5. Dark espresso backgrounds (`#111111`), light neutral text (`#eeeeee`) — never warm/parchment backgrounds
-6. Ink text is layered: ink → ink-light → ink-muted → ink-faint → ink-ghost
-7. No font-size below 0.6rem anywhere — minimum 0.875rem for body, 0.65rem for labels
-8. No grain/noise overlays — backgrounds are clean for readability
-9. Masthead + footer use `var(--bg-deep)` bg with `2px solid var(--gold)` border — never `var(--ink)` as background
-10. Cards use `var(--surface)` on `var(--bg)` with solid `var(--rule)` borders
-11. `var(--parchment)` is an alias for `--ink` (#eeeeee) — both are light text on dark
-12. Logo is always `Drift.` — Playfair Display italic, 1.8rem, period in `var(--gold-light)`, linked to `/`
+1. Status colours carry editorial meaning — never use them decoratively
+2. Momentum spectrum is sequential — never reorder or skip stages
+3. Graveyard exit badge colours are exclusive to graveyard entries
+4. Masthead and footer use forced dark surface tokens (`--forced-dark-*`)
+5. Use Tailwind utility classes mapped to CSS variables — never hardcode hex values
+6. Logo is always `Drift.` — Lora italic, period in primary colour, linked to `/`
 
 ### Motion & animation rules
-- All animations use `cubic-bezier(.23,1,.32,1)` — fast-start, gentle-settle (not bouncy)
-- Page-load: stagger above-the-fold elements in reading order (100–150ms increments)
-- Below-the-fold: use IntersectionObserver + `.reveal` / `.visible` class pattern, one-shot (no re-hiding)
-- Card grids: stagger child reveals at 50ms increments via `.reveal-children`
-- Hover: cards lift 2–3px with shadow elevation only — no bounces, no 3D, no colour transitions on backgrounds
-- See `brand/SKILL.md` → "Motion & Animation" for full patterns and code
+- Framer Motion for page transitions (`PageTransition` wrapper) and drawer animations
+- Card hover: subtle shadow elevation, no bounces or 3D transforms
+- Stagger animations on card grids via Framer Motion's staggerChildren
 
 ### Anti-slop rules (avoid generic AI aesthetics)
-- Never use Inter, Roboto, Arial, system-ui — Playfair Display + Source Serif 4 + JetBrains Mono only
-- No purple/violet gradients, no blue-grey backgrounds, no frosted glass navbars
-- No floating shapes, blobs, or decorative SVGs — only editorial SVGs (momentum icons)
-- No gradient hero backgrounds — use solid dark surfaces with typography-led composition
-- Dark shadows: `rgba(0,0,0,...)` — appropriate for dark theme
-- See `brand/SKILL.md` → "Anti-Slop Rules" for the complete checklist
+- Never use Inter, Roboto, Arial, system-ui — DM Sans + Lora + IBM Plex Mono only
+- No purple/violet gradients, no frosted glass navbars
+- No floating shapes, blobs, or decorative SVGs — only editorial emoji nodes
+- No gradient hero backgrounds — use solid surfaces with typography-led composition
 
 ---
 
@@ -162,7 +134,7 @@ See `brand/colour-palette.html` for the complete token reference and `brand/SKIL
 
 ### Core tables
 ```
-companies       id, name, ticker, sector, initiative_name, initiative_subtitle,
+companies       id, name, ticker, exchange, sector, initiative_name, initiative_subtitle,
                 ir_page_url, intake_context, search_keywords,
                 overall_commitment_score, tracking_active, last_research_run
 
@@ -205,7 +177,7 @@ SUPABASE_SERVICE_KEY=eyJ...
 
 ### Key commands
 ```bash
-python agent.py                        # Run all companies due (monthly schedule)
+python agent.py                        # Run all companies due (bi-weekly schedule)
 python agent.py --intake <company-id>  # Full intake for new company (2-5 min, ~$2)
 python agent.py --company-id <id>      # Run one company on demand
 python agent.py --review               # Show all draft signals pending review
@@ -238,48 +210,59 @@ The agent **never publishes directly**. Every signal is a draft until a human ap
 ## Immediate next priorities (suggested)
 
 ### High priority
-- [ ] **Connect frontend to Supabase** — replace hardcoded Sandoz data in `sandoz.html` with live DB queries. The data model is ready; the HTML needs a JS data layer.
-- [ ] **Add 2–3 more companies** — run agent intake on Roche, Volkswagen, or BP (high-interest, high graveyard potential). Test the full pipeline end-to-end.
+- [ ] **Connect to live Supabase** — set env vars, verify data flows through to all pages
+- [ ] **Add 2-3 more companies** — run agent intake on Roche, Volkswagen, or BP. Test the full pipeline end-to-end.
 - [ ] **Domain** — check availability of `drift.io`, `ondrift.com`, `thedrift.co`, `stated.io`
+- [ ] **Deploy** — Vercel deployment with Supabase env vars
 
 ### Medium priority
-- [ ] **Visual polish on momentum icons** — the SVG characters work but need refinement. The concept is right; the execution needs a second pass.
-- [ ] **Paywall layer** — gate evidence drawers and graveyard full records behind Stripe subscription (€29/mo). Free: card summaries only.
-- [ ] **Email alerts** — when an objective crosses the ground line (Watch → Crawl), send a signal digest to subscribers.
-- [ ] **Mobile timeline** — the horizontal timeline needs a vertical fallback for screens < 768px.
+- [ ] **Paywall layer** — gate evidence drawers and graveyard full records behind Stripe subscription
+- [ ] **Email alerts** — when an objective crosses the ground line, send a signal digest to subscribers
+- [ ] **Visual polish** — refine timeline emoji nodes, responsive breakpoints, mobile UX
 
 ### Future
-- [ ] **Company search landing page connected to company pages** — `index.html` → `sandoz.html` link is live; need dynamic routing for all companies
 - [ ] **Cross-company patterns** — sector-level analysis: which sectors have highest silent drop rates
 - [ ] **API / data export** — CSV/JSON export for premium subscribers
+- [ ] **SEO** — dynamic OG images, structured data, sitemap
 
 ---
 
 ## Development conventions
 
-### File naming
-- Company pages: `/{ticker-lowercase}.html` e.g. `/sdz.html`, `/bp.html`
-- All new pages follow the design system in `sandoz.html` — not `_archive-v1.html`
+### Tech stack
+- **Next.js 15+** with App Router, TypeScript, Tailwind CSS
+- **Framer Motion** for animations
+- **@panzoom/panzoom** for interactive timeline canvas
+- **Vitest + React Testing Library** for tests
+- **Supabase** for Postgres backend
+
+### File structure
+```
+frontend/src/
+  app/                    App Router pages
+    company/[ticker]/     Dynamic company pages (server + client components)
+  components/
+    layout/               Masthead, Footer, ThemeToggle, PageTransition
+    landing/              Hero, SearchBar, CompanyCard, CompanyGrid, SignalFeed, AdSlot
+    company/              TimelineCanvas, ObjectiveCard, BuriedCard, EvidenceTable, TabBar
+    mobile/               MobileObjectiveList
+    ui/                   Skeleton, Toast
+  lib/                    types.ts, momentum.ts, theme.ts, search.ts, supabase.ts
+  __tests__/              Test files mirroring component structure
+```
 
 ### When building new UI
-1. Always read `brand/SKILL.md` before writing any CSS
-2. Use the token names from the CSS variables — never hardcode hex values directly
-3. Typography: Playfair Display + Source Serif 4 + JetBrains Mono. Nothing else.
+1. Read the v2 design spec (`docs/specs/2026-03-19-drift-v2-design.md`) for canonical tokens
+2. Use Tailwind utility classes mapped to CSS variables — never hardcode hex values
+3. Typography: DM Sans + Lora + IBM Plex Mono. Nothing else.
 4. Status colours are classifications — check the brand language doc before applying them
-
-### Code style
-- Vanilla HTML/CSS/JS for now — no framework until scale justifies it
-- All JS is inline in the HTML file — one file per page is the current pattern
-- Responsive breakpoints: 1100px (tablet), 768px (mobile), 480px (small mobile)
-- Always include safe-area inset support for notched phones
 
 ### The editorial standard
 Every classification written must follow the voice rules in `brand/brand-language.html`:
 - Fact-based, not judgmental
 - Evidenced, not inferred
 - Precise, not sensational
-- "The objective has been absent from investor communications for three consecutive periods" — YES
-- "The company quietly buried its promise" — NO
+- Economist x Vanity Fair voice: analytical clarity with narrative flair and dry wit
 
 ---
 
@@ -298,6 +281,9 @@ See `docs/revenue-model.html` for the interactive projection.
 
 ## Session context
 
-This project was developed in a Claude.ai conversation starting March 2026. Stefano (Head of Infrastructure & Technology Operations at Sandoz, based in Switzerland) is the founder. The project began as "PromiseTrack" and was renamed "Drift" during brand development. All design decisions, editorial standards, and the data architecture were established in that session — this CLAUDE.md is the handoff document.
+This project was developed in Claude.ai and Claude Code starting March 2026. Stefano (Head of Infrastructure & Technology Operations at Sandoz, based in Switzerland) is the founder. The project began as "PromiseTrack" and was renamed "Drift" during brand development.
 
-The Sandoz data in `sandoz.html` is research-grade content based on public disclosures. It is the editorial benchmark for all future company pages.
+- **v1.0.0** (2026-03-19): Original vanilla HTML/CSS/JS implementation with caffeine dark palette
+- **v2.0.0** (2026-03-20): Complete Next.js redesign with emerald+slate palette, interactive timeline, tabbed company pages
+
+The Sandoz data (seeded in `backend/schema.sql`) is research-grade content based on public disclosures. It is the editorial benchmark for all future company pages.
