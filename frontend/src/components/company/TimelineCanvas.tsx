@@ -25,7 +25,7 @@ interface TooltipState { objectiveId: string; x: number; y: number; }
 
 const PADDING_X = 60;
 const PADDING_Y = 40;
-const CANVAS_HEIGHT = 500;
+const CANVAS_HEIGHT = 720;
 const GROUND_Y = CANVAS_HEIGHT / 2;
 const STAGE_HEIGHT = (CANVAS_HEIGHT - PADDING_Y * 2) / 8;
 
