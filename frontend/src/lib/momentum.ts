@@ -112,6 +112,6 @@ export function computeRunningMomentum(classifications: string[]): number[] {
 export function formatQuarter(dateStr: string): string {
   const d = new Date(dateStr);
   const q = Math.ceil((d.getMonth() + 1) / 3);
-  const year = String(d.getFullYear()).slice(-2);
-  return `Q${q} '${year}`;
+  const year = d.getFullYear();
+  return `Q${q} ${year}`;
 }

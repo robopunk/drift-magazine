@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import type { Objective } from "@/lib/types";
 import { getStage, scoreToStage } from "@/lib/momentum";
 
@@ -22,6 +23,8 @@ export function TimelineLegend({ objectives, selectedIds, onToggleSelection, col
   const alive = objectives.filter((o) => !o.is_in_graveyard);
   const buried = objectives.filter((o) => o.is_in_graveyard);
   const atLimit = selectedIds.size >= 3;
+  const isLastSelected = selectedIds.size <= 1;
+  const [shakingId, setShakingId] = useState<string | null>(null);
 
   function renderItem(obj: Objective) {
     const stage = getStage(scoreToStage(obj.momentum_score));
@@ -34,6 +37,8 @@ export function TimelineLegend({ objectives, selectedIds, onToggleSelection, col
       <button
         key={obj.id}
         className={`w-full text-left px-2.5 py-2 rounded-md text-xs transition-all ${
+          shakingId === obj.id ? "animate-[shake_0.3s_ease-in-out]" : ""
+        } ${
           isSelected
             ? "border border-current"
             : isDisabled
@@ -50,6 +55,11 @@ export function TimelineLegend({ objectives, selectedIds, onToggleSelection, col
         }
         onClick={() => {
           if (isDisabled) return;
+          if (isSelected && isLastSelected) {
+            setShakingId(obj.id);
+            setTimeout(() => setShakingId(null), 300);
+            return;
+          }
           onToggleSelection(obj.id);
         }}
         aria-disabled={isDisabled}

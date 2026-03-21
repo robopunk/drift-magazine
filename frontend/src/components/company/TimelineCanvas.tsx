@@ -36,7 +36,11 @@ function getDefaultSelection(objectives: Objective[], signals: Signal[]): Set<st
     signalCounts.set(s.objective_id, (signalCounts.get(s.objective_id) ?? 0) + 1);
   }
 
-  const sorted = [...objectives].sort((a, b) => {
+  // Prefer active objectives for default selection; fall back to all if fewer than 3 active
+  const active = objectives.filter((o) => !o.is_in_graveyard);
+  const pool = active.length >= 3 ? active : objectives;
+
+  const sorted = [...pool].sort((a, b) => {
     const absDiff = Math.abs(b.momentum_score) - Math.abs(a.momentum_score);
     if (absDiff !== 0) return absDiff;
     return (signalCounts.get(b.id) ?? 0) - (signalCounts.get(a.id) ?? 0);
@@ -247,7 +251,7 @@ export function TimelineCanvas({ objectives, signals, onNavigateToEvidence }: Ti
 
               {/* Ground line */}
               <line x1={PADDING_X} y1={GROUND_Y} x2={canvasWidth - PADDING_X} y2={GROUND_Y} stroke="var(--primary)" strokeWidth={2} />
-              <text x={canvasWidth - PADDING_X + 4} y={GROUND_Y + 4} fontSize={9} fill="var(--primary)" fontFamily="var(--font-ibm-plex-mono)">GROUND LINE</text>
+              <text x={canvasWidth - PADDING_X - 4} y={GROUND_Y + 4} fontSize={9} fill="var(--primary)" fontFamily="var(--font-ibm-plex-mono)" textAnchor="end">GROUND LINE</text>
 
               {/* Today marker */}
               <line x1={todayX} y1={PADDING_Y} x2={todayX} y2={CANVAS_HEIGHT - PADDING_Y} stroke="var(--primary)" strokeWidth={1} strokeDasharray="6 3" opacity={0.5} />

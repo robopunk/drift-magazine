@@ -30,7 +30,7 @@ export function TimelineTooltip({
 }: TimelineTooltipProps) {
   const stageInfo = getStage(stage);
   const ref = useRef<HTMLDivElement>(null);
-  const [position, setPosition] = useState({ left: viewportX + 16, top: viewportY - 20 });
+  const [position, setPosition] = useState<{ left: number; top: number } | null>(null);
 
   useLayoutEffect(() => {
     const el = ref.current;
@@ -63,7 +63,7 @@ export function TimelineTooltip({
       ref={ref}
       data-tooltip
       className="z-[9999] w-72 bg-card border border-border rounded-lg shadow-xl p-3 pointer-events-none"
-      style={{ position: "fixed", left: position.left, top: position.top }}
+      style={{ position: "fixed", left: position?.left ?? -9999, top: position?.top ?? -9999, opacity: position ? 1 : 0 }}
     >
       <div className="flex items-center gap-2 mb-1">
         <span className="text-base">{stageInfo.emoji}</span>
