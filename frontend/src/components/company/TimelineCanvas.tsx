@@ -163,6 +163,20 @@ export function TimelineCanvas({ objectives, signals, onNavigateToEvidence }: Ti
 
   const todayX = dateToX(new Date().toISOString());
 
+  const quarterLabels = useMemo(() => {
+    const labels: { x: number; label: string }[] = [];
+    const start = new Date(minDate);
+    // Align to next quarter start
+    const qMonth = Math.ceil((start.getMonth() + 1) / 3) * 3;
+    const d = new Date(start.getFullYear(), qMonth, 1);
+    while (d.getTime() <= maxDate) {
+      const iso = d.toISOString();
+      labels.push({ x: dateToX(iso), label: formatQuarter(iso) });
+      d.setMonth(d.getMonth() + 3);
+    }
+    return labels;
+  }, [minDate, maxDate, dateToX]);
+
   const tooltipData = useMemo(() => {
     if (!tooltip) return null;
     const obj = objectives.find((o) => o.id === tooltip.objectiveId);
@@ -237,6 +251,13 @@ export function TimelineCanvas({ objectives, signals, onNavigateToEvidence }: Ti
 
               {/* Today marker */}
               <line x1={todayX} y1={PADDING_Y} x2={todayX} y2={CANVAS_HEIGHT - PADDING_Y} stroke="var(--primary)" strokeWidth={1} strokeDasharray="6 3" opacity={0.5} />
+
+              {/* Quarterly date labels */}
+              {quarterLabels.map(({ x, label }) => (
+                <text key={label} x={x} y={CANVAS_HEIGHT - 8} fontSize={10} fill="var(--muted-foreground)" fontFamily="var(--font-ibm-plex-mono)" textAnchor="middle" opacity={0.6}>
+                  {label}
+                </text>
+              ))}
 
               {/* Paths for selected objectives only */}
               {objectiveNodes.map(({ objective, points }) => (
