@@ -6,7 +6,7 @@ interface TimelineNodeProps {
   x: number;
   y: number;
   label: string;
-  onHover: () => void;
+  onHover: (e: React.MouseEvent) => void;
   onLeave: () => void;
   onClick: () => void;
 }
