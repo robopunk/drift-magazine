@@ -25,6 +25,9 @@ interface TooltipState { objectiveId: string; viewportX: number; viewportY: numb
 
 const PADDING_X = 60;
 const PADDING_Y = 30;
+const CANVAS_HEIGHT = 480;
+const GROUND_Y = CANVAS_HEIGHT / 2;
+const STAGE_HEIGHT = (CANVAS_HEIGHT - PADDING_Y * 2) / 8;
 
 /** Select top 3 objectives by absolute momentum score, breaking ties by signal count */
 function getDefaultSelection(objectives: Objective[], signals: Signal[]): Set<string> {
@@ -52,10 +55,6 @@ export function TimelineCanvas({ objectives, signals, onNavigateToEvidence }: Ti
   const [hoveredId, setHoveredId] = useState<string | null>(null);
   const [tooltip, setTooltip] = useState<TooltipState | null>(null);
   const [canvasWidth, setCanvasWidth] = useState(800);
-  const [canvasHeight, setCanvasHeight] = useState(480);
-
-  const groundY = useMemo(() => canvasHeight / 2, [canvasHeight]);
-  const stageHeight = useMemo(() => (canvasHeight - PADDING_Y * 2) / 8, [canvasHeight]);
 
   // Selection state: replaces old lockedIds
   const [selectedIds, setSelectedIds] = useState<Set<string>>(() =>
@@ -95,8 +94,8 @@ export function TimelineCanvas({ objectives, signals, onNavigateToEvidence }: Ti
   }, [minDate, maxDate, canvasWidth]);
 
   const scoreToY = useCallback((score: number): number => {
-    return PADDING_Y + (4 - score) * stageHeight;
-  }, [stageHeight]);
+    return PADDING_Y + (4 - score) * STAGE_HEIGHT;
+  }, []);
 
   useEffect(() => {
     const el = canvasRef.current;
@@ -114,11 +113,7 @@ export function TimelineCanvas({ objectives, signals, onNavigateToEvidence }: Ti
   useEffect(() => {
     const el = canvasRef.current?.parentElement;
     if (!el) return;
-    const observer = new ResizeObserver((entries) => {
-      const rect = entries[0].contentRect;
-      setCanvasWidth(rect.width - 210);
-      setCanvasHeight(rect.height);
-    });
+    const observer = new ResizeObserver((entries) => { setCanvasWidth(entries[0].contentRect.width - 210); });
     observer.observe(el);
     return () => observer.disconnect();
   }, []);
@@ -167,8 +162,8 @@ export function TimelineCanvas({ objectives, signals, onNavigateToEvidence }: Ti
   const crossings = useMemo(() => {
     return visibleObjectives
       .filter((o) => o.momentum_score < 0 && o.last_confirmed_date)
-      .map((o) => ({ objective: o, x: dateToX(o.last_confirmed_date!), y: groundY }));
-  }, [visibleObjectives, dateToX, groundY]);
+      .map((o) => ({ objective: o, x: dateToX(o.last_confirmed_date!), y: GROUND_Y }));
+  }, [visibleObjectives, dateToX]);
 
   const todayX = dateToX(new Date().toISOString());
 
@@ -212,7 +207,7 @@ export function TimelineCanvas({ objectives, signals, onNavigateToEvidence }: Ti
   }
 
   return (
-    <div className="flex border border-border rounded-lg overflow-hidden bg-card h-[calc(100vh-170px)] min-h-[400px]">
+    <div className="flex border border-border rounded-lg overflow-hidden bg-card" style={{ height: CANVAS_HEIGHT + 60 }}>
       <TimelineLegend
         objectives={objectives}
         selectedIds={selectedIds}
@@ -229,11 +224,11 @@ export function TimelineCanvas({ objectives, signals, onNavigateToEvidence }: Ti
           </div>
         </div>
         <div className="relative flex-1 overflow-hidden">
-          <div ref={canvasRef} className="relative" style={{ width: canvasWidth, height: canvasHeight }}>
-            <svg className="absolute inset-0" width={canvasWidth} height={canvasHeight}>
+          <div ref={canvasRef} className="relative" style={{ width: canvasWidth, height: CANVAS_HEIGHT }}>
+            <svg className="absolute inset-0" width={canvasWidth} height={CANVAS_HEIGHT}>
               {/* Background zones */}
-              <rect x={PADDING_X} y={PADDING_Y} width={canvasWidth - PADDING_X * 2} height={groundY - PADDING_Y} fill="var(--timeline-zone-above)" />
-              <rect x={PADDING_X} y={groundY} width={canvasWidth - PADDING_X * 2} height={canvasHeight - PADDING_Y - groundY} fill="var(--timeline-zone-below)" />
+              <rect x={PADDING_X} y={PADDING_Y} width={canvasWidth - PADDING_X * 2} height={GROUND_Y - PADDING_Y} fill="var(--timeline-zone-above)" />
+              <rect x={PADDING_X} y={GROUND_Y} width={canvasWidth - PADDING_X * 2} height={CANVAS_HEIGHT - PADDING_Y - GROUND_Y} fill="var(--timeline-zone-below)" />
 
               {/* Stage lines */}
               {STAGES.map((stage) => {
@@ -255,15 +250,15 @@ export function TimelineCanvas({ objectives, signals, onNavigateToEvidence }: Ti
               })}
 
               {/* Ground line */}
-              <line x1={PADDING_X} y1={groundY} x2={canvasWidth - PADDING_X} y2={groundY} stroke="var(--primary)" strokeWidth={2} />
-              <text x={canvasWidth - PADDING_X - 4} y={groundY + 4} fontSize={9} fill="var(--primary)" fontFamily="var(--font-ibm-plex-mono)" textAnchor="end">GROUND LINE</text>
+              <line x1={PADDING_X} y1={GROUND_Y} x2={canvasWidth - PADDING_X} y2={GROUND_Y} stroke="var(--primary)" strokeWidth={2} />
+              <text x={canvasWidth - PADDING_X - 4} y={GROUND_Y + 4} fontSize={9} fill="var(--primary)" fontFamily="var(--font-ibm-plex-mono)" textAnchor="end">GROUND LINE</text>
 
               {/* Today marker */}
-              <line x1={todayX} y1={PADDING_Y} x2={todayX} y2={canvasHeight - PADDING_Y} stroke="var(--primary)" strokeWidth={1} strokeDasharray="6 3" opacity={0.5} />
+              <line x1={todayX} y1={PADDING_Y} x2={todayX} y2={CANVAS_HEIGHT - PADDING_Y} stroke="var(--primary)" strokeWidth={1} strokeDasharray="6 3" opacity={0.5} />
 
               {/* Quarterly date labels */}
               {quarterLabels.map(({ x, label }) => (
-                <text key={label} x={x} y={canvasHeight - 8} fontSize={10} fill="var(--muted-foreground)" fontFamily="var(--font-ibm-plex-mono)" textAnchor="middle" opacity={0.6}>
+                <text key={label} x={x} y={CANVAS_HEIGHT - 8} fontSize={10} fill="var(--muted-foreground)" fontFamily="var(--font-ibm-plex-mono)" textAnchor="middle" opacity={0.6}>
                   {label}
                 </text>
               ))}

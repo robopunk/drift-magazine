@@ -42,8 +42,8 @@ export function TimelineLegend({ objectives, selectedIds, onToggleSelection, col
           isSelected
             ? "border border-current"
             : isDisabled
-            ? "opacity-65 cursor-not-allowed border border-transparent"
-            : "opacity-65 hover:opacity-85 border border-transparent"
+            ? "opacity-45 cursor-not-allowed border border-transparent"
+            : "opacity-45 hover:opacity-70 border border-transparent"
         }`}
         style={
           isSelected
@@ -79,7 +79,7 @@ export function TimelineLegend({ objectives, selectedIds, onToggleSelection, col
             )}
           </span>
           <div className="min-w-0 flex-1">
-            <p className="font-serif text-[12.5px] leading-tight text-card-foreground">
+            <p className={`font-serif text-[12.5px] leading-tight text-card-foreground ${isBuried ? "line-through" : ""}`}>
               {obj.title}
             </p>
             <p className="font-mono text-[9.5px] uppercase tracking-wider mt-0.5" style={{ color: colour }}>
@@ -95,20 +95,21 @@ export function TimelineLegend({ objectives, selectedIds, onToggleSelection, col
 
   return (
     <div className="w-[210px] shrink-0 border-r border-border flex flex-col">
-      <div className={`${buried.length > 0 ? "flex-1 min-h-0" : "flex-1"} overflow-y-auto py-2 px-1.5`}>
+      <div className="flex-1 overflow-y-auto py-2 px-1.5">
         <h3 className="font-mono text-[9px] uppercase tracking-[1.5px] text-muted-foreground px-2 mb-2">
           Objectives
         </h3>
         {alive.map(renderItem)}
+        {buried.length > 0 && (
+          <>
+            <div className="border-t border-border my-3 mx-2" />
+            <h3 className="font-mono text-[9px] uppercase tracking-[1.5px] text-muted-foreground px-2 mb-2">
+              Buried
+            </h3>
+            {buried.map(renderItem)}
+          </>
+        )}
       </div>
-      {buried.length > 0 && (
-        <div className="flex-1 min-h-0 overflow-y-auto border-t border-border py-2 px-1.5">
-          <h3 className="font-mono text-[9px] uppercase tracking-[1.5px] text-muted-foreground px-2 mb-2">
-            Buried
-          </h3>
-          {buried.map(renderItem)}
-        </div>
-      )}
       <div className="border-t border-border px-2 py-2 text-center">
         <span className="font-mono text-[9px] text-muted-foreground">
           {selectedIds.size} of 3 selected
