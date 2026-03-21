@@ -5,51 +5,106 @@ import { getStage, scoreToStage } from "@/lib/momentum";
 
 interface TimelineLegendProps {
   objectives: Objective[];
-  hoveredId: string | null;
-  lockedIds: Set<string>;
-  onHover: (id: string | null) => void;
-  onToggleLock: (id: string) => void;
+  selectedIds: Set<string>;
+  onToggleSelection: (id: string) => void;
   colours: Map<string, string>;
 }
 
-export function TimelineLegend({ objectives, hoveredId, lockedIds, onHover, onToggleLock, colours }: TimelineLegendProps) {
+const EXIT_MANNER_LABELS: Record<string, string> = {
+  silent: "SILENT DROP",
+  phased: "PHASED OUT",
+  morphed: "MORPHED",
+  transparent: "TRANSPARENT EXIT",
+  achieved: "ACHIEVED",
+};
+
+export function TimelineLegend({ objectives, selectedIds, onToggleSelection, colours }: TimelineLegendProps) {
   const alive = objectives.filter((o) => !o.is_in_graveyard);
   const buried = objectives.filter((o) => o.is_in_graveyard);
+  const atLimit = selectedIds.size >= 3;
 
   function renderItem(obj: Objective) {
     const stage = getStage(scoreToStage(obj.momentum_score));
     const colour = colours.get(obj.id) ?? stage.colour;
-    const isLocked = lockedIds.has(obj.id);
-    const isHighlighted = hoveredId === obj.id || isLocked;
+    const isSelected = selectedIds.has(obj.id);
+    const isDisabled = !isSelected && atLimit;
+    const isBuried = obj.is_in_graveyard;
 
     return (
       <button
         key={obj.id}
-        className={`w-full text-left px-2 py-1.5 rounded text-xs transition-colors ${isHighlighted ? "bg-muted" : "hover:bg-muted/50"}`}
-        onMouseEnter={() => onHover(obj.id)}
-        onMouseLeave={() => onHover(null)}
-        onClick={() => onToggleLock(obj.id)}
+        className={`w-full text-left px-2.5 py-2 rounded-md text-xs transition-all ${
+          isSelected
+            ? "border border-current"
+            : isDisabled
+            ? "opacity-45 cursor-not-allowed border border-transparent"
+            : "opacity-45 hover:opacity-70 border border-transparent"
+        }`}
+        style={
+          isSelected
+            ? {
+                borderColor: colour,
+                backgroundColor: `color-mix(in srgb, ${colour} 6%, transparent)`,
+              }
+            : undefined
+        }
+        onClick={() => {
+          if (isDisabled) return;
+          onToggleSelection(obj.id);
+        }}
+        aria-disabled={isDisabled}
       >
-        <div className="flex items-center gap-2">
-          <span className="w-2.5 h-2.5 rounded-full shrink-0" style={{ backgroundColor: colour }} />
-          <span className="text-sm">{stage.emoji}</span>
-          <span className="font-mono text-muted-foreground">OBJ {String(obj.display_number).padStart(2, "0")}</span>
+        <div className="flex items-start gap-2">
+          <span
+            className="mt-0.5 shrink-0 w-[14px] h-[14px] rounded-sm border-2 flex items-center justify-center"
+            style={{
+              borderColor: colour,
+              backgroundColor: isSelected ? colour : "transparent",
+            }}
+          >
+            {isSelected && (
+              <svg viewBox="0 0 12 12" className="w-2.5 h-2.5" fill="none" stroke="white" strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round">
+                <polyline points="2,6 5,9 10,3" />
+              </svg>
+            )}
+          </span>
+          <div className="min-w-0 flex-1">
+            <p className={`font-serif text-[12.5px] leading-tight text-card-foreground ${isBuried ? "line-through" : ""}`}>
+              {obj.title}
+            </p>
+            <p className="font-mono text-[9.5px] uppercase tracking-wider mt-0.5" style={{ color: colour }}>
+              {isBuried && obj.exit_manner
+                ? EXIT_MANNER_LABELS[obj.exit_manner] ?? obj.exit_manner.toUpperCase()
+                : `${stage.label} (${stage.score > 0 ? "+" : ""}${stage.score})`}
+            </p>
+          </div>
         </div>
-        <p className="font-sans text-card-foreground truncate mt-0.5 pl-5">{obj.title}</p>
       </button>
     );
   }
 
   return (
-    <div className="w-[210px] shrink-0 border-r border-border overflow-y-auto py-2 pr-2">
-      <h3 className="font-mono text-[0.65rem] uppercase tracking-widest text-muted-foreground px-2 mb-2">Objectives</h3>
-      {alive.map(renderItem)}
-      {buried.length > 0 && (
-        <>
-          <h3 className="font-mono text-[0.65rem] uppercase tracking-widest text-muted-foreground px-2 mt-4 mb-2">Buried</h3>
-          {buried.map(renderItem)}
-        </>
-      )}
+    <div className="w-[210px] shrink-0 border-r border-border flex flex-col">
+      <div className="flex-1 overflow-y-auto py-2 px-1.5">
+        <h3 className="font-mono text-[9px] uppercase tracking-[1.5px] text-muted-foreground px-2 mb-2">
+          Objectives
+        </h3>
+        {alive.map(renderItem)}
+        {buried.length > 0 && (
+          <>
+            <div className="border-t border-border my-3 mx-2" />
+            <h3 className="font-mono text-[9px] uppercase tracking-[1.5px] text-muted-foreground px-2 mb-2">
+              Buried
+            </h3>
+            {buried.map(renderItem)}
+          </>
+        )}
+      </div>
+      <div className="border-t border-border px-2 py-2 text-center">
+        <span className="font-mono text-[9px] text-muted-foreground">
+          {selectedIds.size} of 3 selected
+        </span>
+      </div>
     </div>
   );
 }
