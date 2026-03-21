@@ -1,5 +1,7 @@
 "use client";
 
+import { useRef, useLayoutEffect, useState } from "react";
+import { createPortal } from "react-dom";
 import type { MomentumStage } from "@/lib/types";
 import { getStage } from "@/lib/momentum";
 
@@ -9,19 +11,59 @@ interface TimelineTooltipProps {
   latestSignalText: string | null;
   latestSignalSource: string | null;
   latestSignalDate: string | null;
-  x: number;
-  y: number;
-  canvasWidth: number;
+  viewportX: number;
+  viewportY: number;
 }
 
-export function TimelineTooltip({ objectiveName, stage, latestSignalText, latestSignalSource, latestSignalDate, x, y, canvasWidth }: TimelineTooltipProps) {
-  const stageInfo = getStage(stage);
-  const flipRight = x > canvasWidth * 0.7;
+const TOOLTIP_WIDTH = 288;
+const EDGE_MARGIN = 16;
+const MIN_TOP = 8;
 
-  return (
+export function TimelineTooltip({
+  objectiveName,
+  stage,
+  latestSignalText,
+  latestSignalSource,
+  latestSignalDate,
+  viewportX,
+  viewportY,
+}: TimelineTooltipProps) {
+  const stageInfo = getStage(stage);
+  const ref = useRef<HTMLDivElement>(null);
+  const [position, setPosition] = useState({ left: viewportX + 16, top: viewportY - 20 });
+
+  useLayoutEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const rect = el.getBoundingClientRect();
+
+    let left = viewportX + 16;
+    let top = viewportY - 20;
+
+    // Horizontal flip: if right edge exceeds viewport
+    if (left + TOOLTIP_WIDTH > window.innerWidth - EDGE_MARGIN) {
+      left = viewportX - TOOLTIP_WIDTH - 16;
+    }
+
+    // Vertical clamp: if bottom edge exceeds viewport
+    if (top + rect.height > window.innerHeight - EDGE_MARGIN) {
+      top = window.innerHeight - EDGE_MARGIN - rect.height;
+    }
+
+    // Clamp top to minimum
+    if (top < MIN_TOP) {
+      top = MIN_TOP;
+    }
+
+    setPosition({ left, top });
+  }, [viewportX, viewportY]);
+
+  const tooltip = (
     <div
-      className="absolute z-50 w-72 bg-card border border-border rounded-lg shadow-xl p-3 pointer-events-none"
-      style={{ left: flipRight ? x - 288 : x + 16, top: y - 20 }}
+      ref={ref}
+      data-tooltip
+      className="z-[9999] w-72 bg-card border border-border rounded-lg shadow-xl p-3 pointer-events-none"
+      style={{ position: "fixed", left: position.left, top: position.top }}
     >
       <div className="flex items-center gap-2 mb-1">
         <span className="text-base">{stageInfo.emoji}</span>
@@ -44,4 +86,7 @@ export function TimelineTooltip({ objectiveName, stage, latestSignalText, latest
       )}
     </div>
   );
+
+  if (typeof document === "undefined") return null;
+  return createPortal(tooltip, document.body);
 }
