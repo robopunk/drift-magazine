@@ -6,7 +6,6 @@ interface TimelinePathProps {
   points: Point[];
   colour: string;
   isBelowGround: boolean;
-  opacity: number;
 }
 
 function toSmoothPath(points: Point[]): string {
@@ -22,7 +21,7 @@ function toSmoothPath(points: Point[]): string {
   return d;
 }
 
-export function TimelinePath({ points, colour, isBelowGround, opacity }: TimelinePathProps) {
+export function TimelinePath({ points, colour, isBelowGround }: TimelinePathProps) {
   if (points.length < 2) return null;
   return (
     <path
@@ -31,8 +30,6 @@ export function TimelinePath({ points, colour, isBelowGround, opacity }: Timelin
       stroke={colour}
       strokeWidth={isBelowGround ? 1.5 : 2.5}
       strokeDasharray={isBelowGround ? "6 4" : "none"}
-      opacity={opacity}
-      className="transition-opacity duration-300"
     />
   );
 }
