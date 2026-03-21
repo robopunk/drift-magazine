@@ -21,7 +21,7 @@ export function TimelineNode({ emoji, colour, x, y, label, onHover, onLeave, onC
         borderColor: colour,
         transform: "translate(-50%, -50%)",
       }}
-      title={label}
+      aria-label={label}
       onMouseEnter={onHover}
       onMouseLeave={onLeave}
       onClick={onClick}

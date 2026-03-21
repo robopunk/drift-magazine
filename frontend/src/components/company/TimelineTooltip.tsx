@@ -75,7 +75,6 @@ export function TimelineTooltip({
       >
         {stageInfo.label} ({stageInfo.score > 0 ? "+" : ""}{stageInfo.score})
       </span>
-      <p className="font-serif italic text-xs text-muted-foreground mb-2">{stageInfo.caption}</p>
       {latestSignalText && (
         <div className="border-t border-border pt-2 mt-2">
           <p className="font-serif italic text-xs text-card-foreground line-clamp-3">&ldquo;{latestSignalText}&rdquo;</p>
