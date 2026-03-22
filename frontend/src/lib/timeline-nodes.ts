@@ -8,7 +8,8 @@ import { computeRunningMomentum } from "./momentum";
  */
 export function generateMonthlyNodes(
   signals: Signal[],
-  endDate: Date
+  endDate: Date,
+  fiscalYearEndMonth?: number
 ): TimelineMonthNode[] {
   if (signals.length === 0) return [];
 
@@ -98,6 +99,24 @@ export function generateMonthlyNodes(
       const span = nextSignalIdx - prevSignalIdx;
       const position = i - prevSignalIdx;
       nodes[i].score = prevScore + (nextScore - prevScore) * (position / span);
+    }
+  }
+
+  // Third pass: insert or flag fiscal year-end nodes
+  if (fiscalYearEndMonth != null && fiscalYearEndMonth >= 1 && fiscalYearEndMonth <= 12) {
+    const fyMonthIndex = fiscalYearEndMonth - 1; // JS month (0-11)
+    for (let i = 0; i < nodes.length; i++) {
+      if (nodes[i].month.getMonth() !== fyMonthIndex) continue;
+      if (nodes[i].type === "origin" || nodes[i].type === "signal") {
+        // Promote: keep type but flag as FY-end
+        nodes[i].isFiscalYearEnd = true;
+      } else {
+        // Replace cadence/stale with fiscal-year-end node
+        nodes[i] = {
+          ...nodes[i],
+          type: "fiscal-year-end",
+        };
+      }
     }
   }
 

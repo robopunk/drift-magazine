@@ -14,6 +14,7 @@ interface TimelineCanvasProps {
   objectives: Objective[];
   signals: Signal[];
   onNavigateToEvidence: () => void;
+  fiscalYearEndMonth?: number;
 }
 
 const OBJECTIVE_COLOURS = [
@@ -71,7 +72,7 @@ function formatDateRange(signals: Signal[]): string {
   return `${fmt(min)} \u2014 ${fmt(max)}`;
 }
 
-export function TimelineCanvas({ objectives, signals, onNavigateToEvidence }: TimelineCanvasProps) {
+export function TimelineCanvas({ objectives, signals, onNavigateToEvidence, fiscalYearEndMonth }: TimelineCanvasProps) {
   const scrollRef = useRef<HTMLDivElement>(null);
   const [hoveredId, setHoveredId] = useState<string | null>(null);
   const [tooltip, setTooltip] = useState<TooltipState | null>(null);
@@ -131,7 +132,7 @@ export function TimelineCanvas({ objectives, signals, onNavigateToEvidence }: Ti
   const objectiveNodeSets = useMemo(() => {
     return visibleObjectives.map((obj) => {
       const objSignals = signalsByObjective.get(obj.id) || [];
-      const monthlyNodes = generateMonthlyNodes(objSignals, now);
+      const monthlyNodes = generateMonthlyNodes(objSignals, now, fiscalYearEndMonth);
 
       // Compute x and y for each node
       if (monthlyNodes.length > 0) {
@@ -158,7 +159,7 @@ export function TimelineCanvas({ objectives, signals, onNavigateToEvidence }: Ti
 
       return { objective: obj, nodes: monthlyNodes, latestSignalIdx };
     });
-  }, [visibleObjectives, signalsByObjective, now, minDate]);
+  }, [visibleObjectives, signalsByObjective, now, minDate, fiscalYearEndMonth]);
 
   // Crossings: detect ground-line crossings (both down and up)
   const crossings = useMemo(() => {
@@ -415,19 +416,22 @@ export function TimelineCanvas({ objectives, signals, onNavigateToEvidence }: Ti
                   >
                     {nodes.map((node, i) => {
                       const stageInfo = getStage(scoreToStage(node.score));
+                      const nodeColour = node.type === "fiscal-year-end" && !node.isFiscalYearEnd
+                        ? "#f59e0b"
+                        : colour;
                       return (
                         <TimelineNode
                           key={`${objective.id}-${i}`}
                           type={node.type}
                           emoji={node.type === "origin" ? "\u{1F3AF}" : stageInfo.emoji}
-                          colour={colour}
+                          colour={nodeColour}
                           x={node.x}
                           y={node.y}
                           label={objective.title}
                           isLatestSignal={i === latestSignalIdx}
                           monthsSinceLastSignal={node.monthsSinceLastSignal}
                           onHover={
-                            node.type === "cadence"
+                            node.type === "cadence" || (node.type === "fiscal-year-end" && !node.signal)
                               ? undefined
                               : (e: React.MouseEvent) => {
                                   setHoveredId(objective.id);
@@ -454,7 +458,7 @@ export function TimelineCanvas({ objectives, signals, onNavigateToEvidence }: Ti
                                 }
                           }
                           onLeave={
-                            node.type === "cadence"
+                            node.type === "cadence" || (node.type === "fiscal-year-end" && !node.signal)
                               ? undefined
                               : () => {
                                   setHoveredId(null);

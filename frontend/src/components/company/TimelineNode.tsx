@@ -21,6 +21,7 @@ const SIZE: Record<TimelineNodeType, number> = {
   signal: 24,
   cadence: 8,
   stale: 12,
+  "fiscal-year-end": 14,
 };
 
 const LATEST_SCALE = 1.25;
@@ -77,6 +78,26 @@ export function TimelineNode({
       >
         <span className="text-[8px] font-bold text-amber-500 leading-none select-none">!</span>
       </div>
+    );
+  }
+
+  // Fiscal year-end node: amber diamond
+  if (type === "fiscal-year-end") {
+    return (
+      <div
+        className="absolute flex items-center justify-center bg-card cursor-pointer hover:scale-110 transition-transform duration-200"
+        style={{
+          left: x,
+          top: y,
+          width: size,
+          height: size,
+          border: `2px solid ${colour}`,
+          transform: "translate(-50%, -50%) rotate(45deg)",
+        }}
+        aria-label={label}
+        onMouseEnter={onHover}
+        onMouseLeave={onLeave}
+      />
     );
   }
 

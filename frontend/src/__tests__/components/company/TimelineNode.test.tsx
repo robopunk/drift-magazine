@@ -56,4 +56,13 @@ describe("TimelineNode", () => {
     const dot = container.firstElementChild as HTMLElement;
     expect(dot.getAttribute("onmouseenter")).toBeNull();
   });
+
+  it("renders fiscal-year-end node as a rotated diamond", () => {
+    const { container } = render(
+      <TimelineNode type="fiscal-year-end" colour="#f59e0b" x={100} y={50} label="FY End" />
+    );
+    const node = container.firstElementChild as HTMLElement;
+    expect(node.style.transform).toContain("rotate(45deg)");
+    expect(node.style.borderColor).toBe("rgb(245, 158, 11)");
+  });
 });

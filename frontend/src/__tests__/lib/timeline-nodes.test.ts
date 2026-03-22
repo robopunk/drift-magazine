@@ -115,3 +115,60 @@ describe("generateMonthlyNodes", () => {
     expect(nodes[9].monthsSinceLastSignal).toBe(9);
   });
 });
+
+describe("fiscal year-end nodes", () => {
+  it("inserts fiscal-year-end node at the matching month", () => {
+    const signals = [
+      makeSignal("2025-01-15", "stated"),
+      makeSignal("2025-06-10", "reinforced"),
+    ];
+    const nodes = generateMonthlyNodes(signals, new Date("2026-02-01"), 12);
+    // December 2025 should be fiscal-year-end
+    const fyNode = nodes.find(
+      (n) => n.type === "fiscal-year-end" && n.month.getMonth() === 11
+    );
+    expect(fyNode).toBeDefined();
+  });
+
+  it("does not insert fiscal-year-end node outside signal range", () => {
+    const signals = [
+      makeSignal("2025-03-15", "stated"),
+      makeSignal("2025-06-10", "reinforced"),
+    ];
+    // End before December — no FY-end node for month 12
+    const nodes = generateMonthlyNodes(signals, new Date("2025-09-01"), 12);
+    const fyNodes = nodes.filter((n) => n.type === "fiscal-year-end");
+    expect(fyNodes).toHaveLength(0);
+  });
+
+  it("promotes signal node at FY-end month with isFiscalYearEnd flag", () => {
+    const signals = [
+      makeSignal("2025-01-15", "stated"),
+      makeSignal("2025-12-10", "reinforced"),
+    ];
+    const nodes = generateMonthlyNodes(signals, new Date("2026-02-01"), 12);
+    const decNode = nodes.find((n) => n.month.getMonth() === 11 && n.month.getFullYear() === 2025);
+    expect(decNode?.type).toBe("signal"); // stays signal
+    expect(decNode?.isFiscalYearEnd).toBe(true);
+  });
+
+  it("uses custom fiscal year-end month", () => {
+    const signals = [
+      makeSignal("2025-01-15", "stated"),
+      makeSignal("2025-06-10", "reinforced"),
+    ];
+    // FY-end in March (month 3)
+    const nodes = generateMonthlyNodes(signals, new Date("2025-09-01"), 3);
+    const marchNode = nodes.find(
+      (n) => n.type === "fiscal-year-end" && n.month.getMonth() === 2
+    );
+    expect(marchNode).toBeDefined();
+  });
+
+  it("backward compat: omitting fiscalYearEndMonth produces no FY-end nodes", () => {
+    const signals = [makeSignal("2025-01-15", "stated")];
+    const nodes = generateMonthlyNodes(signals, new Date("2026-03-01"));
+    const fyNodes = nodes.filter((n) => n.type === "fiscal-year-end");
+    expect(fyNodes).toHaveLength(0);
+  });
+});
