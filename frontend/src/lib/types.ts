@@ -10,7 +10,19 @@ export type SignalClassification =
   | "absent" | "achieved" | "retired_transparent" | "retired_silent";
 
 export type ExitManner =
-  | "silent" | "phased" | "morphed" | "transparent" | "achieved";
+  | "silent" | "phased" | "morphed" | "transparent" | "achieved" | "resurrected";
+
+export type TimelineNodeType = "origin" | "signal" | "cadence" | "stale";
+
+export interface TimelineMonthNode {
+  type: TimelineNodeType;
+  month: Date;
+  x: number;
+  y: number;
+  score: number;
+  signal?: Signal;
+  monthsSinceLastSignal?: number;
+}
 
 export type TransparencyScore = "very_low" | "low" | "medium" | "high";
 

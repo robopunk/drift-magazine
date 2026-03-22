@@ -38,8 +38,12 @@ create type exit_manner as enum (
   'phased',       -- Gradual reduction in language weight over time
   'morphed',      -- Transformed into a new successor objective
   'transparent',  -- Explicitly retired with public explanation
-  'achieved'      -- Completed and retired as accomplished
+  'achieved',     -- Completed and retired as accomplished
+  'resurrected'   -- Revived after period of burial
 );
+
+-- Migration for existing databases:
+-- ALTER TYPE exit_manner ADD VALUE 'resurrected';
 
 create type transparency_score as enum (
   'very_low',     -- No communication of change
