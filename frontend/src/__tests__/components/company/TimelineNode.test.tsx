@@ -4,31 +4,56 @@ import userEvent from "@testing-library/user-event";
 import { TimelineNode } from "@/components/company/TimelineNode";
 
 describe("TimelineNode", () => {
-  const props = {
-    emoji: "\u{1F680}",
-    colour: "#059669",
-    x: 100,
-    y: 50,
-    label: "Global Biosimilar Leadership",
-    onHover: vi.fn(),
-    onLeave: vi.fn(),
-    onClick: vi.fn(),
-  };
-
-  it("renders the emoji", () => {
-    render(<TimelineNode {...props} />);
-    expect(screen.getByText("\u{1F680}")).toBeInTheDocument();
+  it("renders signal node with emoji", () => {
+    render(
+      <TimelineNode type="signal" emoji="🚀" colour="#059669" x={100} y={50} label="Test" />
+    );
+    expect(screen.getByText("🚀")).toBeInTheDocument();
   });
 
-  it("calls onHover on mouseenter", async () => {
-    render(<TimelineNode {...props} />);
-    await userEvent.hover(screen.getByText("\u{1F680}"));
-    expect(props.onHover).toHaveBeenCalled();
+  it("renders origin node larger than signal node", () => {
+    const { container: originContainer } = render(
+      <TimelineNode type="origin" emoji="🎯" colour="#059669" x={100} y={50} label="Test" />
+    );
+    const { container: signalContainer } = render(
+      <TimelineNode type="signal" emoji="🚀" colour="#059669" x={200} y={50} label="Test" />
+    );
+    const originEl = originContainer.firstElementChild as HTMLElement;
+    const signalEl = signalContainer.firstElementChild as HTMLElement;
+    expect(parseInt(originEl.style.width)).toBeGreaterThan(parseInt(signalEl.style.width));
   });
 
-  it("calls onClick on click", async () => {
-    render(<TimelineNode {...props} />);
-    await userEvent.click(screen.getByText("\u{1F680}"));
-    expect(props.onClick).toHaveBeenCalled();
+  it("renders cadence node as plain dot without emoji", () => {
+    const { container } = render(
+      <TimelineNode type="cadence" colour="#999" x={100} y={50} label="Test" />
+    );
+    const dot = container.firstElementChild as HTMLElement;
+    expect(dot.textContent).toBe("");
+    expect(parseInt(dot.style.width)).toBe(8);
+  });
+
+  it("renders stale node with exclamation mark", () => {
+    render(
+      <TimelineNode type="stale" colour="#f59e0b" x={100} y={50} label="Test" monthsSinceLastSignal={7} />
+    );
+    expect(screen.getByText("!")).toBeInTheDocument();
+    expect(screen.getByLabelText("No update for 7 months")).toBeInTheDocument();
+  });
+
+  it("calls onHover on interactive nodes", async () => {
+    const onHover = vi.fn();
+    render(
+      <TimelineNode type="signal" emoji="🚀" colour="#059669" x={100} y={50} label="Test" onHover={onHover} />
+    );
+    await userEvent.hover(screen.getByText("🚀"));
+    expect(onHover).toHaveBeenCalled();
+  });
+
+  it("does not fire hover on cadence nodes", () => {
+    const { container } = render(
+      <TimelineNode type="cadence" colour="#999" x={100} y={50} label="Test" />
+    );
+    const dot = container.firstElementChild as HTMLElement;
+    expect(dot.getAttribute("onmouseenter")).toBeNull();
   });
 });

@@ -53,6 +53,9 @@
     /* Timeline background zones */
     --timeline-zone-above: #f8fdf9;
     --timeline-zone-below: #fefcf8;
+
+    /* Timeline cadence dots */
+    --timeline-cadence-dot: #d1d5db;
   }
 
   .dark {
@@ -74,6 +77,7 @@
     --destructive-foreground: #0f172a;
     --timeline-zone-above: rgba(34, 197, 94, 0.03);
     --timeline-zone-below: rgba(245, 158, 11, 0.03);
+    --timeline-cadence-dot: #4b5563;
   }
 
   * {
