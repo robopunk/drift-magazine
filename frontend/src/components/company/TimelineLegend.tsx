@@ -8,7 +8,9 @@ interface TimelineLegendProps {
   objectives: Objective[];
   selectedIds: Set<string>;
   onToggleSelection: (id: string) => void;
+  onHoverObjective: (id: string | null) => void;
   colours: Map<string, string>;
+  hasSignals: (id: string) => boolean;
 }
 
 const EXIT_MANNER_LABELS: Record<string, string> = {
@@ -17,9 +19,10 @@ const EXIT_MANNER_LABELS: Record<string, string> = {
   morphed: "MORPHED",
   transparent: "TRANSPARENT EXIT",
   achieved: "ACHIEVED",
+  resurrected: "RESURRECTED",
 };
 
-export function TimelineLegend({ objectives, selectedIds, onToggleSelection, colours }: TimelineLegendProps) {
+export function TimelineLegend({ objectives, selectedIds, onToggleSelection, onHoverObjective, colours, hasSignals }: TimelineLegendProps) {
   const alive = objectives.filter((o) => !o.is_in_graveyard);
   const buried = objectives.filter((o) => o.is_in_graveyard);
   const atLimit = selectedIds.size >= 3;
@@ -30,7 +33,8 @@ export function TimelineLegend({ objectives, selectedIds, onToggleSelection, col
     const stage = getStage(scoreToStage(obj.momentum_score));
     const colour = colours.get(obj.id) ?? stage.colour;
     const isSelected = selectedIds.has(obj.id);
-    const isDisabled = !isSelected && atLimit;
+    const hasData = hasSignals(obj.id);
+    const isDisabled = (!isSelected && atLimit) || !hasData;
     const isBuried = obj.is_in_graveyard;
 
     return (
@@ -38,12 +42,12 @@ export function TimelineLegend({ objectives, selectedIds, onToggleSelection, col
         key={obj.id}
         className={`w-full text-left px-2.5 py-2 rounded-md text-xs transition-all ${
           shakingId === obj.id ? "animate-[shake_0.3s_ease-in-out]" : ""
-        } ${
+        } ${!hasData ? "opacity-40 cursor-not-allowed" : ""} ${
           isSelected
             ? "border border-current"
             : isDisabled
-            ? "opacity-45 cursor-not-allowed border border-transparent"
-            : "opacity-45 hover:opacity-70 border border-transparent"
+            ? "opacity-60 cursor-not-allowed border border-transparent"
+            : "opacity-60 hover:opacity-80 border border-transparent"
         }`}
         style={
           isSelected
@@ -62,6 +66,10 @@ export function TimelineLegend({ objectives, selectedIds, onToggleSelection, col
           }
           onToggleSelection(obj.id);
         }}
+        onMouseEnter={() => {
+          if (selectedIds.has(obj.id)) onHoverObjective(obj.id);
+        }}
+        onMouseLeave={() => onHoverObjective(null)}
         aria-disabled={isDisabled}
       >
         <div className="flex items-start gap-2">
@@ -79,12 +87,19 @@ export function TimelineLegend({ objectives, selectedIds, onToggleSelection, col
             )}
           </span>
           <div className="min-w-0 flex-1">
-            <p className={`font-serif text-[12.5px] leading-tight text-card-foreground ${isBuried ? "line-through" : ""}`}>
+            <p className="font-serif text-[12.5px] leading-tight text-card-foreground">
               {obj.title}
             </p>
             <p className="font-mono text-[9.5px] uppercase tracking-wider mt-0.5" style={{ color: colour }}>
               {isBuried && obj.exit_manner
-                ? EXIT_MANNER_LABELS[obj.exit_manner] ?? obj.exit_manner.toUpperCase()
+                ? (
+                    <>
+                      {EXIT_MANNER_LABELS[obj.exit_manner] ?? obj.exit_manner.toUpperCase()}
+                      {obj.exit_manner === "resurrected" && (
+                        <span className="ml-1 text-[9px]" title="Resurrected">&#x2191;</span>
+                      )}
+                    </>
+                  )
                 : `${stage.label} (${stage.score > 0 ? "+" : ""}${stage.score})`}
             </p>
           </div>

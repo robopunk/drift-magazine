@@ -45,7 +45,9 @@ describe("TimelineLegend", () => {
         objectives={objectives}
         selectedIds={new Set(["a"])}
         onToggleSelection={vi.fn()}
+        onHoverObjective={vi.fn()}
         colours={colours}
+        hasSignals={() => true}
       />
     );
     expect(screen.getByText("Revenue Growth")).toBeInTheDocument();
@@ -59,7 +61,9 @@ describe("TimelineLegend", () => {
         objectives={objectives}
         selectedIds={new Set(["a"])}
         onToggleSelection={toggle}
+        onHoverObjective={vi.fn()}
         colours={colours}
+        hasSignals={() => true}
       />
     );
     await userEvent.click(screen.getByText("Market Penetration"));
@@ -72,7 +76,9 @@ describe("TimelineLegend", () => {
         objectives={objectives}
         selectedIds={new Set(["a", "b"])}
         onToggleSelection={vi.fn()}
+        onHoverObjective={vi.fn()}
         colours={colours}
+        hasSignals={() => true}
       />
     );
     expect(screen.getByText("2 of 3 selected")).toBeInTheDocument();
@@ -85,7 +91,9 @@ describe("TimelineLegend", () => {
         objectives={objectives}
         selectedIds={new Set(["a", "b", "c"])}
         onToggleSelection={toggle}
+        onHoverObjective={vi.fn()}
         colours={colours}
+        hasSignals={() => true}
       />
     );
     const costBtn = screen.getByText("Cost Reduction").closest("button")!;
@@ -101,14 +109,16 @@ describe("TimelineLegend", () => {
         objectives={objectives}
         selectedIds={new Set(["a", "b", "c"])}
         onToggleSelection={toggle}
+        onHoverObjective={vi.fn()}
         colours={colours}
+        hasSignals={() => true}
       />
     );
     await userEvent.click(screen.getByText("Revenue Growth"));
     expect(toggle).toHaveBeenCalledWith("a");
   });
 
-  it("renders buried section with strikethrough for graveyard objectives", () => {
+  it("renders buried section with exit manner label for graveyard objectives", () => {
     const withBuried = [
       ...objectives,
       makeObjective({ id: "e", title: "China Growth", display_number: 5, is_in_graveyard: true, momentum_score: -4, exit_manner: "silent" }),
@@ -119,10 +129,16 @@ describe("TimelineLegend", () => {
         objectives={withBuried}
         selectedIds={new Set(["a"])}
         onToggleSelection={vi.fn()}
+        onHoverObjective={vi.fn()}
         colours={coloursWithBuried}
+        hasSignals={() => true}
       />
     );
     expect(screen.getByText("Buried")).toBeInTheDocument();
     expect(screen.getByText("China Growth")).toBeInTheDocument();
+    expect(screen.getByText("SILENT DROP")).toBeInTheDocument();
+    // Verify no strikethrough
+    const title = screen.getByText("China Growth");
+    expect(title.className).not.toContain("line-through");
   });
 });
