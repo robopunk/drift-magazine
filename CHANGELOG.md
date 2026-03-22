@@ -1,5 +1,29 @@
 # Changelog
 
+## [2.1.0] - 2026-03-22
+
+### Added
+- Signal-specific node tooltips — each node shows its own signal data, classification badge, source, and date
+- Fiscal year-end diamond nodes — amber-stroked diamond markers at FY-end months, with signal promotion via `isFiscalYearEnd` flag
+- Monthly axis labels — 3-letter month abbreviations with January emphasis and year display
+- Legend hover tooltip — portal tooltip showing objective subtitle and original quote on any legend row hover
+- Zero selection state — deselect all objectives, empty canvas shows italic prompt
+- `year_end_review` signal classification type
+- `fiscal_year_end_month` column on companies table (default 12)
+- `TimelineLegendTooltip` component (new file)
+- 15 test files, 81 tests (up from 11 files / 41 tests)
+
+### Changed
+- Tooltip now shows per-node signal data instead of repeating latest signal on every node
+- Boardroom Allegory captions removed from tooltip display
+- Legend footer shows dynamic count ("X of Y selected") instead of hardcoded "X of 3"
+- Min-1 selection constraint and shake animation removed from legend
+
+### Removed
+- Quarterly vertical dashed gridlines (replaced by monthly labels)
+- `quarterLabels` memo and quarterly gridline rendering
+- Shake animation on last-selected checkbox
+
 ## [2.0.0] - 2026-03-20
 
 ### Added

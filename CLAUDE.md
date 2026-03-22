@@ -34,9 +34,9 @@ The product's most distinctive feature is the **Graveyard** — a record of obje
 | Path | Description |
 |---|---|
 | `frontend/src/app/` | App Router pages: landing, company/[ticker], about, admin, 404 |
-| `frontend/src/components/` | React components: layout (Masthead, Footer, ThemeToggle), landing (Hero, CompanyGrid, SearchBar, SignalFeed), company (TimelineCanvas, ObjectiveCard, BuriedCard, EvidenceTable, TabBar), mobile, ui |
-| `frontend/src/lib/` | Shared utilities: types.ts, momentum.ts, theme.ts, search.ts, supabase.ts |
-| `frontend/src/__tests__/` | 11 test files, 41 tests (Vitest + React Testing Library) |
+| `frontend/src/components/` | React components: layout (Masthead, Footer, ThemeToggle), landing (Hero, CompanyGrid, SearchBar, SignalFeed), company (TimelineCanvas, TimelineNode, TimelinePath, TimelineLegend, TimelineLegendTooltip, TimelineTooltip, CrossingMarker, ObjectiveCard, BuriedCard, EvidenceTable, TabBar), mobile, ui |
+| `frontend/src/lib/` | Shared utilities: types.ts, momentum.ts, timeline-nodes.ts, theme.ts, search.ts, supabase.ts |
+| `frontend/src/__tests__/` | 15 test files, 81 tests (Vitest + React Testing Library) |
 
 ### v1 Archive
 
@@ -48,7 +48,7 @@ The product's most distinctive feature is the **Graveyard** — a record of obje
 
 | File | Status | Description |
 |---|---|---|
-| `backend/schema.sql` | ✅ Complete | Full Supabase/Postgres schema — companies (with exchange field), objectives, signals, agent_runs tables, views, RLS policies, triggers, Sandoz seed data |
+| `backend/schema.sql` | ✅ Complete | Full Supabase/Postgres schema — companies (with exchange + fiscal_year_end_month fields), objectives, signals (with year_end_review classification), agent_runs tables, views, RLS policies, triggers, Sandoz seed data |
 | `backend/agent.py` | ✅ Complete | Python research agent — bi-weekly runs, intake for new companies, uses Claude API with web search, writes draft signals to Supabase for human review |
 
 ### Brand
@@ -136,6 +136,7 @@ All CSS variables are defined in `frontend/src/app/globals.css`. Tailwind mappin
 ```
 companies       id, name, ticker, exchange, sector, initiative_name, initiative_subtitle,
                 ir_page_url, intake_context, search_keywords,
+                fiscal_year_end_month (1-12, default 12),
                 overall_commitment_score, tracking_active, last_research_run
 
 objectives      id, company_id, display_number, title, subtitle, original_quote,
@@ -147,7 +148,7 @@ objectives      id, company_id, display_number, title, subtitle, original_quote,
 signals         id, objective_id, company_id, signal_date, source_type,
                 source_name, source_url, classification
                 (stated|reinforced|softened|reframed|absent|achieved|
-                 retired_transparent|retired_silent),
+                 retired_transparent|retired_silent|year_end_review),
                 confidence (1-10), excerpt, agent_reasoning,
                 is_draft, reviewed_by, reviewed_at
 
