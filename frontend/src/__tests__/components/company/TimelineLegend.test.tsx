@@ -70,7 +70,7 @@ describe("TimelineLegend", () => {
     expect(toggle).toHaveBeenCalledWith("b");
   });
 
-  it("shows N of 3 selected counter", () => {
+  it("shows N of X selected counter", () => {
     render(
       <TimelineLegend
         objectives={objectives}
@@ -81,7 +81,7 @@ describe("TimelineLegend", () => {
         hasSignals={() => true}
       />
     );
-    expect(screen.getByText("2 of 3 selected")).toBeInTheDocument();
+    expect(screen.getByText("2 of 4 selected")).toBeInTheDocument();
   });
 
   it("disables unchecked items when 3 are selected (max enforcement)", async () => {
@@ -144,6 +144,37 @@ describe("TimelineLegend", () => {
     expect(screen.getByText("Become the global leader in biosimilars")).toBeInTheDocument();
     expect(screen.getByText(/We aim to be the undisputed global leader/)).toBeInTheDocument();
     expect(screen.getByText(/2023-10-04/)).toBeInTheDocument();
+  });
+
+  it("allows deselecting the last objective (no min-1 constraint)", async () => {
+    const toggle = vi.fn();
+    render(
+      <TimelineLegend
+        objectives={objectives}
+        selectedIds={new Set(["a"])}
+        onToggleSelection={toggle}
+        onHoverObjective={vi.fn()}
+        colours={colours}
+        hasSignals={() => true}
+      />
+    );
+    await userEvent.click(screen.getByText("Revenue Growth"));
+    expect(toggle).toHaveBeenCalledWith("a");
+  });
+
+  it("shows dynamic count in footer", () => {
+    const hasSignals = (id: string) => id !== "d"; // 3 of 4 have signals
+    render(
+      <TimelineLegend
+        objectives={objectives}
+        selectedIds={new Set(["a", "b"])}
+        onToggleSelection={vi.fn()}
+        onHoverObjective={vi.fn()}
+        colours={colours}
+        hasSignals={hasSignals}
+      />
+    );
+    expect(screen.getByText("2 of 3 selected")).toBeInTheDocument();
   });
 
   it("renders buried section with exit manner label for graveyard objectives", () => {

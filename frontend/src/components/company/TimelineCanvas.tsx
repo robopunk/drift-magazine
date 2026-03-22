@@ -251,7 +251,6 @@ export function TimelineCanvas({ objectives, signals, onNavigateToEvidence, fisc
     setSelectedIds((prev) => {
       const next = new Set(prev);
       if (next.has(id)) {
-        if (next.size <= 1) return prev;
         next.delete(id);
       } else {
         if (next.size >= 3) return prev;
@@ -284,7 +283,7 @@ export function TimelineCanvas({ objectives, signals, onNavigateToEvidence, fisc
       <div className="flex-1 flex flex-col min-w-0">
         {/* Toolbar */}
         <div className="flex items-center justify-between px-4 py-2 border-b border-border text-xs font-mono text-muted-foreground" style={{ height: 44 }}>
-          <span>{selectedIds.size} of 3 selected</span>
+          <span>{selectedIds.size} of {objectives.filter((o) => hasSignals(o.id)).length} selected</span>
           {dateRangeLabel && <span>{dateRangeLabel}</span>}
         </div>
         {/* Canvas area: fixed labels + scrollable data */}
@@ -492,6 +491,15 @@ export function TimelineCanvas({ objectives, signals, onNavigateToEvidence, fisc
                   direction={direction}
                 />
               ))}
+
+              {/* Empty state overlay */}
+              {visibleObjectives.length === 0 && (
+                <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                  <p className="font-serif italic text-sm text-muted-foreground opacity-40">
+                    Select an objective to view its trajectory
+                  </p>
+                </div>
+              )}
             </div>
           </div>
         </div>

@@ -27,8 +27,6 @@ export function TimelineLegend({ objectives, selectedIds, onToggleSelection, onH
   const alive = objectives.filter((o) => !o.is_in_graveyard);
   const buried = objectives.filter((o) => o.is_in_graveyard);
   const atLimit = selectedIds.size >= 3;
-  const isLastSelected = selectedIds.size <= 1;
-  const [shakingId, setShakingId] = useState<string | null>(null);
   const [legendTooltip, setLegendTooltip] = useState<{ objective: Objective; rect: DOMRect } | null>(null);
 
   function renderItem(obj: Objective) {
@@ -43,8 +41,8 @@ export function TimelineLegend({ objectives, selectedIds, onToggleSelection, onH
       <button
         key={obj.id}
         className={`w-full text-left px-2.5 py-2 rounded-md text-xs transition-all ${
-          shakingId === obj.id ? "animate-[shake_0.3s_ease-in-out]" : ""
-        } ${!hasData ? "opacity-40 cursor-not-allowed" : ""} ${
+          !hasData ? "opacity-40 cursor-not-allowed" : ""
+        } ${
           isSelected
             ? "border border-current"
             : isDisabled
@@ -61,11 +59,6 @@ export function TimelineLegend({ objectives, selectedIds, onToggleSelection, onH
         }
         onClick={() => {
           if (isDisabled) return;
-          if (isSelected && isLastSelected) {
-            setShakingId(obj.id);
-            setTimeout(() => setShakingId(null), 300);
-            return;
-          }
           onToggleSelection(obj.id);
         }}
         onMouseEnter={(e) => {
@@ -134,7 +127,7 @@ export function TimelineLegend({ objectives, selectedIds, onToggleSelection, onH
       </div>
       <div className="border-t border-border px-2 py-2 text-center">
         <span className="font-mono text-[9px] text-muted-foreground">
-          {selectedIds.size} of 3 selected
+          {selectedIds.size} of {objectives.filter((o) => hasSignals(o.id)).length} selected
         </span>
       </div>
       {legendTooltip && (
