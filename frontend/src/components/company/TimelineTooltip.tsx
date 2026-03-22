@@ -13,6 +13,10 @@ interface TimelineTooltipProps {
   latestSignalDate: string | null;
   viewportX: number;
   viewportY: number;
+  staleInfo?: {
+    lastSignalDate: string;
+    monthsSilent: number;
+  } | null;
 }
 
 const TOOLTIP_WIDTH = 288;
@@ -27,6 +31,7 @@ export function TimelineTooltip({
   latestSignalDate,
   viewportX,
   viewportY,
+  staleInfo,
 }: TimelineTooltipProps) {
   const stageInfo = getStage(stage);
   const ref = useRef<HTMLDivElement>(null);
@@ -76,6 +81,16 @@ export function TimelineTooltip({
         {stageInfo.label} ({stageInfo.score > 0 ? "+" : ""}{stageInfo.score})
       </span>
       <p className="font-serif italic text-xs text-muted-foreground mb-2">{stageInfo.caption}</p>
+      {staleInfo && (
+        <div className="border-t border-border pt-2 mt-2">
+          <p className="font-mono text-xs text-amber-500">
+            No update for {staleInfo.monthsSilent} months
+          </p>
+          <p className="font-mono text-[0.65rem] text-muted-foreground mt-1">
+            Last signal: {staleInfo.lastSignalDate}
+          </p>
+        </div>
+      )}
       {latestSignalText && (
         <div className="border-t border-border pt-2 mt-2">
           <p className="font-serif italic text-xs text-card-foreground line-clamp-3">&ldquo;{latestSignalText}&rdquo;</p>
