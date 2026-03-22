@@ -30,7 +30,8 @@ create type signal_classification as enum (
   'absent',       -- Expected mention absent from disclosure
   'achieved',     -- Claimed completed
   'retired_transparent',  -- Officially retired with explanation
-  'retired_silent'        -- Disappeared without announcement
+  'retired_silent',       -- Disappeared without announcement
+  'year_end_review'       -- Fiscal year-end editorial review
 );
 
 create type exit_manner as enum (
@@ -44,6 +45,8 @@ create type exit_manner as enum (
 
 -- Migration for existing databases:
 -- ALTER TYPE exit_manner ADD VALUE 'resurrected';
+-- ALTER TYPE signal_classification ADD VALUE 'year_end_review';
+-- ALTER TABLE companies ADD COLUMN fiscal_year_end_month integer DEFAULT 12 CHECK (fiscal_year_end_month BETWEEN 1 AND 12);
 
 create type transparency_score as enum (
   'very_low',     -- No communication of change
@@ -105,7 +108,10 @@ create table companies (
 
   -- Agent intake context (provided when company is added)
   intake_context        text,                   -- "Focus on the Golden Decade narrative..."
-  search_keywords       text[]                  -- Extra search terms for agent
+  search_keywords       text[],                 -- Extra search terms for agent
+
+  -- Fiscal calendar
+  fiscal_year_end_month integer default 12 check (fiscal_year_end_month between 1 and 12)
 );
 
 create index idx_companies_sector on companies(sector);
