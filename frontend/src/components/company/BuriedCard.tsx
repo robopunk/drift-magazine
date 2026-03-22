@@ -9,6 +9,7 @@ const EXIT_MANNER_CONFIG: Record<ExitManner, { label: string; colour: string }> 
   phased: { label: "Phased Out", colour: "#f59e0b" },
   transparent: { label: "Transparent Exit", colour: "#22c55e" },
   achieved: { label: "Achieved", colour: "#059669" },
+  resurrected: { label: "Resurrected", colour: "#34d399" },
 };
 
 const TRANSPARENCY_LABELS: Record<TransparencyScore, string> = {
