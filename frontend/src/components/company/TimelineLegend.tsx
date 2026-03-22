@@ -3,6 +3,7 @@
 import { useState } from "react";
 import type { Objective } from "@/lib/types";
 import { getStage, scoreToStage } from "@/lib/momentum";
+import { TimelineLegendTooltip } from "./TimelineLegendTooltip";
 
 interface TimelineLegendProps {
   objectives: Objective[];
@@ -28,6 +29,7 @@ export function TimelineLegend({ objectives, selectedIds, onToggleSelection, onH
   const atLimit = selectedIds.size >= 3;
   const isLastSelected = selectedIds.size <= 1;
   const [shakingId, setShakingId] = useState<string | null>(null);
+  const [legendTooltip, setLegendTooltip] = useState<{ objective: Objective; rect: DOMRect } | null>(null);
 
   function renderItem(obj: Objective) {
     const stage = getStage(scoreToStage(obj.momentum_score));
@@ -66,10 +68,15 @@ export function TimelineLegend({ objectives, selectedIds, onToggleSelection, onH
           }
           onToggleSelection(obj.id);
         }}
-        onMouseEnter={() => {
+        onMouseEnter={(e) => {
           if (selectedIds.has(obj.id)) onHoverObjective(obj.id);
+          const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
+          setLegendTooltip({ objective: obj, rect });
         }}
-        onMouseLeave={() => onHoverObjective(null)}
+        onMouseLeave={() => {
+          onHoverObjective(null);
+          setLegendTooltip(null);
+        }}
         aria-disabled={isDisabled}
       >
         <div className="flex items-start gap-2">
@@ -130,6 +137,12 @@ export function TimelineLegend({ objectives, selectedIds, onToggleSelection, onH
           {selectedIds.size} of 3 selected
         </span>
       </div>
+      {legendTooltip && (
+        <TimelineLegendTooltip
+          objective={legendTooltip.objective}
+          anchorRect={legendTooltip.rect}
+        />
+      )}
     </div>
   );
 }

@@ -118,6 +118,34 @@ describe("TimelineLegend", () => {
     expect(toggle).toHaveBeenCalledWith("a");
   });
 
+  it("shows tooltip with subtitle and quote on hover", async () => {
+    const objWithQuote = [
+      makeObjective({
+        id: "a",
+        title: "Revenue Growth",
+        display_number: 1,
+        momentum_score: 3,
+        subtitle: "Become the global leader in biosimilars",
+        original_quote: "We aim to be the undisputed global leader",
+        first_stated_date: "2023-10-04",
+      }),
+    ];
+    render(
+      <TimelineLegend
+        objectives={objWithQuote}
+        selectedIds={new Set(["a"])}
+        onToggleSelection={vi.fn()}
+        onHoverObjective={vi.fn()}
+        colours={colours}
+        hasSignals={() => true}
+      />
+    );
+    await userEvent.hover(screen.getByText("Revenue Growth"));
+    expect(screen.getByText("Become the global leader in biosimilars")).toBeInTheDocument();
+    expect(screen.getByText(/We aim to be the undisputed global leader/)).toBeInTheDocument();
+    expect(screen.getByText(/2023-10-04/)).toBeInTheDocument();
+  });
+
   it("renders buried section with exit manner label for graveyard objectives", () => {
     const withBuried = [
       ...objectives,
