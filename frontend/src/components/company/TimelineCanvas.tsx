@@ -25,6 +25,10 @@ interface TooltipState {
   objectiveId: string;
   viewportX: number;
   viewportY: number;
+  signal?: Signal;
+  originalQuote?: string;
+  firstStatedDate?: string;
+  nodeScore?: number;
   staleInfo?: { lastSignalDate: string; monthsSilent: number } | null;
 }
 
@@ -206,19 +210,18 @@ export function TimelineCanvas({ objectives, signals, onNavigateToEvidence }: Ti
     if (!tooltip) return null;
     const obj = objectives.find((o) => o.id === tooltip.objectiveId);
     if (!obj) return null;
-    const signalList = signalsByObjective.get(obj.id);
-    const latest = signalList?.[signalList.length - 1];
+    const stage = scoreToStage(tooltip.nodeScore ?? obj.momentum_score);
     return {
       objectiveName: obj.title,
-      stage: scoreToStage(obj.momentum_score),
-      latestSignalText: latest?.excerpt ?? null,
-      latestSignalSource: latest?.source_name ?? null,
-      latestSignalDate: latest?.signal_date ?? null,
+      stage,
+      signal: tooltip.signal,
+      originalQuote: tooltip.originalQuote,
+      firstStatedDate: tooltip.firstStatedDate,
       viewportX: tooltip.viewportX,
       viewportY: tooltip.viewportY,
       staleInfo: tooltip.staleInfo ?? null,
     };
-  }, [tooltip, objectives, signalsByObjective]);
+  }, [tooltip, objectives]);
 
   // Auto-scroll to recent on mount
   useEffect(() => {
@@ -410,6 +413,10 @@ export function TimelineCanvas({ objectives, signals, onNavigateToEvidence }: Ti
                                     objectiveId: objective.id,
                                     viewportX: rect.right,
                                     viewportY: rect.top,
+                                    signal: node.type === "signal" ? node.signal : undefined,
+                                    originalQuote: node.type === "origin" ? objective.original_quote ?? undefined : undefined,
+                                    firstStatedDate: node.type === "origin" ? objective.first_stated_date ?? undefined : undefined,
+                                    nodeScore: node.score,
                                     staleInfo:
                                       node.type === "stale"
                                         ? {
