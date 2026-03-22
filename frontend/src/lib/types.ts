@@ -7,12 +7,13 @@ export type ObjectiveStatus =
 
 export type SignalClassification =
   | "stated" | "reinforced" | "softened" | "reframed"
-  | "absent" | "achieved" | "retired_transparent" | "retired_silent";
+  | "absent" | "achieved" | "retired_transparent" | "retired_silent"
+  | "year_end_review";
 
 export type ExitManner =
   | "silent" | "phased" | "morphed" | "transparent" | "achieved" | "resurrected";
 
-export type TimelineNodeType = "origin" | "signal" | "cadence" | "stale";
+export type TimelineNodeType = "origin" | "signal" | "cadence" | "stale" | "fiscal-year-end";
 
 export interface TimelineMonthNode {
   type: TimelineNodeType;
@@ -22,6 +23,7 @@ export interface TimelineMonthNode {
   score: number;
   signal?: Signal;
   monthsSinceLastSignal?: number;
+  isFiscalYearEnd?: boolean;
 }
 
 export type TransparencyScore = "very_low" | "low" | "medium" | "high";
@@ -46,6 +48,7 @@ export interface Company {
   ir_page_url: string | null;
   overall_commitment_score: number | null;
   tracking_active: boolean;
+  fiscal_year_end_month: number;
   last_research_run: string | null;
   created_at: string;
 }

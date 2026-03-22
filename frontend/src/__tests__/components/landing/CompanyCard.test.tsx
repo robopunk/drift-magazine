@@ -14,6 +14,7 @@ const mockCompany: CompanySummary = {
   ir_page_url: null,
   overall_commitment_score: 72,
   tracking_active: true,
+  fiscal_year_end_month: 12,
   last_research_run: "2026-03-01",
   created_at: "2025-01-01",
   objectives: [],
