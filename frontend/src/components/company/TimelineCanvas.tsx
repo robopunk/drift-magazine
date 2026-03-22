@@ -177,22 +177,24 @@ export function TimelineCanvas({ objectives, signals, onNavigateToEvidence }: Ti
     return result;
   }, [objectiveNodeSets]);
 
-  // Quarter gridlines for the scrollable area
-  const quarterLabels = useMemo(() => {
-    const labels: { x: number; label: string }[] = [];
+  // Monthly axis labels
+  const monthLabels = useMemo(() => {
+    const labels: { x: number; label: string; isJanuary: boolean; year: number }[] = [];
+    const MONTH_ABBR = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
     const start = new Date(minDate);
     const startMonth = new Date(start.getFullYear(), start.getMonth(), 1);
-    const qMonth = Math.ceil((start.getMonth() + 1) / 3) * 3;
-    const d = new Date(start.getFullYear(), qMonth, 1);
-    while (d.getTime() <= maxDate + 86400000 * 60) {
-      const monthsFromStart =
-        (d.getFullYear() - startMonth.getFullYear()) * 12 + (d.getMonth() - startMonth.getMonth());
-      const x = monthsFromStart * MONTH_WIDTH + MONTH_WIDTH / 2;
-      labels.push({ x, label: formatQuarter(d.toISOString()) });
-      d.setMonth(d.getMonth() + 3);
+    for (let i = 0; i < totalMonths; i++) {
+      const d = new Date(startMonth);
+      d.setMonth(d.getMonth() + i);
+      labels.push({
+        x: i * MONTH_WIDTH + MONTH_WIDTH / 2,
+        label: MONTH_ABBR[d.getMonth()],
+        isJanuary: d.getMonth() === 0,
+        year: d.getFullYear(),
+      });
     }
     return labels;
-  }, [minDate, maxDate]);
+  }, [minDate, totalMonths]);
 
   // Today marker
   const todayX = useMemo(() => {
@@ -351,13 +353,34 @@ export function TimelineCanvas({ objectives, signals, onNavigateToEvidence }: Ti
                   GROUND LINE
                 </text>
 
-                {/* Vertical quarter gridlines */}
-                {quarterLabels.map(({ x, label }) => (
-                  <g key={label}>
-                    <line x1={x} y1={PADDING_Y} x2={x} y2={CANVAS_HEIGHT - PADDING_Y} stroke="var(--border)" strokeWidth={0.5} strokeDasharray="4 4" />
-                    <text x={x} y={CANVAS_HEIGHT - 8} fontSize={9} fill="var(--muted-foreground)" fontFamily="var(--font-ibm-plex-mono)" textAnchor="middle" opacity={0.6}>
+                {/* Monthly axis labels */}
+                {monthLabels.map(({ x, label, isJanuary, year }, i) => (
+                  <g key={`month-${i}`}>
+                    <text
+                      x={x}
+                      y={CANVAS_HEIGHT - 12}
+                      fontSize={9}
+                      fill={isJanuary ? "var(--foreground)" : "var(--muted-foreground)"}
+                      fontFamily="var(--font-ibm-plex-mono)"
+                      textAnchor="middle"
+                      fontWeight={isJanuary ? 600 : 400}
+                      opacity={isJanuary ? 1 : 0.5}
+                    >
                       {label}
                     </text>
+                    {isJanuary && (
+                      <text
+                        x={x}
+                        y={CANVAS_HEIGHT - 2}
+                        fontSize={9}
+                        fill="var(--primary)"
+                        fontFamily="var(--font-ibm-plex-mono)"
+                        textAnchor="middle"
+                        fontWeight={500}
+                      >
+                        {year}
+                      </text>
+                    )}
                   </g>
                 ))}
 
