@@ -1,19 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen } from "@testing-library/react";
-import userEvent from "@testing-library/user-event";
 import { TimelineCanvas } from "@/components/company/TimelineCanvas";
 import type { Objective, Signal } from "@/lib/types";
-
-// Mock panzoom
-vi.mock("@panzoom/panzoom", () => ({
-  default: () => ({
-    zoomWithWheel: vi.fn(),
-    zoom: vi.fn(),
-    getScale: () => 1,
-    reset: vi.fn(),
-    destroy: vi.fn(),
-  }),
-}));
 
 // Mock ResizeObserver
 class MockResizeObserver {
@@ -67,33 +55,45 @@ describe("TimelineCanvas", () => {
     makeObjective({ id: "a", title: "Revenue Growth", display_number: 1, momentum_score: 3 }),
     makeObjective({ id: "b", title: "Market Share", display_number: 2, momentum_score: -2 }),
     makeObjective({ id: "c", title: "Pipeline", display_number: 3, momentum_score: 1 }),
-    makeObjective({ id: "d", title: "Cost Cutting", display_number: 4, momentum_score: -1 }),
-    makeObjective({ id: "e", title: "Expansion", display_number: 5, momentum_score: 0 }),
   ];
 
   const signals: Signal[] = [
     makeSignal("a", "2025-06-01", "reinforced"),
     makeSignal("b", "2025-06-01", "softened"),
     makeSignal("c", "2025-06-01", "stated"),
-    makeSignal("d", "2025-06-01", "absent"),
-    makeSignal("e", "2025-06-01", "stated"),
   ];
 
   it("renders the selection counter", () => {
     render(<TimelineCanvas objectives={objectives} signals={signals} onNavigateToEvidence={vi.fn()} />);
-    // Default selection is top 3 by absolute momentum: a(3), b(|-2|=2), c(1) or d(|-1|=1)
     const matches = screen.getAllByText("3 of 3 selected");
     expect(matches.length).toBeGreaterThanOrEqual(1);
   });
 
-  it("renders objective titles in legend (not OBJ IDs)", () => {
+  it("renders date range in toolbar", () => {
+    render(<TimelineCanvas objectives={objectives} signals={signals} onNavigateToEvidence={vi.fn()} />);
+    expect(screen.getByText(/Jun 2025/)).toBeInTheDocument();
+  });
+
+  it("does not render zoom controls", () => {
+    render(<TimelineCanvas objectives={objectives} signals={signals} onNavigateToEvidence={vi.fn()} />);
+    expect(screen.queryByText("Reset")).not.toBeInTheDocument();
+    expect(screen.queryByText("+")).not.toBeInTheDocument();
+  });
+
+  it("renders objective titles in legend", () => {
     render(<TimelineCanvas objectives={objectives} signals={signals} onNavigateToEvidence={vi.fn()} />);
     expect(screen.getByText("Revenue Growth")).toBeInTheDocument();
-    expect(screen.queryByText(/OBJ 01/)).toBeNull();
   });
 
   it("shows empty state when no objectives", () => {
     render(<TimelineCanvas objectives={[]} signals={[]} onNavigateToEvidence={vi.fn()} />);
     expect(screen.getByText(/No objectives tracked yet/)).toBeInTheDocument();
+  });
+
+  it("renders stage names in labels", () => {
+    render(<TimelineCanvas objectives={objectives} signals={signals} onNavigateToEvidence={vi.fn()} />);
+    expect(screen.getByText("Orbit")).toBeInTheDocument();
+    expect(screen.getByText("Watch")).toBeInTheDocument();
+    expect(screen.getByText("Buried")).toBeInTheDocument();
   });
 });

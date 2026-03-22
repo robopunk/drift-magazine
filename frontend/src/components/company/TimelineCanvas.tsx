@@ -1,9 +1,9 @@
 "use client";
 
 import { useRef, useState, useEffect, useMemo, useCallback } from "react";
-import Panzoom, { type PanzoomObject } from "@panzoom/panzoom";
 import type { Objective, Signal } from "@/lib/types";
 import { STAGES, getStage, scoreToStage, formatQuarter, computeRunningMomentum } from "@/lib/momentum";
+import { generateMonthlyNodes } from "@/lib/timeline-nodes";
 import { TimelineLegend } from "./TimelineLegend";
 import { TimelineNode } from "./TimelineNode";
 import { TimelinePath } from "./TimelinePath";
@@ -21,24 +21,28 @@ const OBJECTIVE_COLOURS = [
   "#14b8a6", "#6366f1", "#ef4444", "#84cc16", "#06b6d4",
 ];
 
-interface TooltipState { objectiveId: string; viewportX: number; viewportY: number; }
+interface TooltipState {
+  objectiveId: string;
+  viewportX: number;
+  viewportY: number;
+  staleInfo?: { lastSignalDate: string; monthsSilent: number } | null;
+}
 
-const PADDING_X = 60;
 const PADDING_Y = 30;
-const CANVAS_HEIGHT = 480;
+const CANVAS_HEIGHT = 560;
 const GROUND_Y = CANVAS_HEIGHT / 2;
 const STAGE_HEIGHT = (CANVAS_HEIGHT - PADDING_Y * 2) / 8;
+const MONTH_WIDTH = 40;
+const LABEL_COL_WIDTH = 60;
 
-/** Select top 3 objectives by absolute momentum score, breaking ties by signal count */
 function getDefaultSelection(objectives: Objective[], signals: Signal[]): Set<string> {
   const signalCounts = new Map<string, number>();
   for (const s of signals) {
     signalCounts.set(s.objective_id, (signalCounts.get(s.objective_id) ?? 0) + 1);
   }
-
-  // Prefer active objectives for default selection; fall back to all if fewer than 3 active
-  const active = objectives.filter((o) => !o.is_in_graveyard);
-  const pool = active.length >= 3 ? active : objectives;
+  const withSignals = objectives.filter((o) => (signalCounts.get(o.id) ?? 0) > 0);
+  const active = withSignals.filter((o) => !o.is_in_graveyard);
+  const pool = active.length >= 3 ? active : withSignals.length >= 3 ? withSignals : objectives;
 
   const sorted = [...pool].sort((a, b) => {
     const absDiff = Math.abs(b.momentum_score) - Math.abs(a.momentum_score);
@@ -49,21 +53,34 @@ function getDefaultSelection(objectives: Objective[], signals: Signal[]): Set<st
   return new Set(sorted.slice(0, 3).map((o) => o.id));
 }
 
+function scoreToY(score: number): number {
+  return PADDING_Y + (4 - score) * STAGE_HEIGHT;
+}
+
+function formatDateRange(signals: Signal[]): string {
+  if (signals.length === 0) return "";
+  const dates = signals.map((s) => new Date(s.signal_date));
+  const min = new Date(Math.min(...dates.map((d) => d.getTime())));
+  const max = new Date(Math.max(...dates.map((d) => d.getTime())));
+  const fmt = (d: Date) =>
+    d.toLocaleDateString("en-GB", { month: "short", year: "numeric" });
+  return `${fmt(min)} \u2014 ${fmt(max)}`;
+}
+
 export function TimelineCanvas({ objectives, signals, onNavigateToEvidence }: TimelineCanvasProps) {
-  const canvasRef = useRef<HTMLDivElement>(null);
-  const panzoomRef = useRef<PanzoomObject | null>(null);
+  const scrollRef = useRef<HTMLDivElement>(null);
   const [hoveredId, setHoveredId] = useState<string | null>(null);
   const [tooltip, setTooltip] = useState<TooltipState | null>(null);
-  const [canvasWidth, setCanvasWidth] = useState(800);
 
-  // Selection state: replaces old lockedIds
   const [selectedIds, setSelectedIds] = useState<Set<string>>(() =>
     getDefaultSelection(objectives, signals)
   );
 
   const colourMap = useMemo(() => {
     const map = new Map<string, string>();
-    objectives.forEach((obj, i) => { map.set(obj.id, OBJECTIVE_COLOURS[i % OBJECTIVE_COLOURS.length]); });
+    objectives.forEach((obj, i) => {
+      map.set(obj.id, OBJECTIVE_COLOURS[i % OBJECTIVE_COLOURS.length]);
+    });
     return map;
   }, [objectives]);
 
@@ -80,107 +97,111 @@ export function TimelineCanvas({ objectives, signals, onNavigateToEvidence }: Ti
     return map;
   }, [signals]);
 
-  const [now] = useState(() => Date.now());
-  const { minDate, maxDate } = useMemo(() => {
+  const hasSignals = useCallback(
+    (id: string) => (signalsByObjective.get(id)?.length ?? 0) > 0,
+    [signalsByObjective]
+  );
+
+  // Compute date range across all signals
+  const { minDate, maxDate, totalMonths } = useMemo(() => {
     const dates = signals.map((s) => new Date(s.signal_date).getTime());
-    if (dates.length === 0) return { minDate: now - 86400000 * 365, maxDate: now };
-    return { minDate: Math.min(...dates), maxDate: Math.max(...dates, now) };
-  }, [signals, now]);
+    if (dates.length === 0) return { minDate: Date.now(), maxDate: Date.now(), totalMonths: 12 };
+    const min = Math.min(...dates);
+    const max = Math.max(...dates, Date.now());
+    const minD = new Date(min);
+    const maxD = new Date(max);
+    const months = (maxD.getFullYear() - minD.getFullYear()) * 12 + (maxD.getMonth() - minD.getMonth()) + 2; // +2 for padding
+    return { minDate: min, maxDate: max, totalMonths: Math.max(months, 12) };
+  }, [signals]);
 
-  const dateToX = useCallback((date: string): number => {
-    const t = new Date(date).getTime();
-    const range = maxDate - minDate || 1;
-    return PADDING_X + ((t - minDate) / range) * (canvasWidth - PADDING_X * 2);
-  }, [minDate, maxDate, canvasWidth]);
+  const canvasWidth = Math.max(totalMonths * MONTH_WIDTH, 800);
 
-  const scoreToY = useCallback((score: number): number => {
-    return PADDING_Y + (4 - score) * STAGE_HEIGHT;
-  }, []);
-
-  useEffect(() => {
-    const el = canvasRef.current;
-    if (!el) return;
-    const parent = el.parentElement;
-    const instance = Panzoom(el, { maxScale: 5, minScale: 0.5, contain: "outside" });
-    parent?.addEventListener("wheel", instance.zoomWithWheel);
-    panzoomRef.current = instance;
-    return () => {
-      parent?.removeEventListener("wheel", instance.zoomWithWheel);
-      instance.destroy();
-    };
-  }, []);
-
-  useEffect(() => {
-    const el = canvasRef.current?.parentElement;
-    if (!el) return;
-    const observer = new ResizeObserver((entries) => { setCanvasWidth(entries[0].contentRect.width - 210); });
-    observer.observe(el);
-    return () => observer.disconnect();
-  }, []);
-
-  function handleZoom(delta: number) {
-    if (!panzoomRef.current) return;
-    panzoomRef.current.zoom(panzoomRef.current.getScale() + delta, { animate: true });
-  }
-
-  function handleReset() { panzoomRef.current?.reset({ animate: true }); }
-
-  function toggleObjective(id: string) {
-    setSelectedIds((prev) => {
-      const next = new Set(prev);
-      if (next.has(id)) {
-        if (next.size <= 1) return prev; // enforce minimum 1
-        next.delete(id);
-      } else {
-        if (next.size >= 3) return prev; // enforce maximum 3
-        next.add(id);
-      }
-      return next;
-    });
-  }
-
-  // Only compute nodes for selected objectives
+  // Generate monthly nodes for visible objectives
   const visibleObjectives = useMemo(
     () => objectives.filter((o) => selectedIds.has(o.id)),
     [objectives, selectedIds]
   );
 
-  const objectiveNodes = useMemo(() => {
+  const now = useMemo(() => new Date(), []);
+
+  const objectiveNodeSets = useMemo(() => {
     return visibleObjectives.map((obj) => {
       const objSignals = signalsByObjective.get(obj.id) || [];
-      const runningScores = computeRunningMomentum(objSignals.map((s) => s.classification));
-      const points = objSignals.map((s, i) => ({
-        x: dateToX(s.signal_date),
-        y: scoreToY(runningScores[i]),
-        signal: s,
-        score: runningScores[i],
-      }));
-      return { objective: obj, points };
+      const monthlyNodes = generateMonthlyNodes(objSignals, now);
+
+      // Compute x and y for each node
+      if (monthlyNodes.length > 0) {
+        const originMonth = monthlyNodes[0].month;
+        const globalOrigin = new Date(minDate);
+        const globalOriginMonth = new Date(globalOrigin.getFullYear(), globalOrigin.getMonth(), 1);
+        const originOffset = (originMonth.getFullYear() - globalOriginMonth.getFullYear()) * 12 +
+          (originMonth.getMonth() - globalOriginMonth.getMonth());
+
+        monthlyNodes.forEach((node, i) => {
+          node.x = (originOffset + i) * MONTH_WIDTH + MONTH_WIDTH / 2;
+          node.y = scoreToY(node.score);
+        });
+      }
+
+      // Find latest signal node for emphasis
+      let latestSignalIdx = -1;
+      for (let i = monthlyNodes.length - 1; i >= 0; i--) {
+        if (monthlyNodes[i].type === "origin" || monthlyNodes[i].type === "signal") {
+          latestSignalIdx = i;
+          break;
+        }
+      }
+
+      return { objective: obj, nodes: monthlyNodes, latestSignalIdx };
     });
-  }, [visibleObjectives, signalsByObjective, dateToX, scoreToY]);
+  }, [visibleObjectives, signalsByObjective, now, minDate]);
 
+  // Crossings: detect ground-line crossings (both down and up)
   const crossings = useMemo(() => {
-    return visibleObjectives
-      .filter((o) => o.momentum_score < 0 && o.last_confirmed_date)
-      .map((o) => ({ objective: o, x: dateToX(o.last_confirmed_date!), y: GROUND_Y }));
-  }, [visibleObjectives, dateToX]);
+    const result: { objective: Objective; x: number; y: number; direction: "down" | "up" }[] = [];
+    for (const { objective, nodes } of objectiveNodeSets) {
+      for (let i = 1; i < nodes.length; i++) {
+        const prev = nodes[i - 1];
+        const curr = nodes[i];
+        if (prev.score > 0 && curr.score <= 0) {
+          result.push({ objective, x: curr.x, y: GROUND_Y, direction: "down" });
+        } else if (prev.score <= 0 && curr.score > 0 && objective.exit_manner === "resurrected") {
+          result.push({ objective, x: curr.x, y: GROUND_Y, direction: "up" });
+        }
+      }
+    }
+    return result;
+  }, [objectiveNodeSets]);
 
-  const todayX = dateToX(new Date().toISOString());
-
+  // Quarter gridlines for the scrollable area
   const quarterLabels = useMemo(() => {
     const labels: { x: number; label: string }[] = [];
     const start = new Date(minDate);
-    // Align to next quarter start
+    const startMonth = new Date(start.getFullYear(), start.getMonth(), 1);
     const qMonth = Math.ceil((start.getMonth() + 1) / 3) * 3;
     const d = new Date(start.getFullYear(), qMonth, 1);
-    while (d.getTime() <= maxDate) {
-      const iso = d.toISOString();
-      labels.push({ x: dateToX(iso), label: formatQuarter(iso) });
+    while (d.getTime() <= maxDate + 86400000 * 60) {
+      const monthsFromStart =
+        (d.getFullYear() - startMonth.getFullYear()) * 12 + (d.getMonth() - startMonth.getMonth());
+      const x = monthsFromStart * MONTH_WIDTH + MONTH_WIDTH / 2;
+      labels.push({ x, label: formatQuarter(d.toISOString()) });
       d.setMonth(d.getMonth() + 3);
     }
     return labels;
-  }, [minDate, maxDate, dateToX]);
+  }, [minDate, maxDate]);
 
+  // Today marker
+  const todayX = useMemo(() => {
+    const today = new Date();
+    const start = new Date(minDate);
+    const startMonth = new Date(start.getFullYear(), start.getMonth(), 1);
+    const monthsFromStart =
+      (today.getFullYear() - startMonth.getFullYear()) * 12 + (today.getMonth() - startMonth.getMonth());
+    const dayFraction = today.getDate() / 30;
+    return (monthsFromStart + dayFraction) * MONTH_WIDTH;
+  }, [minDate]);
+
+  // Tooltip data
   const tooltipData = useMemo(() => {
     if (!tooltip) return null;
     const obj = objectives.find((o) => o.id === tooltip.objectiveId);
@@ -195,8 +216,44 @@ export function TimelineCanvas({ objectives, signals, onNavigateToEvidence }: Ti
       latestSignalDate: latest?.signal_date ?? null,
       viewportX: tooltip.viewportX,
       viewportY: tooltip.viewportY,
+      staleInfo: tooltip.staleInfo ?? null,
     };
   }, [tooltip, objectives, signalsByObjective]);
+
+  // Auto-scroll to recent on mount
+  useEffect(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+    // Scroll to show the rightmost content (most recent)
+    el.scrollLeft = el.scrollWidth - el.clientWidth;
+  }, [canvasWidth]);
+
+  // Keyboard navigation for horizontal scroll
+  const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
+    const el = scrollRef.current;
+    if (!el) return;
+    if (e.key === "ArrowRight") {
+      el.scrollLeft += MONTH_WIDTH * 3;
+      e.preventDefault();
+    } else if (e.key === "ArrowLeft") {
+      el.scrollLeft -= MONTH_WIDTH * 3;
+      e.preventDefault();
+    }
+  }, []);
+
+  function toggleObjective(id: string) {
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) {
+        if (next.size <= 1) return prev;
+        next.delete(id);
+      } else {
+        if (next.size >= 3) return prev;
+        next.add(id);
+      }
+      return next;
+    });
+  }
 
   if (objectives.length === 0) {
     return (
@@ -206,97 +263,202 @@ export function TimelineCanvas({ objectives, signals, onNavigateToEvidence }: Ti
     );
   }
 
+  const dateRangeLabel = formatDateRange(signals);
+
   return (
-    <div className="flex border border-border rounded-lg overflow-hidden bg-card" style={{ height: CANVAS_HEIGHT + 60 }}>
+    <div className="flex border border-border rounded-lg overflow-hidden bg-card" style={{ height: CANVAS_HEIGHT + 44, minHeight: 500 }}>
       <TimelineLegend
         objectives={objectives}
         selectedIds={selectedIds}
         onToggleSelection={toggleObjective}
+        onHoverObjective={setHoveredId}
         colours={colourMap}
+        hasSignals={hasSignals}
       />
       <div className="flex-1 flex flex-col min-w-0">
-        <div className="flex items-center justify-between px-4 py-2 border-b border-border text-xs font-mono text-muted-foreground">
+        {/* Toolbar */}
+        <div className="flex items-center justify-between px-4 py-2 border-b border-border text-xs font-mono text-muted-foreground" style={{ height: 44 }}>
           <span>{selectedIds.size} of 3 selected</span>
-          <div className="flex gap-2">
-            <button onClick={() => handleZoom(0.2)} className="px-2 py-1 border border-border rounded hover:bg-muted">+</button>
-            <button onClick={() => handleZoom(-0.2)} className="px-2 py-1 border border-border rounded hover:bg-muted">&minus;</button>
-            <button onClick={handleReset} className="px-2 py-1 border border-border rounded hover:bg-muted">Reset</button>
-          </div>
+          {dateRangeLabel && <span>{dateRangeLabel}</span>}
         </div>
-        <div className="relative flex-1 overflow-hidden">
-          <div ref={canvasRef} className="relative" style={{ width: canvasWidth, height: CANVAS_HEIGHT }}>
-            <svg className="absolute inset-0" width={canvasWidth} height={CANVAS_HEIGHT}>
-              {/* Background zones */}
-              <rect x={PADDING_X} y={PADDING_Y} width={canvasWidth - PADDING_X * 2} height={GROUND_Y - PADDING_Y} fill="var(--timeline-zone-above)" />
-              <rect x={PADDING_X} y={GROUND_Y} width={canvasWidth - PADDING_X * 2} height={CANVAS_HEIGHT - PADDING_Y - GROUND_Y} fill="var(--timeline-zone-below)" />
-
-              {/* Stage lines */}
+        {/* Canvas area: fixed labels + scrollable data */}
+        <div className="flex flex-1 min-h-0">
+          {/* Fixed stage label column */}
+          <div className="flex-none relative" style={{ width: LABEL_COL_WIDTH }}>
+            <svg width={LABEL_COL_WIDTH} height={CANVAS_HEIGHT}>
               {STAGES.map((stage) => {
                 const y = scoreToY(stage.score);
                 const isGround = stage.score === 0;
                 return (
                   <g key={stage.name}>
-                    {!isGround && (
-                      <line x1={PADDING_X} y1={y} x2={canvasWidth - PADDING_X} y2={y} stroke="var(--border)" strokeWidth={1} />
-                    )}
-                    <text x={8} y={y + 4} fontSize={10} fill="var(--muted-foreground)" fontFamily="var(--font-ibm-plex-mono)">
-                      {stage.emoji}
+                    <text
+                      x={4}
+                      y={y + 4}
+                      fontSize={9}
+                      fill={isGround ? "var(--primary)" : "var(--muted-foreground)"}
+                      fontFamily="var(--font-ibm-plex-mono)"
+                    >
+                      {stage.emoji} {stage.score > 0 ? "+" : ""}{stage.score}
                     </text>
-                    <text x={28} y={y + 4} fontSize={8} fill="var(--muted-foreground)" fontFamily="var(--font-ibm-plex-mono)">
-                      {stage.score > 0 ? "+" : ""}{stage.score}
+                    <text
+                      x={4}
+                      y={y + 14}
+                      fontSize={8}
+                      fill={isGround ? "var(--primary)" : "var(--muted-foreground)"}
+                      fontFamily="var(--font-ibm-plex-mono)"
+                      opacity={0.7}
+                    >
+                      {stage.label}
                     </text>
                   </g>
                 );
               })}
-
-              {/* Ground line */}
-              <line x1={PADDING_X} y1={GROUND_Y} x2={canvasWidth - PADDING_X} y2={GROUND_Y} stroke="var(--primary)" strokeWidth={2} />
-              <text x={canvasWidth - PADDING_X - 4} y={GROUND_Y + 4} fontSize={9} fill="var(--primary)" fontFamily="var(--font-ibm-plex-mono)" textAnchor="end">GROUND LINE</text>
-
-              {/* Today marker */}
-              <line x1={todayX} y1={PADDING_Y} x2={todayX} y2={CANVAS_HEIGHT - PADDING_Y} stroke="var(--primary)" strokeWidth={1} strokeDasharray="6 3" opacity={0.5} />
-
-              {/* Quarterly date labels */}
-              {quarterLabels.map(({ x, label }) => (
-                <text key={label} x={x} y={CANVAS_HEIGHT - 8} fontSize={10} fill="var(--muted-foreground)" fontFamily="var(--font-ibm-plex-mono)" textAnchor="middle" opacity={0.6}>
-                  {label}
-                </text>
-              ))}
-
-              {/* Paths for selected objectives only */}
-              {objectiveNodes.map(({ objective, points }) => (
-                <TimelinePath key={objective.id} points={points} colour={colourMap.get(objective.id) ?? "#999"} isBelowGround={objective.momentum_score < 0} />
-              ))}
             </svg>
+          </div>
+          {/* Scrollable data area */}
+          <div
+            ref={scrollRef}
+            className="flex-1 overflow-x-auto overflow-y-hidden"
+            tabIndex={0}
+            onKeyDown={handleKeyDown}
+          >
+            <div className="relative" style={{ width: canvasWidth, height: CANVAS_HEIGHT }}>
+              <svg className="absolute inset-0" width={canvasWidth} height={CANVAS_HEIGHT}>
+                {/* Background zones */}
+                <rect x={0} y={PADDING_Y} width={canvasWidth} height={GROUND_Y - PADDING_Y} fill="var(--timeline-zone-above)" />
+                <rect x={0} y={GROUND_Y} width={canvasWidth} height={CANVAS_HEIGHT - PADDING_Y - GROUND_Y} fill="var(--timeline-zone-below)" />
 
-            {/* Nodes for selected objectives only */}
-            {objectiveNodes.map(({ objective, points }) => {
-              return points.map((pt, i) => {
-                const stage = scoreToStage(pt.score);
-                const stageInfo = getStage(stage);
+                {/* Stage lines */}
+                {STAGES.map((stage) => {
+                  const y = scoreToY(stage.score);
+                  const isGround = stage.score === 0;
+                  return (
+                    <g key={stage.name}>
+                      {isGround ? (
+                        <line x1={0} y1={y} x2={canvasWidth} y2={y} stroke="var(--primary)" strokeWidth={2} />
+                      ) : (
+                        <line x1={0} y1={y} x2={canvasWidth} y2={y} stroke="var(--border)" strokeWidth={0.5} />
+                      )}
+                    </g>
+                  );
+                })}
+
+                {/* Ground line label */}
+                <text x={canvasWidth - 8} y={GROUND_Y - 6} fontSize={9} fill="var(--primary)" fontFamily="var(--font-ibm-plex-mono)" textAnchor="end">
+                  GROUND LINE
+                </text>
+
+                {/* Vertical quarter gridlines */}
+                {quarterLabels.map(({ x, label }) => (
+                  <g key={label}>
+                    <line x1={x} y1={PADDING_Y} x2={x} y2={CANVAS_HEIGHT - PADDING_Y} stroke="var(--border)" strokeWidth={0.5} strokeDasharray="4 4" />
+                    <text x={x} y={CANVAS_HEIGHT - 8} fontSize={9} fill="var(--muted-foreground)" fontFamily="var(--font-ibm-plex-mono)" textAnchor="middle" opacity={0.6}>
+                      {label}
+                    </text>
+                  </g>
+                ))}
+
+                {/* Today marker */}
+                <line x1={todayX} y1={PADDING_Y} x2={todayX} y2={CANVAS_HEIGHT - PADDING_Y} stroke="var(--primary)" strokeWidth={1} strokeDasharray="6 3" opacity={0.5} />
+                <text x={todayX} y={PADDING_Y - 4} fontSize={8} fill="var(--primary)" fontFamily="var(--font-ibm-plex-mono)" textAnchor="middle" opacity={0.7}>
+                  Today
+                </text>
+
+                {/* Paths for selected objectives */}
+                {objectiveNodeSets.map(({ objective, nodes }) => {
+                  const colour = colourMap.get(objective.id) ?? "#999";
+                  const points = nodes.map((n) => ({ x: n.x, y: n.y }));
+                  const isBelowGround = objective.momentum_score <= 0;
+                  const dimmed = hoveredId !== null && hoveredId !== objective.id;
+                  return (
+                    <g key={objective.id} opacity={dimmed ? 0.25 : 1} style={{ transition: "opacity 200ms" }}>
+                      <TimelinePath points={points} colour={colour} isBelowGround={isBelowGround} />
+                    </g>
+                  );
+                })}
+              </svg>
+
+              {/* DOM nodes for selected objectives */}
+              {objectiveNodeSets.map(({ objective, nodes, latestSignalIdx }) => {
+                const colour = colourMap.get(objective.id) ?? "#999";
+                const dimmed = hoveredId !== null && hoveredId !== objective.id;
                 return (
-                  <TimelineNode
-                    key={`${objective.id}-${i}`}
-                    emoji={stageInfo.emoji}
-                    colour={colourMap.get(objective.id) ?? stageInfo.colour}
-                    x={pt.x} y={pt.y}
-                    label={objective.title}
-                    onHover={(e: React.MouseEvent) => {
-                      setHoveredId(objective.id);
-                      const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
-                      setTooltip({ objectiveId: objective.id, viewportX: rect.right, viewportY: rect.top });
-                    }}
-                    onLeave={() => { setHoveredId(null); setTooltip(null); }}
-                    onClick={() => { if (pt.signal) onNavigateToEvidence(); }}
-                  />
+                  <div
+                    key={objective.id}
+                    style={{ opacity: dimmed ? 0.25 : 1, transition: "opacity 200ms" }}
+                  >
+                    {nodes.map((node, i) => {
+                      const stageInfo = getStage(scoreToStage(node.score));
+                      return (
+                        <TimelineNode
+                          key={`${objective.id}-${i}`}
+                          type={node.type}
+                          emoji={node.type === "origin" ? "\u{1F3AF}" : stageInfo.emoji}
+                          colour={colour}
+                          x={node.x}
+                          y={node.y}
+                          label={objective.title}
+                          isLatestSignal={i === latestSignalIdx}
+                          monthsSinceLastSignal={node.monthsSinceLastSignal}
+                          onHover={
+                            node.type === "cadence"
+                              ? undefined
+                              : (e: React.MouseEvent) => {
+                                  setHoveredId(objective.id);
+                                  const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
+                                  setTooltip({
+                                    objectiveId: objective.id,
+                                    viewportX: rect.right,
+                                    viewportY: rect.top,
+                                    staleInfo:
+                                      node.type === "stale"
+                                        ? {
+                                            lastSignalDate: (() => {
+                                              const objSignals = signalsByObjective.get(objective.id);
+                                              return objSignals?.[objSignals.length - 1]?.signal_date ?? "Unknown";
+                                            })(),
+                                            monthsSilent: node.monthsSinceLastSignal ?? 0,
+                                          }
+                                        : null,
+                                  });
+                                }
+                          }
+                          onLeave={
+                            node.type === "cadence"
+                              ? undefined
+                              : () => {
+                                  setHoveredId(null);
+                                  setTooltip(null);
+                                }
+                          }
+                          onClick={
+                            node.type === "origin" || node.type === "signal"
+                              ? () => onNavigateToEvidence()
+                              : undefined
+                          }
+                        />
+                      );
+                    })}
+                  </div>
                 );
-              });
-            })}
+              })}
 
-            {/* Crossing markers for selected objectives only */}
-            {crossings.map(({ objective, x, y }) => (
-              <CrossingMarker key={`cross-${objective.id}`} x={x} y={y} label={`Crossing ${formatQuarter(objective.last_confirmed_date!)}`} editorialNote={`${objective.title} crossed the ground line.`} />
-            ))}
+              {/* Crossing markers */}
+              {crossings.map(({ objective, x, y, direction }) => (
+                <CrossingMarker
+                  key={`cross-${objective.id}-${x}`}
+                  x={x}
+                  y={y}
+                  label={`${direction === "up" ? "Resurrected" : "Crossing"} ${formatQuarter(new Date(objective.last_confirmed_date ?? Date.now()).toISOString())}`}
+                  editorialNote={
+                    direction === "up"
+                      ? `${objective.title} has been resurrected after burial.`
+                      : `${objective.title} crossed the ground line.`
+                  }
+                  direction={direction}
+                />
+              ))}
+            </div>
           </div>
         </div>
       </div>
