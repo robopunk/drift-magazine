@@ -34,9 +34,10 @@ interface TooltipState {
 }
 
 const PADDING_Y = 30;
-const CANVAS_HEIGHT = 560;
-const GROUND_Y = CANVAS_HEIGHT / 2;
-const STAGE_HEIGHT = (CANVAS_HEIGHT - PADDING_Y * 2) / 8;
+const CANVAS_HEIGHT = 620;
+const AXIS_LABEL_HEIGHT = 40;
+const STAGE_HEIGHT = (CANVAS_HEIGHT - PADDING_Y - AXIS_LABEL_HEIGHT) / 8;
+const GROUND_Y = PADDING_Y + 4 * STAGE_HEIGHT;
 const MONTH_WIDTH = 40;
 const LABEL_COL_WIDTH = 60;
 
@@ -331,7 +332,7 @@ export function TimelineCanvas({ objectives, signals, onNavigateToEvidence, fisc
               <svg className="absolute inset-0" width={canvasWidth} height={CANVAS_HEIGHT}>
                 {/* Background zones */}
                 <rect x={0} y={PADDING_Y} width={canvasWidth} height={GROUND_Y - PADDING_Y} fill="var(--timeline-zone-above)" />
-                <rect x={0} y={GROUND_Y} width={canvasWidth} height={CANVAS_HEIGHT - PADDING_Y - GROUND_Y} fill="var(--timeline-zone-below)" />
+                <rect x={0} y={GROUND_Y} width={canvasWidth} height={PADDING_Y + 8 * STAGE_HEIGHT - GROUND_Y} fill="var(--timeline-zone-below)" />
 
                 {/* Stage lines */}
                 {STAGES.map((stage) => {
@@ -358,7 +359,7 @@ export function TimelineCanvas({ objectives, signals, onNavigateToEvidence, fisc
                   <g key={`month-${i}`}>
                     <text
                       x={x}
-                      y={CANVAS_HEIGHT - 12}
+                      y={CANVAS_HEIGHT - AXIS_LABEL_HEIGHT + 18}
                       fontSize={9}
                       fill={isJanuary ? "var(--foreground)" : "var(--muted-foreground)"}
                       fontFamily="var(--font-ibm-plex-mono)"
@@ -371,7 +372,7 @@ export function TimelineCanvas({ objectives, signals, onNavigateToEvidence, fisc
                     {isJanuary && (
                       <text
                         x={x}
-                        y={CANVAS_HEIGHT - 2}
+                        y={CANVAS_HEIGHT - AXIS_LABEL_HEIGHT + 30}
                         fontSize={9}
                         fill="var(--primary)"
                         fontFamily="var(--font-ibm-plex-mono)"
@@ -385,7 +386,7 @@ export function TimelineCanvas({ objectives, signals, onNavigateToEvidence, fisc
                 ))}
 
                 {/* Today marker */}
-                <line x1={todayX} y1={PADDING_Y} x2={todayX} y2={CANVAS_HEIGHT - PADDING_Y} stroke="var(--primary)" strokeWidth={1} strokeDasharray="6 3" opacity={0.5} />
+                <line x1={todayX} y1={PADDING_Y} x2={todayX} y2={PADDING_Y + 8 * STAGE_HEIGHT} stroke="var(--primary)" strokeWidth={1} strokeDasharray="6 3" opacity={0.5} />
                 <text x={todayX} y={PADDING_Y - 4} fontSize={8} fill="var(--primary)" fontFamily="var(--font-ibm-plex-mono)" textAnchor="middle" opacity={0.7}>
                   Today
                 </text>
