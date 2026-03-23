@@ -63,10 +63,15 @@ describe("TimelineCanvas", () => {
     makeSignal("c", "2025-06-01", "stated"),
   ];
 
-  it("renders the selection counter", () => {
+  it("renders the selection counter with zero default selection", () => {
     render(<TimelineCanvas objectives={objectives} signals={signals} onNavigateToEvidence={vi.fn()} />);
-    const matches = screen.getAllByText("3 of 3 selected");
+    const matches = screen.getAllByText("0 of 3 selected");
     expect(matches.length).toBeGreaterThanOrEqual(1);
+  });
+
+  it("shows empty state overlay when no objectives selected", () => {
+    render(<TimelineCanvas objectives={objectives} signals={signals} onNavigateToEvidence={vi.fn()} />);
+    expect(screen.getByText("Select an objective to view its trajectory")).toBeInTheDocument();
   });
 
   it("renders date range in toolbar", () => {

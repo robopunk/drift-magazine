@@ -41,22 +41,8 @@ const GROUND_Y = PADDING_Y + 4 * STAGE_HEIGHT;
 const MONTH_WIDTH = 40;
 const LABEL_COL_WIDTH = 60;
 
-function getDefaultSelection(objectives: Objective[], signals: Signal[]): Set<string> {
-  const signalCounts = new Map<string, number>();
-  for (const s of signals) {
-    signalCounts.set(s.objective_id, (signalCounts.get(s.objective_id) ?? 0) + 1);
-  }
-  const withSignals = objectives.filter((o) => (signalCounts.get(o.id) ?? 0) > 0);
-  const active = withSignals.filter((o) => !o.is_in_graveyard);
-  const pool = active.length >= 3 ? active : withSignals.length >= 3 ? withSignals : objectives;
-
-  const sorted = [...pool].sort((a, b) => {
-    const absDiff = Math.abs(b.momentum_score) - Math.abs(a.momentum_score);
-    if (absDiff !== 0) return absDiff;
-    return (signalCounts.get(b.id) ?? 0) - (signalCounts.get(a.id) ?? 0);
-  });
-
-  return new Set(sorted.slice(0, 3).map((o) => o.id));
+function getDefaultSelection(): Set<string> {
+  return new Set<string>();
 }
 
 function scoreToY(score: number): number {
@@ -79,7 +65,7 @@ export function TimelineCanvas({ objectives, signals, onNavigateToEvidence, fisc
   const [tooltip, setTooltip] = useState<TooltipState | null>(null);
 
   const [selectedIds, setSelectedIds] = useState<Set<string>>(() =>
-    getDefaultSelection(objectives, signals)
+    getDefaultSelection()
   );
 
   const colourMap = useMemo(() => {
