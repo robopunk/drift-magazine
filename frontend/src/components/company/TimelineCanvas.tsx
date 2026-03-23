@@ -61,6 +61,10 @@ function formatDateRange(signals: Signal[]): string {
 
 export function TimelineCanvas({ objectives, signals, onNavigateToEvidence, fiscalYearEndMonth }: TimelineCanvasProps) {
   const scrollRef = useRef<HTMLDivElement>(null);
+  const mouseIsDown = useRef(false);
+  const isDragging = useRef(false);
+  const dragStartX = useRef(0);
+  const dragStartScrollLeft = useRef(0);
   const [hoveredId, setHoveredId] = useState<string | null>(null);
   const [tooltip, setTooltip] = useState<TooltipState | null>(null);
 
@@ -234,6 +238,36 @@ export function TimelineCanvas({ objectives, signals, onNavigateToEvidence, fisc
     }
   }, []);
 
+  const handleMouseDown = useCallback((e: React.MouseEvent) => {
+    const el = scrollRef.current;
+    if (!el) return;
+    mouseIsDown.current = true;
+    isDragging.current = false;
+    dragStartX.current = e.clientX;
+    dragStartScrollLeft.current = el.scrollLeft;
+    el.style.cursor = "grabbing";
+    el.style.userSelect = "none";
+  }, []);
+
+  const handleMouseMove = useCallback((e: React.MouseEvent) => {
+    if (!mouseIsDown.current) return;
+    const el = scrollRef.current;
+    if (!el) return;
+    const dx = e.clientX - dragStartX.current;
+    if (!isDragging.current && Math.abs(dx) < 5) return;
+    isDragging.current = true;
+    el.scrollLeft = dragStartScrollLeft.current - dx;
+  }, []);
+
+  const handleMouseUp = useCallback(() => {
+    mouseIsDown.current = false;
+    isDragging.current = false;
+    const el = scrollRef.current;
+    if (!el) return;
+    el.style.cursor = "grab";
+    el.style.userSelect = "";
+  }, []);
+
   function toggleObjective(id: string) {
     setSelectedIds((prev) => {
       const next = new Set(prev);
@@ -311,8 +345,14 @@ export function TimelineCanvas({ objectives, signals, onNavigateToEvidence, fisc
           <div
             ref={scrollRef}
             className="flex-1 overflow-x-auto overflow-y-hidden"
+            data-timeline-scroll
             tabIndex={0}
+            style={{ cursor: "grab" }}
             onKeyDown={handleKeyDown}
+            onMouseDown={handleMouseDown}
+            onMouseMove={handleMouseMove}
+            onMouseUp={handleMouseUp}
+            onMouseLeave={handleMouseUp}
           >
             <div className="relative" style={{ width: canvasWidth, height: CANVAS_HEIGHT }}>
               <svg className="absolute inset-0" width={canvasWidth} height={CANVAS_HEIGHT}>

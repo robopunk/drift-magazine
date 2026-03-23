@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { render, screen } from "@testing-library/react";
+import { render, screen, fireEvent } from "@testing-library/react";
 import { TimelineCanvas } from "@/components/company/TimelineCanvas";
 import type { Objective, Signal } from "@/lib/types";
 
@@ -122,5 +122,25 @@ describe("TimelineCanvas", () => {
     expect(screen.getByText("Orbit")).toBeInTheDocument();
     expect(screen.getByText("Watch")).toBeInTheDocument();
     expect(screen.getByText("Buried")).toBeInTheDocument();
+  });
+
+  it("sets grab cursor on canvas scroll area", () => {
+    const { container } = render(
+      <TimelineCanvas objectives={objectives} signals={signals} onNavigateToEvidence={vi.fn()} />
+    );
+    const scrollArea = container.querySelector("[data-timeline-scroll]");
+    expect(scrollArea).toBeInTheDocument();
+    expect(scrollArea?.getAttribute("style")).toContain("cursor: grab");
+  });
+
+  it("does not trigger drag on click without movement", () => {
+    const { container } = render(
+      <TimelineCanvas objectives={objectives} signals={signals} onNavigateToEvidence={vi.fn()} />
+    );
+    const scrollArea = container.querySelector("[data-timeline-scroll]") as HTMLElement;
+    const initialScrollLeft = scrollArea.scrollLeft;
+    fireEvent.mouseDown(scrollArea, { clientX: 100 });
+    fireEvent.mouseUp(scrollArea);
+    expect(scrollArea.scrollLeft).toBe(initialScrollLeft);
   });
 });
