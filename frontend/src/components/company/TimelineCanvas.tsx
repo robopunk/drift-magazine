@@ -335,6 +335,21 @@ export function TimelineCanvas({ objectives, signals, onNavigateToEvidence, fisc
                   );
                 })}
 
+                {/* Monthly vertical gridlines */}
+                {monthLabels.map(({ x, isJanuary }, i) => (
+                  <line
+                    key={`grid-${i}`}
+                    data-gridline={isJanuary ? "january" : "month"}
+                    x1={x}
+                    y1={PADDING_Y}
+                    x2={x}
+                    y2={PADDING_Y + 8 * STAGE_HEIGHT}
+                    stroke="var(--border)"
+                    strokeWidth={0.5}
+                    opacity={isJanuary ? 0.3 : 0.15}
+                  />
+                ))}
+
                 {/* Ground line label */}
                 <text x={canvasWidth - 8} y={GROUND_Y - 6} fontSize={9} fill="var(--primary)" fontFamily="var(--font-ibm-plex-mono)" textAnchor="end">
                   GROUND LINE

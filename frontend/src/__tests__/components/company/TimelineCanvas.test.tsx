@@ -95,6 +95,28 @@ describe("TimelineCanvas", () => {
     expect(screen.getByText(/No objectives tracked yet/)).toBeInTheDocument();
   });
 
+  it("renders monthly vertical gridlines", () => {
+    const { container } = render(
+      <TimelineCanvas objectives={objectives} signals={signals} onNavigateToEvidence={vi.fn()} />
+    );
+    const gridlines = container.querySelectorAll("line[data-gridline]");
+    expect(gridlines.length).toBeGreaterThan(0);
+  });
+
+  it("renders January gridlines with stronger opacity", () => {
+    const { container } = render(
+      <TimelineCanvas objectives={objectives} signals={signals} onNavigateToEvidence={vi.fn()} />
+    );
+    const januaryLines = container.querySelectorAll('line[data-gridline="january"]');
+    const regularLines = container.querySelectorAll('line[data-gridline="month"]');
+    if (januaryLines.length > 0) {
+      expect(januaryLines[0].getAttribute("opacity")).toBe("0.3");
+    }
+    if (regularLines.length > 0) {
+      expect(regularLines[0].getAttribute("opacity")).toBe("0.15");
+    }
+  });
+
   it("renders stage names in labels", () => {
     render(<TimelineCanvas objectives={objectives} signals={signals} onNavigateToEvidence={vi.fn()} />);
     expect(screen.getByText("Orbit")).toBeInTheDocument();
