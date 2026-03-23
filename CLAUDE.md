@@ -36,7 +36,7 @@ The product's most distinctive feature is the **Graveyard** — a record of obje
 | `frontend/src/app/` | App Router pages: landing, company/[ticker], about, admin, 404 |
 | `frontend/src/components/` | React components: layout (Masthead, Footer, ThemeToggle), landing (Hero, CompanyGrid, SearchBar, SignalFeed), company (TimelineCanvas, TimelineNode, TimelinePath, TimelineLegend, TimelineLegendTooltip, TimelineTooltip, CrossingMarker, ObjectiveCard, BuriedCard, EvidenceTable, TabBar), mobile, ui |
 | `frontend/src/lib/` | Shared utilities: types.ts, momentum.ts, timeline-nodes.ts, theme.ts, search.ts, supabase.ts |
-| `frontend/src/__tests__/` | 15 test files, 81 tests (Vitest + React Testing Library) |
+| `frontend/src/__tests__/` | 15 test files, 86 tests (Vitest + React Testing Library) |
 
 ### v1 Archive
 

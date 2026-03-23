@@ -1,5 +1,25 @@
 # Changelog
 
+## [2.2.0] - 2026-03-23
+
+### Added
+- Dedicated axis label area below stage grid — month/year labels no longer clip at canvas bottom
+- Zero default selection — canvas loads with no objectives selected, empty state prompt visible
+- Monthly vertical gridlines with January emphasis (opacity 0.3 vs 0.15 for regular months)
+- Mouse drag panning on timeline with grab/grabbing cursor and 5px dead zone
+- `AXIS_LABEL_HEIGHT` constant for asymmetric canvas layout
+- `data-timeline-scroll` and `data-gridline` attributes for testability
+- 5 new tests (86 total, up from 81)
+
+### Changed
+- Canvas height increased from 560 to 620 to accommodate dedicated axis label area
+- `GROUND_Y` and `STAGE_HEIGHT` now derived from asymmetric padding model (`PADDING_Y` top, `AXIS_LABEL_HEIGHT` bottom)
+- Today marker and below-ground zone use explicit stage grid bounds instead of symmetric padding
+- `getDefaultSelection` returns empty set instead of top-3-by-momentum
+
+### Removed
+- 17-line `getDefaultSelection` heuristic (replaced by empty-set default)
+
 ## [2.1.0] - 2026-03-22
 
 ### Added
