@@ -628,26 +628,35 @@ def run_monthly(claude: anthropic.Anthropic, db: Client, company_id: str):
                 obj_update["exit_date"] = date.today().isoformat()
             db.table("objectives").update(obj_update).eq("id", prop["objective_id"]).execute()
 
+        # ── Correlation & Lifecycle Pass ──────────────────────────
         score = result.get("updated_commitment_score")
-        mark_company_researched(db, company_id, score)
+        corr_result = run_correlation_pass(claude, db, company_id, run_id)
+
+        # ── Final agent run update ────────────────────────────────
+        monthly_cost = round(
+            (response.usage.input_tokens * 0.000003) +
+            (response.usage.output_tokens * 0.000015), 4
+        )
+        total_cost = monthly_cost + corr_result.get("correlation_cost", 0)
+        combined_summary = result.get("run_summary", "")
+        if corr_result.get("summary"):
+            combined_summary += " | Correlation: " + corr_result["summary"]
+
+        mark_company_researched(db, company_id, corr_result.get("updated_commitment_score") or score)
         update_agent_run(db, run_id,
             status="completed",
             sources_searched=len(result.get("sources_found", [])),
             signals_proposed=len(new_signals) + len(status_proposals),
-            run_summary=result.get("run_summary", ""),
+            run_summary=combined_summary,
             input_tokens=response.usage.input_tokens,
             output_tokens=response.usage.output_tokens,
-            estimated_cost_usd=round(
-                (response.usage.input_tokens * 0.000003) +
-                (response.usage.output_tokens * 0.000015), 4
-            ),
+            estimated_cost_usd=total_cost,
         )
 
         print(f"  ✓ {len(new_signals)} new signals, {len(status_proposals)} status proposals")
-        print(f"  → Summary: {result.get('run_summary', '')}")
-        if score:
-            print(f"  → Updated commitment score: {score}/100")
-        print(f"  → Run 'python agent.py --review' to review")
+        print(f"  → {combined_summary}")
+        if total_cost:
+            print(f"  → Total run cost: ~${total_cost}")
 
     except Exception as e:
         update_agent_run(db, run_id, status="failed", error_message=str(e))
