@@ -858,6 +858,7 @@ def main():
     parser.add_argument("--review",      action="store_true", help="Show all draft signals pending review")
     parser.add_argument("--approve",     help="Approve a draft signal by UUID")
     parser.add_argument("--reject",      help="Reject (delete) a draft signal by UUID")
+    parser.add_argument("--correlate",  help="Run correlation pass for a specific company UUID")
     parser.add_argument("--model",       help="Override model (e.g. claude-opus-4-6, claude-sonnet-4-6)")
     args = parser.parse_args()
 
@@ -881,6 +882,13 @@ def main():
     elif args.intake:
         MODEL = args.model or INTAKE_MODEL
         run_intake(claude, db, args.intake)
+
+    elif args.correlate:
+        run_id = create_agent_run(db, args.correlate, triggered_by="manual_correlate")
+        corr_result = run_correlation_pass(claude, db, args.correlate, run_id)
+        update_agent_run(db, run_id, status="completed",
+            run_summary=corr_result.get("summary", ""),
+            estimated_cost_usd=corr_result.get("correlation_cost", 0))
 
     elif args.company_id:
         run_monthly(claude, db, args.company_id)
