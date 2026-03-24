@@ -600,7 +600,7 @@ def run_monthly(claude: anthropic.Anthropic, db: Client, company_id: str):
 
         result = json.loads(result_text)
 
-        # Save new draft signals
+        # Save new signals (autonomous — published directly)
         new_signals = result.get("new_signals", [])
         for sig in new_signals:
             sig["company_id"] = company_id
