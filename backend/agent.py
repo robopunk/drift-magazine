@@ -655,6 +655,142 @@ def run_monthly(claude: anthropic.Anthropic, db: Client, company_id: str):
         raise
 
 
+def run_correlation_pass(claude: anthropic.Anthropic, db: Client, company_id: str, run_id: str) -> dict:
+    """
+    Correlation & lifecycle pass: cross-references objectives, detects silent
+    achievements, promotes to graveyard, adjusts momentum. Fully autonomous.
+    """
+    company = get_company(db, company_id)
+    objectives = get_objectives(db, company_id)
+    signals = get_signals_for_company(db, company_id)
+
+    if not objectives:
+        print("  ⚠ No objectives — skipping correlation pass.")
+        return {}
+
+    print("  → Running correlation pass…")
+    prompt = build_correlation_prompt(company, objectives, signals)
+
+    try:
+        total_input_tokens = 0
+        total_output_tokens = 0
+
+        response = claude.messages.create(
+            model=MODEL,
+            max_tokens=MAX_TOKENS,
+            messages=[{"role": "user", "content": prompt}],
+        )
+        total_input_tokens += response.usage.input_tokens
+        total_output_tokens += response.usage.output_tokens
+
+        result_text = ""
+        for block in response.content:
+            if hasattr(block, "text"):
+                result_text += block.text
+
+        # Parse with one retry on failure
+        try:
+            result = json.loads(result_text)
+        except json.JSONDecodeError:
+            print("  ⚠ Correlation pass returned invalid JSON. Retrying…")
+            response = claude.messages.create(
+                model=MODEL,
+                max_tokens=MAX_TOKENS,
+                messages=[
+                    {"role": "user", "content": prompt},
+                    {"role": "assistant", "content": result_text},
+                    {"role": "user", "content": "Your response was not valid JSON. Please respond with ONLY valid JSON, no markdown fences, no preamble."},
+                ],
+            )
+            total_input_tokens += response.usage.input_tokens
+            total_output_tokens += response.usage.output_tokens
+            result_text = ""
+            for block in response.content:
+                if hasattr(block, "text"):
+                    result_text += block.text
+            try:
+                result = json.loads(result_text)
+            except json.JSONDecodeError:
+                print("  ✗ Correlation pass JSON parse failed after retry. Skipping.")
+                return {}
+
+        # Apply objective updates
+        updates_applied = 0
+        for update in result.get("objective_updates", []):
+            obj_id = update.get("objective_id")
+            if not obj_id:
+                continue
+
+            obj_patch = {}
+            if update.get("proposed_momentum_score") is not None:
+                obj_patch["momentum_score"] = update["proposed_momentum_score"]
+            if update.get("proposed_status"):
+                obj_patch["status"] = update["proposed_status"]
+            if update.get("is_in_graveyard") is not None:
+                obj_patch["is_in_graveyard"] = update["is_in_graveyard"]
+            if update.get("exit_manner"):
+                obj_patch["exit_manner"] = update["exit_manner"]
+            if update.get("exit_date"):
+                obj_patch["exit_date"] = update["exit_date"]
+            if update.get("transparency_score"):
+                obj_patch["transparency_score"] = update["transparency_score"]
+            if update.get("verdict_text"):
+                obj_patch["verdict_text"] = update["verdict_text"]
+            if update.get("successor_objective_id"):
+                obj_patch["successor_objective_id"] = update["successor_objective_id"]
+
+            if obj_patch:
+                db.table("objectives").update(obj_patch).eq("id", obj_id).execute()
+                updates_applied += 1
+
+        # Save correlation signals
+        corr_signals = result.get("correlation_signals", [])
+        for cs in corr_signals:
+            target_id = cs.get("target_objective_id")
+            if not target_id:
+                continue
+            save_signal(db, {
+                "objective_id":     target_id,
+                "company_id":       company_id,
+                "signal_date":      cs.get("signal_date", date.today().isoformat()),
+                "source_type":      "other",
+                "source_name":      "Correlation Pass — Cross-reference",
+                "classification":   "achieved" if "achievement" in cs.get("interpretation", "").lower() else "softened",
+                "confidence":       6,
+                "excerpt":          cs.get("excerpt", ""),
+                "agent_reasoning":  f"[CROSS-REF from {cs.get('source_objective_id', '?')[:8]}] {cs.get('interpretation', '')}",
+            })
+
+        # Update company commitment score
+        new_score = result.get("updated_commitment_score")
+        if new_score is not None:
+            db.table("companies").update({"overall_commitment_score": new_score}).eq("id", company_id).execute()
+
+        # Append correlation stats to agent run
+        corr_tokens = total_input_tokens + total_output_tokens
+        corr_cost = round(
+            (total_input_tokens * 0.000003) +
+            (total_output_tokens * 0.000015), 4
+        )
+
+        print(f"  ✓ Correlation: {updates_applied} objectives updated, {len(corr_signals)} cross-references")
+        print(f"  → {result.get('correlation_summary', '')}")
+        print(f"  → Correlation cost: ~${corr_cost}")
+
+        return {
+            "updates_applied": updates_applied,
+            "cross_references": len(corr_signals),
+            "correlation_tokens": corr_tokens,
+            "correlation_cost": corr_cost,
+            "summary": result.get("correlation_summary", ""),
+        }
+
+    except Exception as e:
+        print(f"  ✗ Correlation pass failed: {e}")
+        print("  → Monthly signals were saved. Run --correlate to retry.")
+        return {}
+
+
 def print_review_queue(db: Client):
     """Print all draft signals pending human review."""
     pending = get_pending_signals(db)
