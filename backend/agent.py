@@ -1,16 +1,19 @@
 #!/usr/bin/env python3
 """
-PromiseTrack Research Agent
-===========================
-Runs monthly (or on-demand) for each tracked company.
-Uses Claude with web search to find new disclosures, reads them,
-classifies language against each tracked objective, and writes
-draft signals back to Supabase for human review.
+Drift Research Agent
+====================
+Fully autonomous research agent. Runs monthly (or on-demand) for each
+tracked company. Uses Claude with web search to find new disclosures,
+classifies language against each tracked objective, then runs a
+correlation pass to cross-reference objectives, detect silent
+achievements, promote to graveyard, and adjust momentum scores.
+All signals are published directly — no human-in-the-loop.
 
 Usage:
   python agent.py                        # Run all companies due for research
   python agent.py --company-id <uuid>   # Run a specific company
   python agent.py --intake <uuid>       # Full intake run (new company setup)
+  python agent.py --correlate <uuid>    # Run correlation pass only
   python agent.py --review              # Print all draft signals pending review
   python agent.py --approve <signal-id> # Approve a draft signal
   python agent.py --reject  <signal-id> # Reject a draft signal
@@ -57,6 +60,7 @@ SIGNAL_CLASSES = [
     "achieved",
     "retired_transparent",
     "retired_silent",
+    "year_end_review",
 ]
 
 MODEL              = DEFAULT_MODEL     # Active model — set by CLI or defaults
@@ -183,8 +187,8 @@ def build_intake_prompt(company: dict) -> str:
     3. Return structured JSON with company metadata + initial objectives + first signals
     """
     return textwrap.dedent(f"""
-        You are a strategic accountability researcher for PromiseTrack.
-        PromiseTrack tracks what companies publicly commit to — and whether they follow through.
+        You are a strategic accountability researcher for Drift.
+        Drift tracks what companies publicly commit to — and whether they follow through.
 
         A new company has been added for tracking:
 
@@ -267,8 +271,8 @@ def build_monthly_prompt(company: dict, objectives: list[dict]) -> str:
     ])
 
     return textwrap.dedent(f"""
-        You are a strategic accountability researcher for PromiseTrack.
-        PromiseTrack tracks what companies publicly commit to — and whether they follow through.
+        You are a strategic accountability researcher for Drift.
+        Drift tracks what companies publicly commit to — and whether they follow through.
 
         COMPANY: {company['name']}
         INITIATIVE: {company['initiative_name']} {company.get('initiative_subtitle', '')}
@@ -852,7 +856,7 @@ def run_all_due(claude: anthropic.Anthropic, db: Client):
 # ── ENTRYPOINT ───────────────────────────────────────────────────────────────
 
 def main():
-    parser = argparse.ArgumentParser(description="PromiseTrack Research Agent")
+    parser = argparse.ArgumentParser(description="Drift Research Agent")
     parser.add_argument("--company-id",  help="Run monthly research for a specific company UUID")
     parser.add_argument("--intake",      help="Run intake for a specific company UUID")
     parser.add_argument("--review",      action="store_true", help="Show all draft signals pending review")
