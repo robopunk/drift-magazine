@@ -160,6 +160,19 @@ def mark_company_researched(db: Client, company_id: str, score: Optional[int] = 
     db.table("companies").update(update).eq("id", company_id).execute()
 
 
+def get_signals_for_company(db: Client, company_id: str) -> list[dict]:
+    """Return all published signals for a company, ordered chronologically."""
+    result = (
+        db.table("signals")
+        .select("*, objectives!inner(title)")
+        .eq("company_id", company_id)
+        .eq("is_draft", False)
+        .order("signal_date")
+        .execute()
+    )
+    return result.data
+
+
 # ── AGENT CORE ──────────────────────────────────────────────────────────────
 
 def build_intake_prompt(company: dict) -> str:
