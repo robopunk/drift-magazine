@@ -42,7 +42,8 @@ ANTHROPIC_API_KEY  = os.environ["ANTHROPIC_API_KEY"]
 SUPABASE_URL       = os.environ["SUPABASE_URL"]
 SUPABASE_KEY       = os.environ["SUPABASE_SERVICE_KEY"]
 
-MODEL              = "claude-opus-4-6"
+DEFAULT_MODEL      = "claude-sonnet-4-6"
+INTAKE_MODEL       = "claude-sonnet-4-6"   # Override via --model flag
 MAX_TOKENS         = 8000
 RESEARCH_INTERVAL  = 30   # days between automatic runs
 
@@ -57,6 +58,8 @@ SIGNAL_CLASSES = [
     "retired_transparent",
     "retired_silent",
 ]
+
+MODEL              = DEFAULT_MODEL     # Active model — set by CLI or defaults
 
 EXIT_MANNERS = ["silent", "phased", "morphed", "transparent", "achieved"]
 
@@ -114,8 +117,11 @@ def update_agent_run(db: Client, run_id: str, **kwargs):
     }).eq("id", run_id).execute()
 
 
-def save_draft_signal(db: Client, signal: dict) -> str:
-    result = db.table("signals").insert({**signal, "is_draft": True}).execute()
+def save_signal(db: Client, signal: dict) -> str:
+    """Save a signal directly as published (autonomous mode)."""
+    if "is_draft" not in signal:
+        signal["is_draft"] = False
+    result = db.table("signals").insert(signal).execute()
     return result.data[0]["id"]
 
 
@@ -379,13 +385,13 @@ def run_intake(claude: anthropic.Anthropic, db: Client, company_id: str):
             for sig in signals:
                 sig["objective_id"] = obj_id
                 sig["company_id"]   = company_id
-                save_draft_signal(db, sig)
+                save_signal(db, sig)
                 total_signals += 1
 
         score = result.get("estimated_commitment_score")
         mark_company_researched(db, company_id, score)
         update_agent_run(db, run_id,
-            status="pending_review",
+            status="completed",
             signals_proposed=total_signals,
             documents_read=len(result.get("sources_found", [])),
             run_summary=result.get("run_summary", ""),
@@ -445,35 +451,46 @@ def run_monthly(claude: anthropic.Anthropic, db: Client, company_id: str):
         new_signals = result.get("new_signals", [])
         for sig in new_signals:
             sig["company_id"] = company_id
-            save_draft_signal(db, sig)
+            save_signal(db, sig)
 
-        # Save proposed status changes as draft signals with special classification
+        # Apply status changes directly (autonomous mode)
         status_proposals = result.get("status_change_proposals", [])
         for prop in status_proposals:
-            save_draft_signal(db, {
+            # Save the signal record
+            save_signal(db, {
                 "objective_id":     prop["objective_id"],
                 "company_id":       company_id,
                 "signal_date":      date.today().isoformat(),
                 "source_type":      "other",
-                "source_name":      "Agent Status Change Proposal",
+                "source_name":      "Agent Status Change",
                 "classification":   prop.get("exit_manner", "absent"),
                 "confidence":       7,
                 "excerpt":          prop["rationale"],
-                "agent_reasoning":  f"[STATUS CHANGE PROPOSED: {prop['proposed_status']}] {prop['rationale']}",
+                "agent_reasoning":  f"[STATUS CHANGE: {prop['proposed_status']}] {prop['rationale']}",
             })
+            # Apply to objective
+            obj_update = {"status": prop["proposed_status"]}
+            if prop.get("exit_manner"):
+                obj_update["exit_manner"] = prop["exit_manner"]
+            if prop.get("transparency_score"):
+                obj_update["transparency_score"] = prop["transparency_score"]
+            if prop["proposed_status"] in ("dropped", "morphed"):
+                obj_update["is_in_graveyard"] = True
+                obj_update["exit_date"] = date.today().isoformat()
+            db.table("objectives").update(obj_update).eq("id", prop["objective_id"]).execute()
 
         score = result.get("updated_commitment_score")
         mark_company_researched(db, company_id, score)
         update_agent_run(db, run_id,
-            status="pending_review",
+            status="completed",
             sources_searched=len(result.get("sources_found", [])),
             signals_proposed=len(new_signals) + len(status_proposals),
             run_summary=result.get("run_summary", ""),
             input_tokens=response.usage.input_tokens,
             output_tokens=response.usage.output_tokens,
             estimated_cost_usd=round(
-                (response.usage.input_tokens * 0.000015) +
-                (response.usage.output_tokens * 0.000075), 4
+                (response.usage.input_tokens * 0.000003) +
+                (response.usage.output_tokens * 0.000015), 4
             ),
         )
 
@@ -547,7 +564,14 @@ def main():
     parser.add_argument("--review",      action="store_true", help="Show all draft signals pending review")
     parser.add_argument("--approve",     help="Approve a draft signal by UUID")
     parser.add_argument("--reject",      help="Reject (delete) a draft signal by UUID")
+    parser.add_argument("--model",       help="Override model (e.g. claude-opus-4-6, claude-sonnet-4-6)")
     args = parser.parse_args()
+
+    # Apply model override if provided
+    global MODEL
+    if args.model:
+        MODEL = args.model
+        print(f"  → Model override: {MODEL}")
 
     claude, db = get_clients()
 
@@ -561,6 +585,7 @@ def main():
         reject_signal(db, args.reject)
 
     elif args.intake:
+        MODEL = args.model or INTAKE_MODEL
         run_intake(claude, db, args.intake)
 
     elif args.company_id:
