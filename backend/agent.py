@@ -354,6 +354,142 @@ def build_monthly_prompt(company: dict, objectives: list[dict]) -> str:
     """).strip()
 
 
+def build_correlation_prompt(company: dict, objectives: list[dict], signals: list[dict]) -> str:
+    """
+    Build the prompt for the correlation & lifecycle pass.
+    Receives all objectives and their full signal history.
+    Returns structured JSON with objective updates and cross-references.
+    """
+    # Build objective summaries
+    obj_lines = []
+    for o in objectives:
+        status_tag = "GRAVEYARD" if o.get("is_in_graveyard") else o.get("status", "active").upper()
+        obj_lines.append(
+            f"  [{status_tag}] {o['title']} (id: {o['id']})\n"
+            f"    Subtitle: {o.get('subtitle', 'N/A')}\n"
+            f"    Original quote: \"{o.get('original_quote', 'N/A')}\"\n"
+            f"    Momentum: {o.get('momentum_score', 0)} | Status: {o.get('status')} | Graveyard: {o.get('is_in_graveyard', False)}\n"
+            f"    Exit manner: {o.get('exit_manner', 'N/A')} | Verdict: {o.get('verdict_text', 'None')}"
+        )
+    obj_block = "\n".join(obj_lines)
+
+    # Build signal history grouped by objective
+    sig_by_obj = {}
+    for s in signals:
+        obj_title = s.get("objectives", {}).get("title", "Unknown")
+        oid = s["objective_id"]
+        if oid not in sig_by_obj:
+            sig_by_obj[oid] = {"title": obj_title, "signals": []}
+        excerpt = (s.get("excerpt") or "")[:150]
+        sig_by_obj[oid]["signals"].append(
+            f"    {s['signal_date']} | {s['classification'].upper()} (conf: {s.get('confidence', '?')}) | {excerpt}"
+        )
+
+    sig_lines = []
+    for oid, data in sig_by_obj.items():
+        sig_lines.append(f"  {data['title']}:")
+        sig_lines.extend(data["signals"])
+    sig_block = "\n".join(sig_lines)
+
+    return textwrap.dedent(f"""
+        You are a strategic accountability analyst for Drift.
+        Drift tracks what companies publicly commit to — and monitors how that language changes,
+        weakens, or disappears over time.
+
+        COMPANY: {company['name']}
+        INITIATIVE: {company['initiative_name']} {company.get('initiative_subtitle', '')}
+        TODAY: {date.today().isoformat()}
+
+        ALL TRACKED OBJECTIVES:
+        {obj_block}
+
+        COMPLETE SIGNAL HISTORY (chronological per objective):
+        {sig_block}
+
+        YOUR TASK — CORRELATION & LIFECYCLE PASS:
+
+        Perform three sequential analyses:
+
+        PASS 1 — CROSS-REFERENCE SCAN:
+        For each signal excerpt, check whether the language implicitly references the outcome
+        of a DIFFERENT objective. Examples:
+        - "Our modernised manufacturing network" in a margin discussion = evidence that a
+          manufacturing simplification objective may have been silently completed
+        - "Following the successful integration of our MENA operations" = evidence that a
+          graveyard entry may actually have been achieved
+        Flag all cross-references you find.
+
+        PASS 2 — LIFECYCLE EVALUATION:
+        For each NON-GRAVEYARD objective, evaluate the full signal trajectory and decide:
+
+        Graveyard promotion rules:
+        - 3+ consecutive softened/reframed/absent signals = graveyard candidate (exit_manner: "silent" or "phased")
+        - Cross-reference evidence of silent completion = status: "achieved", exit_manner: "achieved", is_in_graveyard: FALSE
+        - Explicit "achieved" classification in own signals = status: "achieved", exit_manner: "achieved", is_in_graveyard: FALSE
+        - "retired_transparent" signal = is_in_graveyard: true, exit_manner: "transparent"
+        - "retired_silent" confirmed = is_in_graveyard: true, exit_manner: "silent"
+        - Morphed into successor = is_in_graveyard: true, exit_manner: "morphed", set successor_objective_id to the UUID of the successor objective
+
+        CRITICAL: Achieved objectives are NOT graveyard entries. The graveyard is exclusively
+        for failures (silent drops, phased outs, morphs). A silently achieved objective is a
+        SUCCESS — it gets status "achieved" and is_in_graveyard: false.
+
+        Momentum score guidelines (evaluate holistically, not as rigid formulas):
+        - Recent "reinforced" with high confidence: push up (+1 per strong reinforcement, cap at +4)
+        - "softened": pull down by 1
+        - "reframed": pull down by 1
+        - "absent": pull down by 2 (silence is loud)
+        - "achieved": set to +4 (Orbit)
+        - "retired_silent": set to -4 (Buried)
+        - "retired_transparent": set to -4
+        Consider recency, confidence, and context. One strong reinforcement after two softenings
+        may warrant a higher score than arithmetic suggests.
+
+        PASS 3 — VERDICT WRITING:
+        For any objective transitioning to graveyard, write a verdict_text paragraph (2-4 sentences).
+        Editorial voice: fact-based, evidenced, precise, not sensational. Economist x Vanity Fair tone.
+        For achieved objectives (including silent achievements), write a verdict noting how it was
+        communicated (or not).
+
+        For existing graveyard entries: do NOT re-evaluate for promotion, but DO include them in
+        cross-reference scanning (their signals may contain evidence relevant to active objectives).
+
+        RETURN FORMAT — respond with ONLY valid JSON, no markdown, no preamble:
+
+        {{{{
+          "objective_updates": [
+            {{{{
+              "objective_id": "<uuid>",
+              "proposed_momentum_score": 3,
+              "momentum_reasoning": "Brief explanation of trajectory assessment",
+              "proposed_status": "active|watch|drifting|achieved|dropped|morphed|null (null = no change)",
+              "is_in_graveyard": false,
+              "exit_manner": "silent|phased|morphed|transparent|achieved|null",
+              "exit_date": "YYYY-MM-DD or null",
+              "transparency_score": "very_low|low|medium|high|null",
+              "verdict_text": "Editorial verdict paragraph or null",
+              "successor_objective_id": "<uuid of successor if morphed, null otherwise>"
+            }}}}
+          ],
+          "correlation_signals": [
+            {{{{
+              "source_objective_id": "<uuid of objective where language was found>",
+              "target_objective_id": "<uuid of objective being referenced>",
+              "signal_date": "YYYY-MM-DD",
+              "excerpt": "The specific language that references the other objective",
+              "interpretation": "Description of what this cross-reference suggests"
+            }}}}
+          ],
+          "updated_commitment_score": 78,
+          "correlation_summary": "1-2 sentence summary of findings"
+        }}}}
+
+        Include an objective_updates entry for EVERY non-graveyard objective, even if no changes
+        are proposed (set proposed_status to null, keep proposed_momentum_score as your assessment).
+        Only include correlation_signals if you actually found cross-references.
+    """).strip()
+
+
 # ── AGENT RUNNER ────────────────────────────────────────────────────────────
 
 def run_intake(claude: anthropic.Anthropic, db: Client, company_id: str):
