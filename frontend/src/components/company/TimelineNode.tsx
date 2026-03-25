@@ -4,130 +4,152 @@ import type { TimelineNodeType } from "@/lib/types";
 
 interface TimelineNodeProps {
   type: TimelineNodeType;
-  emoji?: string;
-  colour: string;
   x: number;
   y: number;
-  label: string;
-  isLatestSignal?: boolean;
+  colour: string;
+  /** Stage emoji + text shown above signal/latest nodes. e.g. "🦅 FLY +3" */
+  label?: string;
+  /** Formatted date shown above origin nodes. e.g. "Oct 2023" */
+  dateLabel?: string;
+  /** 0-based index of this objective among visible objectives. Drives tick height stagger. */
+  stackIndex: number;
   monthsSinceLastSignal?: number;
-  onHover?: (e: React.MouseEvent) => void;
+  onHover?: (e: React.MouseEvent<SVGGElement>) => void;
   onLeave?: () => void;
   onClick?: () => void;
 }
 
-const SIZE: Record<TimelineNodeType, number> = {
-  origin: 32,
-  signal: 24,
-  latest: 30,
-  cadence: 8,
-  stale: 12,
-  "fiscal-year-end": 14,
-};
-
-const LATEST_SCALE = 1.25;
-
 export function TimelineNode({
   type,
-  emoji,
-  colour,
   x,
   y,
+  colour,
   label,
-  isLatestSignal,
+  dateLabel,
+  stackIndex,
   monthsSinceLastSignal,
   onHover,
   onLeave,
   onClick,
 }: TimelineNodeProps) {
-  const baseSize = SIZE[type];
-  const size = isLatestSignal ? baseSize * LATEST_SCALE : baseSize;
+  // Even stackIndex = shorter tick; odd = taller (alternating prevents label collision)
+  const originTickH = stackIndex % 2 === 0 ? 24 : 40;
+  const signalTickH = stackIndex % 2 === 0 ? 20 : 36;
 
-  // Cadence node: plain grey dot, no interactivity
   if (type === "cadence") {
     return (
-      <div
-        className="absolute rounded-full"
-        style={{
-          left: x,
-          top: y,
-          width: size,
-          height: size,
-          backgroundColor: "var(--timeline-cadence-dot)",
-          transform: "translate(-50%, -50%)",
-        }}
-      />
+      <g>
+        <circle cx={x} cy={y} r={2} fill="var(--border)" />
+      </g>
     );
   }
 
-  // Stale warning node: amber bordered dot with "!"
   if (type === "stale") {
     return (
-      <div
-        className="absolute flex items-center justify-center rounded-full bg-card cursor-pointer hover:scale-110 transition-transform duration-200"
-        style={{
-          left: x,
-          top: y,
-          width: size,
-          height: size,
-          border: "1.5px solid #f59e0b",
-          transform: "translate(-50%, -50%)",
-        }}
+      <g
         aria-label={`No update for ${monthsSinceLastSignal ?? "?"} months`}
         onMouseEnter={onHover}
         onMouseLeave={onLeave}
       >
-        <span className="text-[8px] font-bold text-amber-500 leading-none select-none">!</span>
-      </div>
+        <circle cx={x} cy={y} r={4.5} fill="none" stroke="#f59e0b" strokeWidth={1.5} />
+        <text
+          x={x}
+          y={y}
+          fontSize={7}
+          fill="#f59e0b"
+          textAnchor="middle"
+          dominantBaseline="central"
+          fontWeight="bold"
+        >
+          !
+        </text>
+      </g>
     );
   }
 
-  // Fiscal year-end node: amber diamond
   if (type === "fiscal-year-end") {
     return (
-      <div
-        className="absolute flex items-center justify-center bg-card cursor-pointer hover:scale-110 transition-transform duration-200"
-        style={{
-          left: x,
-          top: y,
-          width: size,
-          height: size,
-          border: `2px solid ${colour}`,
-          transform: "translate(-50%, -50%) rotate(45deg)",
-        }}
-        aria-label={label}
-        onMouseEnter={onHover}
-        onMouseLeave={onLeave}
-      />
+      <g onMouseEnter={onHover} onMouseLeave={onLeave}>
+        <circle cx={x} cy={y} r={3.5} fill="#f59e0b" opacity={0.85} />
+      </g>
     );
   }
 
-  // Origin and Signal nodes: interactive with emoji
-  const strokeWidth = type === "origin" ? 2.5 : 2;
+  if (type === "origin") {
+    const tickTopY = y - originTickH;
+    return (
+      <g
+        aria-label={dateLabel}
+        onMouseEnter={onHover}
+        onMouseLeave={onLeave}
+        onClick={onClick}
+        style={onClick ? { cursor: "pointer" } : undefined}
+      >
+        <circle cx={x} cy={y} r={9} fill={colour} fillOpacity={0.20} />
+        <circle cx={x} cy={y} r={5} fill={colour} />
+        <line
+          x1={x}
+          y1={y - 9}
+          x2={x}
+          y2={tickTopY}
+          stroke="var(--border)"
+          strokeWidth={1}
+          strokeDasharray="2,3"
+          opacity={0.5}
+        />
+        {dateLabel && (
+          <text
+            x={x}
+            y={tickTopY - 4}
+            fontSize={8}
+            fill="var(--muted-foreground)"
+            textAnchor="middle"
+            fontFamily="var(--font-ibm-plex-mono)"
+          >
+            {dateLabel}
+          </text>
+        )}
+      </g>
+    );
+  }
+
+  // signal or latest
+  const isLatest = type === "latest";
+  const tickTopY = y - signalTickH;
 
   return (
-    <div
-      className="absolute flex items-center justify-center rounded-full bg-card cursor-pointer hover:scale-[1.3] hover:shadow-lg transition-all duration-200 select-none"
-      style={{
-        left: x,
-        top: y,
-        width: size,
-        height: size,
-        border: `${strokeWidth}px solid ${colour}`,
-        transform: "translate(-50%, -50%)",
-        filter: isLatestSignal ? `drop-shadow(0 0 4px ${colour})` : undefined,
-      }}
+    <g
       aria-label={label}
       onMouseEnter={onHover}
       onMouseLeave={onLeave}
       onClick={onClick}
+      style={onClick ? { cursor: "pointer" } : undefined}
     >
-      <span
-        className="leading-none select-none"
-        style={{ fontSize: type === "origin" ? "1rem" : "0.85rem" }}
-      >
-        {emoji}
-      </span>
-    </div>
+      <circle cx={x} cy={y} r={6} fill={colour} fillOpacity={0.30} />
+      <circle cx={x} cy={y} r={3} fill={colour} />
+      <line
+        x1={x}
+        y1={y - 6}
+        x2={x}
+        y2={tickTopY}
+        stroke={isLatest ? "var(--foreground)" : "var(--border)"}
+        strokeWidth={isLatest ? 1.5 : 1}
+        {...(!isLatest && { strokeDasharray: "2,3" })}
+        opacity={isLatest ? 0.95 : 0.5}
+      />
+      {label && (
+        <text
+          x={x}
+          y={tickTopY - 4}
+          fontSize={isLatest ? 9.5 : 9}
+          fill={isLatest ? "var(--foreground)" : "var(--muted-foreground)"}
+          textAnchor="middle"
+          fontFamily="var(--font-ibm-plex-mono)"
+          fontWeight={isLatest ? "bold" : undefined}
+        >
+          {label}
+        </text>
+      )}
+    </g>
   );
 }

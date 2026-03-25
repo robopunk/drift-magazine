@@ -4,65 +4,93 @@ import userEvent from "@testing-library/user-event";
 import { TimelineNode } from "@/components/company/TimelineNode";
 
 describe("TimelineNode", () => {
-  it("renders signal node with emoji", () => {
-    render(
-      <TimelineNode type="signal" emoji="🚀" colour="#059669" x={100} y={50} label="Test" />
-    );
-    expect(screen.getByText("🚀")).toBeInTheDocument();
-  });
-
-  it("renders origin node larger than signal node", () => {
-    const { container: originContainer } = render(
-      <TimelineNode type="origin" emoji="🎯" colour="#059669" x={100} y={50} label="Test" />
-    );
-    const { container: signalContainer } = render(
-      <TimelineNode type="signal" emoji="🚀" colour="#059669" x={200} y={50} label="Test" />
-    );
-    const originEl = originContainer.firstElementChild as HTMLElement;
-    const signalEl = signalContainer.firstElementChild as HTMLElement;
-    expect(parseInt(originEl.style.width)).toBeGreaterThan(parseInt(signalEl.style.width));
-  });
-
-  it("renders cadence node as plain dot without emoji", () => {
+  it("origin node renders filled circle, outer ring, and dashed tick with date label", () => {
     const { container } = render(
-      <TimelineNode type="cadence" colour="#999" x={100} y={50} label="Test" />
+      <TimelineNode type="origin" x={80} y={80} colour="#059669" dateLabel="Oct 2023" stackIndex={0} />
     );
-    const dot = container.firstElementChild as HTMLElement;
-    expect(dot.textContent).toBe("");
-    expect(parseInt(dot.style.width)).toBe(8);
+    const circles = container.querySelectorAll("circle");
+    expect(circles).toHaveLength(2);
+    // inner filled circle
+    expect(circles[1].getAttribute("r")).toBe("5");
+    expect(circles[1].getAttribute("fill")).toBe("#059669");
+    // dashed tick
+    const tick = container.querySelector("line");
+    expect(tick).not.toBeNull();
+    expect(tick!.getAttribute("stroke-dasharray")).toBe("2,3");
+    // date label text
+    expect(screen.getByText("Oct 2023")).toBeInTheDocument();
   });
 
-  it("renders stale node with exclamation mark", () => {
-    render(
-      <TimelineNode type="stale" colour="#f59e0b" x={100} y={50} label="Test" monthsSinceLastSignal={7} />
+  it("signal node renders smaller circle, pulse ring, dashed tick, and stage label", () => {
+    const { container } = render(
+      <TimelineNode type="signal" x={220} y={60} colour="#16a34a" label="🦅 FLY +3" stackIndex={0} />
     );
+    const circles = container.querySelectorAll("circle");
+    expect(circles).toHaveLength(2);
+    // inner filled circle
+    expect(circles[1].getAttribute("r")).toBe("3");
+    // dashed tick
+    const tick = container.querySelector("line");
+    expect(tick!.getAttribute("stroke-dasharray")).toBe("2,3");
+    // stage label text
+    expect(screen.getByText("🦅 FLY +3")).toBeInTheDocument();
+  });
+
+  it("latest signal node renders solid tick (no stroke-dasharray) and label", () => {
+    const { container } = render(
+      <TimelineNode type="latest" x={340} y={90} colour="#ca8a04" label="🚶 WALK +1" stackIndex={0} />
+    );
+    const tick = container.querySelector("line");
+    expect(tick).not.toBeNull();
+    expect(tick!.getAttribute("stroke-dasharray")).toBeNull();
+    expect(screen.getByText("🚶 WALK +1")).toBeInTheDocument();
+  });
+
+  it("cadence node renders 2px dot only — no tick line, no label text", () => {
+    const { container } = render(
+      <TimelineNode type="cadence" x={150} y={80} colour="#475569" stackIndex={0} />
+    );
+    const circles = container.querySelectorAll("circle");
+    expect(circles).toHaveLength(1);
+    expect(circles[0].getAttribute("r")).toBe("2");
+    expect(container.querySelector("line")).toBeNull();
+    expect(container.querySelector("text")).toBeNull();
+  });
+
+  it("stale node renders outline circle with ! glyph and aria-label — no tick", () => {
+    const { container } = render(
+      <TimelineNode type="stale" x={530} y={175} colour="#f59e0b" stackIndex={0} monthsSinceLastSignal={7} />
+    );
+    const circle = container.querySelector("circle")!;
+    expect(circle.getAttribute("fill")).toBe("none");
+    expect(circle.getAttribute("stroke")).toBe("#f59e0b");
     expect(screen.getByText("!")).toBeInTheDocument();
+    expect(container.querySelector("line")).toBeNull();
     expect(screen.getByLabelText("No update for 7 months")).toBeInTheDocument();
   });
 
-  it("calls onHover on interactive nodes", async () => {
-    const onHover = vi.fn();
-    render(
-      <TimelineNode type="signal" emoji="🚀" colour="#059669" x={100} y={50} label="Test" onHover={onHover} />
+  it("fiscal-year-end node renders 3.5px amber dot — no tick", () => {
+    const { container } = render(
+      <TimelineNode type="fiscal-year-end" x={290} y={82} colour="#f59e0b" stackIndex={0} />
     );
-    await userEvent.hover(screen.getByText("🚀"));
-    expect(onHover).toHaveBeenCalled();
+    const circle = container.querySelector("circle")!;
+    expect(circle.getAttribute("r")).toBe("3.5");
+    expect(circle.getAttribute("fill")).toBe("#f59e0b");
+    expect(container.querySelector("line")).toBeNull();
   });
 
-  it("does not fire hover on cadence nodes", () => {
-    const { container } = render(
-      <TimelineNode type="cadence" colour="#999" x={100} y={50} label="Test" />
+  it("odd stackIndex produces taller tick than even stackIndex (lower y2 in SVG coords)", () => {
+    const { container: evenContainer } = render(
+      <TimelineNode type="signal" x={100} y={100} colour="#059669" label="🦅 FLY +3" stackIndex={0} />
     );
-    const dot = container.firstElementChild as HTMLElement;
-    expect(dot.getAttribute("onmouseenter")).toBeNull();
-  });
-
-  it("renders fiscal-year-end node as a rotated diamond", () => {
-    const { container } = render(
-      <TimelineNode type="fiscal-year-end" colour="#f59e0b" x={100} y={50} label="FY End" />
+    const { container: oddContainer } = render(
+      <TimelineNode type="signal" x={100} y={100} colour="#059669" label="🦅 FLY +3" stackIndex={1} />
     );
-    const node = container.firstElementChild as HTMLElement;
-    expect(node.style.transform).toContain("rotate(45deg)");
-    expect(node.style.borderColor).toBe("rgb(245, 158, 11)");
+    const evenTick = evenContainer.querySelector("line")!;
+    const oddTick = oddContainer.querySelector("line")!;
+    const evenY2 = parseFloat(evenTick.getAttribute("y2")!);
+    const oddY2 = parseFloat(oddTick.getAttribute("y2")!);
+    // Odd stack = taller tick = lower y2 value (further up in SVG space, y grows downward)
+    expect(oddY2).toBeLessThan(evenY2);
   });
 });
