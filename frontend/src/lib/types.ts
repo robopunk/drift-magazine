@@ -13,7 +13,7 @@ export type SignalClassification =
 export type ExitManner =
   | "silent" | "phased" | "morphed" | "transparent" | "achieved" | "resurrected";
 
-export type TimelineNodeType = "origin" | "signal" | "cadence" | "stale" | "fiscal-year-end";
+export type TimelineNodeType = "origin" | "signal" | "latest" | "cadence" | "stale" | "fiscal-year-end";
 
 export interface TimelineMonthNode {
   type: TimelineNodeType;

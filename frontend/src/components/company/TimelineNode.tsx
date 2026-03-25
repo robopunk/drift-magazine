@@ -19,6 +19,7 @@ interface TimelineNodeProps {
 const SIZE: Record<TimelineNodeType, number> = {
   origin: 32,
   signal: 24,
+  latest: 30,
   cadence: 8,
   stale: 12,
   "fiscal-year-end": 14,
