@@ -36,7 +36,7 @@ The product's most distinctive feature is the **Graveyard** — a record of obje
 | `frontend/src/app/` | App Router pages: landing, company/[ticker], about, admin, 404 |
 | `frontend/src/components/` | React components: layout (Masthead, Footer, ThemeToggle), landing (Hero, CompanyGrid, SearchBar, SignalFeed), company (TimelineCanvas, TimelineNode, TimelinePath, TimelineLegend, TimelineLegendTooltip, TimelineTooltip, CrossingMarker, ObjectiveCard, BuriedCard, EvidenceTable, TabBar), mobile, ui |
 | `frontend/src/lib/` | Shared utilities: types.ts, momentum.ts, timeline-nodes.ts, theme.ts, search.ts, supabase.ts |
-| `frontend/src/__tests__/` | 15 test files, 86 tests (Vitest + React Testing Library) |
+| `frontend/src/__tests__/` | 17 test files, 99 tests (Vitest + React Testing Library) |
 
 ### v1 Archive
 
@@ -219,7 +219,7 @@ The agent **never publishes directly**. Every signal is a draft until a human ap
 ### Medium priority
 - [ ] **Paywall layer** — gate evidence drawers and graveyard full records behind Stripe subscription
 - [ ] **Email alerts** — when an objective crosses the ground line, send a signal digest to subscribers
-- [ ] **Visual polish** — refine timeline emoji nodes, responsive breakpoints, mobile UX
+- [ ] **Responsive polish** — responsive breakpoints, mobile UX refinement
 
 ### Future
 - [ ] **Cross-company patterns** — sector-level analysis: which sectors have highest silent drop rates
@@ -286,5 +286,6 @@ This project was developed in Claude.ai and Claude Code starting March 2026. Ste
 
 - **v1.0.0** (2026-03-19): Original vanilla HTML/CSS/JS implementation with caffeine dark palette
 - **v2.0.0** (2026-03-20): Complete Next.js redesign with emerald+slate palette, interactive timeline, tabbed company pages
+- **v3.0.0** (2026-03-25): Visual overhaul — masthead redesign, organic spline paths with area fill, 6-type SVG node system, dual axis labels. See `2026-03-25-2121-drift-visual-and-intelligence-roadmap.md` for full roadmap. Next up: Sub-project 2 (Objective Lifecycle: Achieved)
 
 The Sandoz data (seeded in `backend/schema.sql`) is research-grade content based on public disclosures. It is the editorial benchmark for all future company pages.

@@ -1,5 +1,24 @@
 # Changelog
 
+## [3.0.0] - 2026-03-25
+
+### Added
+- Masthead green top rule (3px `var(--primary)` bar) and 36px Lora italic logo
+- Organic cubic bezier spline paths replacing straight-segment polylines (`TimelinePath.tsx`)
+- Area fill between spline and ground line — emerald above, muted red below, with clipPath split
+- Dashed stroke for below-ground path segments
+- 6-type SVG node system: origin, signal, latest, cadence, fiscal year-end, stale (`TimelineNode.tsx`)
+- Vertical tick labels with stackIndex stagger for overlapping nodes
+- Top axis month labels mirroring bottom axis (`TimelineCanvas.tsx`)
+- 13 new tests (99 total, up from 86)
+
+### Changed
+- Masthead height increased from `h-14` to `h-16`; TabBar sticky offset updated to `top-16`
+- Timeline nodes migrated from HTML overlay to native SVG `<g>` elements
+- Path stroke width increased to 2.5px
+- January gridlines emphasised at 0.3 opacity vs 0.15 for regular months
+- Node `title` attributes removed (replaced by `aria-label` for accessibility)
+
 ## [2.2.0] - 2026-03-23
 
 ### Added
