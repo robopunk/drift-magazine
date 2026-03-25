@@ -28,6 +28,12 @@ describe("TabBar", () => {
     expect(onTabChange).toHaveBeenCalledWith("objectives");
   });
 
+  it("uses top-16 sticky offset to clear the taller masthead", () => {
+    const { container } = render(<TabBar activeTab="timeline" onTabChange={() => {}} counts={counts} />);
+    const stickyEl = container.querySelector(".sticky");
+    expect(stickyEl).toHaveClass("top-16");
+  });
+
   it("marks active tab with green underline class", () => {
     render(<TabBar activeTab="buried" onTabChange={() => {}} counts={counts} />);
     const buriedTab = screen.getByText(/Buried/).closest("button");

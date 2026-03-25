@@ -21,7 +21,7 @@ const TABS: { id: TabId; label: string; countKey?: keyof TabBarProps["counts"] }
 
 export function TabBar({ activeTab, onTabChange, counts }: TabBarProps) {
   return (
-    <div className="border-b border-border sticky top-14 z-40 bg-background">
+    <div className="border-b border-border sticky top-16 z-40 bg-background">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex gap-0">
         {TABS.map((tab) => {
           const isActive = activeTab === tab.id;
