@@ -21,8 +21,9 @@ export function Masthead({ initialTheme }: MastheadProps) {
 
   return (
     <header className="bg-[var(--forced-dark-bg)] text-[var(--forced-dark-text)] sticky top-0 z-50">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between h-14">
-        <Link href="/" className="font-serif text-xl font-bold text-white tracking-tight">
+      <div data-testid="masthead-rule" className="h-[3px] bg-[var(--forced-dark-accent)]" />
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between h-16">
+        <Link href="/" className="font-serif italic text-4xl font-bold text-white tracking-tight leading-none">
           Drift<span className="text-[var(--forced-dark-accent)]">.</span>
         </Link>
 
