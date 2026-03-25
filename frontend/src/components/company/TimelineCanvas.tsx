@@ -440,7 +440,7 @@ export function TimelineCanvas({ objectives, signals, onNavigateToEvidence, fisc
                   const dimmed = hoveredId !== null && hoveredId !== objective.id;
                   return (
                     <g key={objective.id} opacity={dimmed ? 0.25 : 1} style={{ transition: "opacity 200ms" }}>
-                      <TimelinePath points={points} colour={colour} isBelowGround={isBelowGround} />
+                      <TimelinePath points={points} colour={colour} isBelowGround={isBelowGround} groundY={GROUND_Y} id={objective.id} />
                     </g>
                   );
                 })}
