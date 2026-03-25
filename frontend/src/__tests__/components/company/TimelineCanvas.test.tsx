@@ -133,6 +133,16 @@ describe("TimelineCanvas", () => {
     expect(scrollArea?.getAttribute("style")).toContain("cursor: grab");
   });
 
+  it("renders month labels at both top and bottom of the stage grid", () => {
+    render(
+      <TimelineCanvas objectives={objectives} signals={signals} onNavigateToEvidence={vi.fn()} />
+    );
+    // signals are at 2025-06-01 so "Jun" appears in the axis labels
+    const junLabels = screen.getAllByText("Jun");
+    // One at bottom (existing) + one at top (new) = 2
+    expect(junLabels.length).toBeGreaterThanOrEqual(2);
+  });
+
   it("does not trigger drag on click without movement", () => {
     const { container } = render(
       <TimelineCanvas objectives={objectives} signals={signals} onNavigateToEvidence={vi.fn()} />

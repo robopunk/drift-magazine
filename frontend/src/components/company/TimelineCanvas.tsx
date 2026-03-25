@@ -426,6 +426,37 @@ export function TimelineCanvas({ objectives, signals, onNavigateToEvidence, fisc
                   </g>
                 ))}
 
+                {/* Top axis labels — mirror of bottom */}
+                {monthLabels.map(({ x, label, isJanuary, year }, i) => (
+                  <g key={`month-top-${i}`}>
+                    <text
+                      x={x}
+                      y={PADDING_Y - 14}
+                      fontSize={9}
+                      fill={isJanuary ? "var(--foreground)" : "var(--muted-foreground)"}
+                      fontFamily="var(--font-ibm-plex-mono)"
+                      textAnchor="middle"
+                      fontWeight={isJanuary ? 600 : 400}
+                      opacity={isJanuary ? 1 : 0.5}
+                    >
+                      {label}
+                    </text>
+                    {isJanuary && (
+                      <text
+                        x={x}
+                        y={PADDING_Y - 4}
+                        fontSize={9}
+                        fill="var(--primary)"
+                        fontFamily="var(--font-ibm-plex-mono)"
+                        textAnchor="middle"
+                        fontWeight={500}
+                      >
+                        {year}
+                      </text>
+                    )}
+                  </g>
+                ))}
+
                 {/* Today marker */}
                 <line x1={todayX} y1={PADDING_Y} x2={todayX} y2={PADDING_Y + 8 * STAGE_HEIGHT} stroke="var(--primary)" strokeWidth={1} strokeDasharray="6 3" opacity={0.5} />
                 <text x={todayX} y={PADDING_Y - 4} fontSize={8} fill="var(--primary)" fontFamily="var(--font-ibm-plex-mono)" textAnchor="middle" opacity={0.7}>
