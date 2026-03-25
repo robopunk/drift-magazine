@@ -444,79 +444,105 @@ export function TimelineCanvas({ objectives, signals, onNavigateToEvidence, fisc
                     </g>
                   );
                 })}
-              </svg>
 
-              {/* DOM nodes for selected objectives */}
-              {objectiveNodeSets.map(({ objective, nodes, latestSignalIdx }) => {
-                const colour = colourMap.get(objective.id) ?? "#999";
-                const dimmed = hoveredId !== null && hoveredId !== objective.id;
-                return (
-                  <div
-                    key={objective.id}
-                    style={{ opacity: dimmed ? 0.25 : 1, transition: "opacity 200ms" }}
-                  >
-                    {nodes.map((node, i) => {
-                      const stageInfo = getStage(scoreToStage(node.score));
-                      const nodeColour = node.type === "fiscal-year-end" && !node.isFiscalYearEnd
-                        ? "#f59e0b"
-                        : colour;
-                      return (
-                        <TimelineNode
-                          key={`${objective.id}-${i}`}
-                          type={node.type}
-                          emoji={node.type === "origin" ? "\u{1F3AF}" : stageInfo.emoji}
-                          colour={nodeColour}
-                          x={node.x}
-                          y={node.y}
-                          label={objective.title}
-                          isLatestSignal={i === latestSignalIdx}
-                          monthsSinceLastSignal={node.monthsSinceLastSignal}
-                          onHover={
-                            node.type === "cadence" || (node.type === "fiscal-year-end" && !node.signal)
-                              ? undefined
-                              : (e: React.MouseEvent) => {
-                                  setHoveredId(objective.id);
-                                  const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
-                                  setTooltip({
-                                    objectiveId: objective.id,
-                                    viewportX: rect.right,
-                                    viewportY: rect.top,
-                                    signal: node.type === "signal" ? node.signal : undefined,
-                                    originalQuote: node.type === "origin" ? objective.original_quote ?? undefined : undefined,
-                                    firstStatedDate: node.type === "origin" ? objective.first_stated_date ?? undefined : undefined,
-                                    nodeScore: node.score,
-                                    staleInfo:
-                                      node.type === "stale"
-                                        ? {
-                                            lastSignalDate: (() => {
-                                              const objSignals = signalsByObjective.get(objective.id);
-                                              return objSignals?.[objSignals.length - 1]?.signal_date ?? "Unknown";
-                                            })(),
-                                            monthsSilent: node.monthsSinceLastSignal ?? 0,
-                                          }
-                                        : null,
-                                  });
-                                }
-                          }
-                          onLeave={
-                            node.type === "cadence" || (node.type === "fiscal-year-end" && !node.signal)
-                              ? undefined
-                              : () => {
-                                  setHoveredId(null);
-                                  setTooltip(null);
-                                }
-                          }
-                          onClick={
-                            node.type === "origin" || node.type === "signal"
-                              ? () => onNavigateToEvidence()
-                              : undefined
-                          }
-                        />
-                      );
-                    })}
-                  </div>
-                );
-              })}
+                {/* SVG nodes for selected objectives */}
+                {objectiveNodeSets.map(({ objective, nodes, latestSignalIdx }, objIdx) => {
+                  const colour = colourMap.get(objective.id) ?? "#999";
+                  const dimmed = hoveredId !== null && hoveredId !== objective.id;
+                  return (
+                    <g
+                      key={objective.id}
+                      opacity={dimmed ? 0.25 : 1}
+                      style={{ transition: "opacity 200ms" }}
+                    >
+                      {nodes.map((node, i) => {
+                        const stageInfo = getStage(scoreToStage(node.score));
+                        const nodeColour =
+                          node.type === "fiscal-year-end" && !node.isFiscalYearEnd
+                            ? "#f59e0b"
+                            : colour;
+                        const effectiveType =
+                          node.type === "signal" && i === latestSignalIdx ? "latest" : node.type;
+                        const stageLabel =
+                          node.type !== "cadence" && node.type !== "stale" && node.type !== "origin"
+                            ? `${stageInfo.emoji} ${stageInfo.label.toUpperCase()} ${node.score >= 0 ? "+" : ""}${node.score}`
+                            : undefined;
+                        const dateLabel =
+                          node.type === "origin" && objective.first_stated_date
+                            ? new Intl.DateTimeFormat("en-US", { month: "short", year: "numeric" }).format(
+                                new Date(objective.first_stated_date)
+                              )
+                            : undefined;
+                        return (
+                          <TimelineNode
+                            key={`${objective.id}-${i}`}
+                            type={effectiveType}
+                            x={node.x}
+                            y={node.y}
+                            colour={nodeColour}
+                            label={stageLabel}
+                            dateLabel={dateLabel}
+                            stackIndex={objIdx}
+                            monthsSinceLastSignal={node.monthsSinceLastSignal}
+                            onHover={
+                              node.type === "cadence" ||
+                              (node.type === "fiscal-year-end" && !node.signal)
+                                ? undefined
+                                : (e: React.MouseEvent<SVGGElement>) => {
+                                    setHoveredId(objective.id);
+                                    const rect = (e.currentTarget as Element).getBoundingClientRect();
+                                    setTooltip({
+                                      objectiveId: objective.id,
+                                      viewportX: rect.right,
+                                      viewportY: rect.top,
+                                      signal:
+                                        node.type === "signal" ? node.signal : undefined,
+                                      originalQuote:
+                                        node.type === "origin"
+                                          ? objective.original_quote ?? undefined
+                                          : undefined,
+                                      firstStatedDate:
+                                        node.type === "origin"
+                                          ? objective.first_stated_date ?? undefined
+                                          : undefined,
+                                      nodeScore: node.score,
+                                      staleInfo:
+                                        node.type === "stale"
+                                          ? {
+                                              lastSignalDate: (() => {
+                                                const objSignals = signalsByObjective.get(objective.id);
+                                                return (
+                                                  objSignals?.[objSignals.length - 1]?.signal_date ??
+                                                  "Unknown"
+                                                );
+                                              })(),
+                                              monthsSilent: node.monthsSinceLastSignal ?? 0,
+                                            }
+                                          : null,
+                                    });
+                                  }
+                            }
+                            onLeave={
+                              node.type === "cadence" ||
+                              (node.type === "fiscal-year-end" && !node.signal)
+                                ? undefined
+                                : () => {
+                                    setHoveredId(null);
+                                    setTooltip(null);
+                                  }
+                            }
+                            onClick={
+                              effectiveType === "origin" || effectiveType === "signal" || effectiveType === "latest"
+                                ? () => onNavigateToEvidence()
+                                : undefined
+                            }
+                          />
+                        );
+                      })}
+                    </g>
+                  );
+                })}
+              </svg>
 
               {/* Crossing markers */}
               {crossings.map(({ objective, x, y, direction }) => (
