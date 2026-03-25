@@ -26,7 +26,7 @@
 
 | Phase | Scope | Files | Status |
 |---|---|---|---|
-| 1.1 | Masthead — green top rule, 36px Lora logo, h-16 height | `Masthead.tsx` | ⬜ Pending |
+| 1.1 | Masthead — green top rule, 36px Lora logo, h-16 height | `Masthead.tsx` | ✅ Delivered |
 | 1.2 | Path — organic spline, area fill, dashed below-ground style | `TimelinePath.tsx` | ⬜ Pending |
 | 1.3 | Nodes — bold markers on line, vertical tick + stage label above | `TimelineNode.tsx`, `TimelineCanvas.tsx` | ⬜ Pending |
 | 1.4 | Axis — duplicate month labels to top of stage grid | `TimelineCanvas.tsx` | ⬜ Pending |
@@ -118,4 +118,4 @@
 
 | Date | Phase | Notes |
 |---|---|---|
-| — | — | No phases delivered yet |
+| 2026-03-25 | 1.1 | Masthead green rule, 36px logo, h-16, TabBar offset fix |
