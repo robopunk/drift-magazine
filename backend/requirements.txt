@@ -4,3 +4,4 @@ python-dotenv>=1.0.0
 schedule>=1.2.0
 requests>=2.31.0
 firecrawl-py>=1.0.0
+tenacity>=8.0.0
