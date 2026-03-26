@@ -10,6 +10,9 @@ const mockBuried: Objective = {
   exit_date: "2024-06-30", exit_manner: "silent", transparency_score: "very_low",
   verdict_text: "Disappeared from communications without notice.",
   successor_objective_id: null, momentum_score: -4, terminal_state: "buried" as const,
+  committed_from: null,
+  committed_until: null,
+  commitment_type: "evergreen",
 };
 
 describe("BuriedCard", () => {

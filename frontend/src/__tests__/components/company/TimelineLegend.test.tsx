@@ -20,6 +20,9 @@ function makeObjective(overrides: Partial<Objective> & { id: string; title: stri
     successor_objective_id: null,
     momentum_score: 2,
     terminal_state: null,
+    committed_from: null,
+    committed_until: null,
+    commitment_type: "evergreen",
     ...overrides,
   };
 }

@@ -10,6 +10,9 @@ const mockProved: Objective = {
   exit_date: "2026-03-15", exit_manner: "achieved", transparency_score: "high",
   verdict_text: "Sandoz delivered on its founding promise: #1 global biosimilar company by revenue.",
   successor_objective_id: null, momentum_score: 3, terminal_state: "proved",
+  committed_from: null,
+  committed_until: null,
+  commitment_type: "evergreen",
 };
 
 describe("ProvedCard", () => {

@@ -10,6 +10,9 @@ const mockObjectives: Objective[] = [{
   status: "on_record", first_stated_date: null, last_confirmed_date: null,
   exit_date: null, exit_manner: null, transparency_score: null,
   verdict_text: null, successor_objective_id: null, momentum_score: 3, terminal_state: null,
+  committed_from: null,
+  committed_until: null,
+  commitment_type: "evergreen",
 }];
 
 const mockSignals: Signal[] = [
