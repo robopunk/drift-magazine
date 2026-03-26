@@ -60,6 +60,7 @@ Create a `.env` file in the `backend/` directory:
 ANTHROPIC_API_KEY=sk-ant-api03-...
 SUPABASE_URL=https://abcdefgh.supabase.co
 SUPABASE_SERVICE_KEY=eyJhbGciOiJIUzI1NiIs...
+FIRECRAWL_API_KEY=fc-...   # Optional. Get from firecrawl.dev. Enables full-doc extraction.
 ```
 
 Install Python dependencies:
