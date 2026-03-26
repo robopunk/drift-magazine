@@ -594,6 +594,13 @@ def run_intake(claude: anthropic.Anthropic, db: Client, company_id: str):
     try:
         prompt = build_intake_prompt(company)
 
+        firecrawl_key = os.environ.get("FIRECRAWL_API_KEY")
+        firecrawl_context = prefetch_company_docs(company, firecrawl_key)
+        if firecrawl_context:
+            prompt = prompt + firecrawl_context
+            url_count = (1 if company.get("ir_page_url") else 0) + len(company.get("additional_sources") or [])
+            print(f"  → Pre-fetched {url_count} document(s) via Firecrawl")
+
         print("  → Calling Claude with web search…")
         response = claude.messages.create(
             model=MODEL,
