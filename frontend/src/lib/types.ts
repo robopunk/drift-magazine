@@ -13,7 +13,9 @@ export type SignalClassification =
 export type ExitManner =
   | "silent" | "phased" | "morphed" | "transparent" | "achieved" | "resurrected";
 
-export type TimelineNodeType = "origin" | "signal" | "latest" | "cadence" | "stale" | "fiscal-year-end";
+export type TerminalState = "proved" | "buried";
+
+export type TimelineNodeType = "origin" | "signal" | "latest" | "cadence" | "stale" | "fiscal-year-end" | "terminal-proved" | "terminal-buried";
 
 export interface TimelineMonthNode {
   type: TimelineNodeType;
@@ -69,7 +71,7 @@ export interface Objective {
   verdict_text: string | null;
   successor_objective_id: string | null;
   momentum_score: number;
-  is_in_graveyard: boolean;
+  terminal_state: TerminalState | null;
 }
 
 export interface Signal {
@@ -105,6 +107,7 @@ export interface CompanySummary extends Company {
   objectives: Objective[];
   active_count: number;
   drifting_count: number;
+  proved_count: number;
   buried_count: number;
   editorial_verdict: string | null;
 }
