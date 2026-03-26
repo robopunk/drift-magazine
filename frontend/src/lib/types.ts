@@ -52,6 +52,7 @@ export interface Company {
   tracking_active: boolean;
   fiscal_year_end_month: number;
   last_research_run: string | null;
+  accountability_tier: "Exemplary" | "Solid" | "Watchlist" | "Drifting" | "Compromised" | null;
   created_at: string;
 }
 
