@@ -37,7 +37,30 @@ import anthropic
 from supabase import create_client, Client
 from dotenv import load_dotenv
 
+try:
+    from firecrawl import FirecrawlApp
+    _FIRECRAWL_AVAILABLE = True
+except ImportError:
+    _FIRECRAWL_AVAILABLE = False
+
 load_dotenv()
+
+# ── FIRECRAWL HELPERS ────────────────────────────────────────────────────────
+
+def firecrawl_extract(url: str, api_key: str, max_chars: int = 30_000) -> Optional[str]:
+    """Scrape a URL with Firecrawl and return clean markdown, or None on any error."""
+    if not _FIRECRAWL_AVAILABLE or not api_key:
+        return None
+    try:
+        app = FirecrawlApp(api_key=api_key)
+        result = app.scrape_url(url, params={"formats": ["markdown"]})
+        content = result.get("markdown") or result.get("content") or ""
+        if not content:
+            return None
+        return content[:max_chars]
+    except Exception as e:
+        print(f"  ⚠ Firecrawl extract failed for {url}: {e}")
+        return None
 
 # ── CONFIG ──────────────────────────────────────────────────────────────────
 
