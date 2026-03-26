@@ -525,3 +525,9 @@ alter table companies add column if not exists exchange varchar(10);
 --   WHERE title LIKE 'Manufacturing%';
 -- UPDATE objectives SET commitment_type = 'annual', committed_from = '2024-01-01', committed_until = '2025-12-31'
 --   WHERE title LIKE 'Margin Expansion%';
+
+-- ── V5 MIGRATION: ACCOUNTABILITY GRADING ────────────────────
+-- Run once against existing DBs (already applied to live DB 2026-03-26):
+-- ALTER TABLE companies ADD COLUMN IF NOT EXISTS accountability_tier text
+--   CHECK (accountability_tier IN ('Exemplary','Solid','Watchlist','Drifting','Compromised'));
+-- [Then create compute_accountability_score() and triggers — see docs/superpowers/plans/2026-03-26-performance-grading.md]
