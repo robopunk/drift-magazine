@@ -79,6 +79,43 @@ describe("TimelineNode", () => {
     expect(container.querySelector("line")).toBeNull();
   });
 
+  it("terminal-proved node renders 12px circle, outer ring, solid tick, and PROVED label", () => {
+    const { container } = render(
+      <TimelineNode type="terminal-proved" x={400} y={60} colour="#059669" label="PROVED" stackIndex={0} />
+    );
+    const circles = container.querySelectorAll("circle");
+    expect(circles).toHaveLength(2);
+    // inner filled circle at 6px radius
+    expect(circles[1].getAttribute("r")).toBe("6");
+    expect(circles[1].getAttribute("fill")).toBe("#059669");
+    // outer ring at 10px
+    expect(circles[0].getAttribute("r")).toBe("10");
+    // solid tick (no dash)
+    const tick = container.querySelector("line");
+    expect(tick).not.toBeNull();
+    expect(tick!.getAttribute("stroke-dasharray")).toBeNull();
+    // PROVED label
+    expect(screen.getByText("PROVED")).toBeInTheDocument();
+    // trophy emoji
+    expect(screen.getByText("🏆")).toBeInTheDocument();
+  });
+
+  it("terminal-buried node renders 12px circle, outer ring, solid tick, and exit manner label", () => {
+    const { container } = render(
+      <TimelineNode type="terminal-buried" x={400} y={300} colour="#78716c" label="SILENT DROP" stackIndex={0} />
+    );
+    const circles = container.querySelectorAll("circle");
+    expect(circles).toHaveLength(2);
+    expect(circles[1].getAttribute("r")).toBe("6");
+    expect(circles[1].getAttribute("fill")).toBe("#78716c");
+    expect(circles[0].getAttribute("r")).toBe("10");
+    const tick = container.querySelector("line");
+    expect(tick).not.toBeNull();
+    expect(tick!.getAttribute("stroke-dasharray")).toBeNull();
+    expect(screen.getByText("SILENT DROP")).toBeInTheDocument();
+    expect(screen.getByText("⚰️")).toBeInTheDocument();
+  });
+
   it("odd stackIndex produces taller tick than even stackIndex (lower y2 in SVG coords)", () => {
     const { container: evenContainer } = render(
       <TimelineNode type="signal" x={100} y={100} colour="#059669" label="🦅 FLY +3" stackIndex={0} />

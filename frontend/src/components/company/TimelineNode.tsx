@@ -75,6 +75,54 @@ export function TimelineNode({
     );
   }
 
+  if (type === "terminal-proved" || type === "terminal-buried") {
+    const isProved = type === "terminal-proved";
+    const emoji = isProved ? "🏆" : "⚰️";
+    const tickTopY = y - originTickH;
+    return (
+      <g
+        aria-label={label}
+        onMouseEnter={onHover}
+        onMouseLeave={onLeave}
+        onClick={onClick}
+        style={onClick ? { cursor: "pointer" } : undefined}
+      >
+        <circle cx={x} cy={y} r={10} fill={colour} fillOpacity={0.20} />
+        <circle cx={x} cy={y} r={6} fill={colour} />
+        <line
+          x1={x}
+          y1={y - 10}
+          x2={x}
+          y2={tickTopY}
+          stroke="var(--foreground)"
+          strokeWidth={1.5}
+          opacity={0.95}
+        />
+        {label && (
+          <text
+            x={x}
+            y={tickTopY - 14}
+            fontSize={9}
+            fill={colour}
+            textAnchor="middle"
+            fontFamily="var(--font-ibm-plex-mono)"
+            fontWeight="bold"
+          >
+            {label}
+          </text>
+        )}
+        <text
+          x={x}
+          y={tickTopY - 4}
+          fontSize={12}
+          textAnchor="middle"
+        >
+          {emoji}
+        </text>
+      </g>
+    );
+  }
+
   if (type === "origin") {
     const tickTopY = y - originTickH;
     return (
