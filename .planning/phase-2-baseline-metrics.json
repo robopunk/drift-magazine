@@ -1,0 +1,525 @@
+{
+  "measurement_timestamp": "2026-03-26T21:08:29.839310Z",
+  "phase": "02-quality-measurement-maturity",
+  "plan": "01-baseline-measurement",
+  "company_name": "Sandoz",
+  "company_id": "4a859b09-50da-4048-9df8-f3ccff33931f",
+  "total_signals": 51,
+  "overall_baseline_confidence_avg": 6.78,
+  "overall_confidence_std_dev": 1.14,
+  "confidence_distribution": {
+    "1_to_3": 1,
+    "4_to_6": 14,
+    "7_to_10": 36
+  },
+  "signals_by_accuracy": {
+    "high_confidence": 36,
+    "medium_confidence": 14,
+    "low_confidence": 1
+  },
+  "signals_by_type": {
+    "stated": 18,
+    "reinforced": 27,
+    "softened": 3,
+    "absent": 1,
+    "reframed": 2
+  },
+  "draft_vs_published": {
+    "draft": 0,
+    "published": 51
+  },
+  "false_negative_analysis": {
+    "uncertain_signals_count": 0,
+    "estimated_false_negative_rate_percent": 0.0,
+    "note": "Signals with confidence <=4 or missing evidence type. Candidates for re-review in Phase 2b."
+  },
+  "current_detection_algorithm": {
+    "name": "Web Search + LLM Classification (Pre-Firecrawl)",
+    "description": "Agent uses Claude web search to find company disclosures. Claude analyzes text and classifies against tracked objectives. No structured table/timestamp extraction. Depends on full-text analysis.",
+    "strengths": [
+      "Catches explicit statements",
+      "Good for reinforced/achieved signals",
+      "Can detect new objectives quickly"
+    ],
+    "limitations": [
+      "Misses absence signals (absence of language is hard to detect in web search results)",
+      "Can't parse tables reliably",
+      "Date extraction imprecise",
+      "Harder to verify softening without direct comparison"
+    ],
+    "confidence_impact": "Baseline 6.5/10 due to noisy search results and interpretation variability"
+  },
+  "baseline_quality_assessment": {
+    "current_state": "web_search_only",
+    "avg_confidence": "6.78/10",
+    "phase_2b_target": "8.0+/10",
+    "planned_improvement_methods": [
+      "Firecrawl markdown extraction (cleaner source content)",
+      "Structured table parsing (detect changes in tabular data)",
+      "Timestamp extraction (precise dating of language changes)",
+      "Difference detection (compare old vs new language)"
+    ]
+  },
+  "detailed_signal_list": [
+    {
+      "id": "c11014b5-2320-4da9-afda-7a97dd8e7acf",
+      "signal_date": "2024-01-01",
+      "classification": "stated",
+      "confidence": 7,
+      "source_name": "Q1 Report",
+      "is_draft": false,
+      "accuracy_category": "high_confidence"
+    },
+    {
+      "id": "de25b493-9694-47a0-8536-defc2344cd8a",
+      "signal_date": "2024-01-31",
+      "classification": "reinforced",
+      "confidence": 8,
+      "source_name": "Q2 Report",
+      "is_draft": false,
+      "accuracy_category": "high_confidence"
+    },
+    {
+      "id": "178a8252-0721-4ea4-b917-296af6b39ad0",
+      "signal_date": "2024-03-01",
+      "classification": "reinforced",
+      "confidence": 7,
+      "source_name": "Q3 Report",
+      "is_draft": false,
+      "accuracy_category": "high_confidence"
+    },
+    {
+      "id": "9b0f1177-8c38-4164-8b21-3bb30f19ec14",
+      "signal_date": "2024-03-31",
+      "classification": "stated",
+      "confidence": 8,
+      "source_name": "Q4 Report",
+      "is_draft": false,
+      "accuracy_category": "high_confidence"
+    },
+    {
+      "id": "4b2b4851-2552-4a8b-9856-40dfbb980dae",
+      "signal_date": "2024-04-30",
+      "classification": "reinforced",
+      "confidence": 7,
+      "source_name": "Q1 Report",
+      "is_draft": false,
+      "accuracy_category": "high_confidence"
+    },
+    {
+      "id": "6c4cd868-fad2-4b25-b84a-d0d416d30a58",
+      "signal_date": "2024-05-30",
+      "classification": "reinforced",
+      "confidence": 8,
+      "source_name": "Q2 Report",
+      "is_draft": false,
+      "accuracy_category": "high_confidence"
+    },
+    {
+      "id": "12846485-e07d-4e2e-a7e8-e82be1f6ccc9",
+      "signal_date": "2024-06-29",
+      "classification": "stated",
+      "confidence": 7,
+      "source_name": "Q3 Report",
+      "is_draft": false,
+      "accuracy_category": "high_confidence"
+    },
+    {
+      "id": "704ae368-6c90-449a-964d-e19e58196e84",
+      "signal_date": "2024-07-29",
+      "classification": "reinforced",
+      "confidence": 8,
+      "source_name": "Q4 Report",
+      "is_draft": false,
+      "accuracy_category": "high_confidence"
+    },
+    {
+      "id": "1c858c6f-c292-4d6d-b3d0-1f2b1f5ebf9a",
+      "signal_date": "2024-08-28",
+      "classification": "reinforced",
+      "confidence": 7,
+      "source_name": "Q1 Report",
+      "is_draft": false,
+      "accuracy_category": "high_confidence"
+    },
+    {
+      "id": "e6498d7d-0bfe-4ae2-9359-33f672c93fd2",
+      "signal_date": "2024-09-27",
+      "classification": "reinforced",
+      "confidence": 8,
+      "source_name": "Q2 Report",
+      "is_draft": false,
+      "accuracy_category": "high_confidence"
+    },
+    {
+      "id": "d1490327-5725-4193-9073-59528580c939",
+      "signal_date": "2024-10-27",
+      "classification": "reinforced",
+      "confidence": 7,
+      "source_name": "Q3 Report",
+      "is_draft": false,
+      "accuracy_category": "high_confidence"
+    },
+    {
+      "id": "10491f9d-79b9-45b4-8b6e-8a31cdb4d813",
+      "signal_date": "2024-01-01",
+      "classification": "stated",
+      "confidence": 7,
+      "source_name": "Earnings Call Transcript",
+      "is_draft": false,
+      "accuracy_category": "high_confidence"
+    },
+    {
+      "id": "24effd9f-5982-4b05-80c3-e95b26ab9422",
+      "signal_date": "2024-02-05",
+      "classification": "stated",
+      "confidence": 8,
+      "source_name": "Earnings Call Transcript",
+      "is_draft": false,
+      "accuracy_category": "high_confidence"
+    },
+    {
+      "id": "7a14120d-cfa4-4478-bfb4-a08b86abe20f",
+      "signal_date": "2024-03-11",
+      "classification": "stated",
+      "confidence": 7,
+      "source_name": "Earnings Call Transcript",
+      "is_draft": false,
+      "accuracy_category": "high_confidence"
+    },
+    {
+      "id": "76c6c1d0-47d9-4f9a-87c1-d98ff140d4c0",
+      "signal_date": "2024-04-15",
+      "classification": "reinforced",
+      "confidence": 8,
+      "source_name": "Earnings Call Transcript",
+      "is_draft": false,
+      "accuracy_category": "high_confidence"
+    },
+    {
+      "id": "e6b6baa6-5df6-4af0-a8c4-273a777ec67e",
+      "signal_date": "2024-05-20",
+      "classification": "reinforced",
+      "confidence": 7,
+      "source_name": "Earnings Call Transcript",
+      "is_draft": false,
+      "accuracy_category": "high_confidence"
+    },
+    {
+      "id": "5d936f66-1698-4ea6-a2bb-021c7442ce78",
+      "signal_date": "2024-06-24",
+      "classification": "reinforced",
+      "confidence": 8,
+      "source_name": "Earnings Call Transcript",
+      "is_draft": false,
+      "accuracy_category": "high_confidence"
+    },
+    {
+      "id": "fcd5d40e-301c-43c2-b7d2-3788d760645f",
+      "signal_date": "2024-07-29",
+      "classification": "reinforced",
+      "confidence": 7,
+      "source_name": "Earnings Call Transcript",
+      "is_draft": false,
+      "accuracy_category": "high_confidence"
+    },
+    {
+      "id": "aebcc82d-f74a-4154-b7aa-0dd76492b6e0",
+      "signal_date": "2024-09-02",
+      "classification": "reinforced",
+      "confidence": 8,
+      "source_name": "Earnings Call Transcript",
+      "is_draft": false,
+      "accuracy_category": "high_confidence"
+    },
+    {
+      "id": "3ceac808-e2d8-49f0-87ca-62417ac6579b",
+      "signal_date": "2024-10-07",
+      "classification": "reinforced",
+      "confidence": 7,
+      "source_name": "Earnings Call Transcript",
+      "is_draft": false,
+      "accuracy_category": "high_confidence"
+    },
+    {
+      "id": "0f126d37-ff0d-47f3-a5eb-ee9b9c0c0fa3",
+      "signal_date": "2024-01-01",
+      "classification": "stated",
+      "confidence": 7,
+      "source_name": "Half-Year Results",
+      "is_draft": false,
+      "accuracy_category": "high_confidence"
+    },
+    {
+      "id": "3df4c5f5-c130-4eb5-8162-28840585da51",
+      "signal_date": "2024-02-10",
+      "classification": "reinforced",
+      "confidence": 7,
+      "source_name": "Half-Year Results",
+      "is_draft": false,
+      "accuracy_category": "high_confidence"
+    },
+    {
+      "id": "3e8b3a03-037f-4170-a72b-373d97e7699f",
+      "signal_date": "2024-03-21",
+      "classification": "softened",
+      "confidence": 5,
+      "source_name": "Half-Year Results",
+      "is_draft": false,
+      "accuracy_category": "medium_confidence"
+    },
+    {
+      "id": "aa80a390-a2e6-4239-8250-31b81d01af07",
+      "signal_date": "2024-04-30",
+      "classification": "softened",
+      "confidence": 4,
+      "source_name": "Half-Year Results",
+      "is_draft": false,
+      "accuracy_category": "medium_confidence"
+    },
+    {
+      "id": "405fd6bc-96d4-46dd-9a81-60669cc909d3",
+      "signal_date": "2024-06-09",
+      "classification": "absent",
+      "confidence": 3,
+      "source_name": "Half-Year Results",
+      "is_draft": false,
+      "accuracy_category": "low_confidence"
+    },
+    {
+      "id": "eda29aaa-23a7-4846-80de-4588bef7cb43",
+      "signal_date": "2024-07-19",
+      "classification": "stated",
+      "confidence": 7,
+      "source_name": "Half-Year Results",
+      "is_draft": false,
+      "accuracy_category": "high_confidence"
+    },
+    {
+      "id": "c7453d43-b308-4568-ac9f-bfd2e9abd419",
+      "signal_date": "2024-08-28",
+      "classification": "reinforced",
+      "confidence": 7,
+      "source_name": "Half-Year Results",
+      "is_draft": false,
+      "accuracy_category": "high_confidence"
+    },
+    {
+      "id": "5aea314f-3f54-4104-b43b-ea41fcfb7df5",
+      "signal_date": "2024-01-01",
+      "classification": "reinforced",
+      "confidence": 6,
+      "source_name": "Investor Day",
+      "is_draft": false,
+      "accuracy_category": "medium_confidence"
+    },
+    {
+      "id": "4e09a81e-f97a-445b-bf9b-287f5b65e6c4",
+      "signal_date": "2024-01-29",
+      "classification": "stated",
+      "confidence": 7,
+      "source_name": "Investor Day",
+      "is_draft": false,
+      "accuracy_category": "high_confidence"
+    },
+    {
+      "id": "366acca7-bafe-40ab-9e52-c327fed318d7",
+      "signal_date": "2024-02-26",
+      "classification": "reinforced",
+      "confidence": 8,
+      "source_name": "Investor Day",
+      "is_draft": false,
+      "accuracy_category": "high_confidence"
+    },
+    {
+      "id": "a656fd26-72b2-4443-84f7-f2dfe9c24f44",
+      "signal_date": "2024-03-25",
+      "classification": "stated",
+      "confidence": 6,
+      "source_name": "Investor Day",
+      "is_draft": false,
+      "accuracy_category": "medium_confidence"
+    },
+    {
+      "id": "00b5aaa2-5ddd-40d4-aa13-188a110c32af",
+      "signal_date": "2024-04-22",
+      "classification": "reinforced",
+      "confidence": 7,
+      "source_name": "Investor Day",
+      "is_draft": false,
+      "accuracy_category": "high_confidence"
+    },
+    {
+      "id": "b8d331b3-e8c8-4434-bb75-32646cf24d95",
+      "signal_date": "2024-05-20",
+      "classification": "stated",
+      "confidence": 8,
+      "source_name": "Investor Day",
+      "is_draft": false,
+      "accuracy_category": "high_confidence"
+    },
+    {
+      "id": "8e152632-c0da-4136-9952-b934c81a4903",
+      "signal_date": "2024-06-17",
+      "classification": "reinforced",
+      "confidence": 6,
+      "source_name": "Investor Day",
+      "is_draft": false,
+      "accuracy_category": "medium_confidence"
+    },
+    {
+      "id": "f2bff690-c316-4293-b1ca-6f44c2c527ce",
+      "signal_date": "2024-07-15",
+      "classification": "stated",
+      "confidence": 7,
+      "source_name": "Investor Day",
+      "is_draft": false,
+      "accuracy_category": "high_confidence"
+    },
+    {
+      "id": "6b91d321-a472-4d9f-ae9e-5342a117b737",
+      "signal_date": "2024-08-12",
+      "classification": "reinforced",
+      "confidence": 8,
+      "source_name": "Investor Day",
+      "is_draft": false,
+      "accuracy_category": "high_confidence"
+    },
+    {
+      "id": "45ddffa2-6f26-4035-a066-d8d290e58a27",
+      "signal_date": "2024-09-09",
+      "classification": "stated",
+      "confidence": 6,
+      "source_name": "Investor Day",
+      "is_draft": false,
+      "accuracy_category": "medium_confidence"
+    },
+    {
+      "id": "1aa5883b-e5cb-47fc-bd41-414bcad76548",
+      "signal_date": "2024-10-07",
+      "classification": "reinforced",
+      "confidence": 7,
+      "source_name": "Investor Day",
+      "is_draft": false,
+      "accuracy_category": "high_confidence"
+    },
+    {
+      "id": "e186626e-322c-437e-89fb-2a12b7418b63",
+      "signal_date": "2024-01-01",
+      "classification": "stated",
+      "confidence": 6,
+      "source_name": "Press Release",
+      "is_draft": false,
+      "accuracy_category": "medium_confidence"
+    },
+    {
+      "id": "0d259ce8-b3fd-4ce8-aa31-e473b591a816",
+      "signal_date": "2024-02-20",
+      "classification": "reinforced",
+      "confidence": 6,
+      "source_name": "Press Release",
+      "is_draft": false,
+      "accuracy_category": "medium_confidence"
+    },
+    {
+      "id": "11b030c1-db06-48f7-b0b7-57897f2160b9",
+      "signal_date": "2024-04-10",
+      "classification": "reframed",
+      "confidence": 5,
+      "source_name": "Press Release",
+      "is_draft": false,
+      "accuracy_category": "medium_confidence"
+    },
+    {
+      "id": "6b94a93f-1c23-4f77-b850-0725c2d2b159",
+      "signal_date": "2024-05-30",
+      "classification": "softened",
+      "confidence": 5,
+      "source_name": "Press Release",
+      "is_draft": false,
+      "accuracy_category": "medium_confidence"
+    },
+    {
+      "id": "bcc9d5ec-43d7-4efc-ba48-03f2501b9189",
+      "signal_date": "2024-07-19",
+      "classification": "reframed",
+      "confidence": 4,
+      "source_name": "Press Release",
+      "is_draft": false,
+      "accuracy_category": "medium_confidence"
+    },
+    {
+      "id": "3f408150-eaa2-48d7-9280-095bd8efd5ea",
+      "signal_date": "2024-01-01",
+      "classification": "stated",
+      "confidence": 6,
+      "source_name": "Annual Report",
+      "is_draft": false,
+      "accuracy_category": "medium_confidence"
+    },
+    {
+      "id": "7d4d3091-7772-4da0-8a5b-f3aba877153e",
+      "signal_date": "2024-02-02",
+      "classification": "stated",
+      "confidence": 7,
+      "source_name": "Annual Report",
+      "is_draft": false,
+      "accuracy_category": "high_confidence"
+    },
+    {
+      "id": "849a6d6c-fede-485f-87b1-a8668c3dce5a",
+      "signal_date": "2024-03-05",
+      "classification": "stated",
+      "confidence": 8,
+      "source_name": "Annual Report",
+      "is_draft": false,
+      "accuracy_category": "high_confidence"
+    },
+    {
+      "id": "5dcb9122-159e-442a-84d6-a041e7619e33",
+      "signal_date": "2024-04-06",
+      "classification": "stated",
+      "confidence": 6,
+      "source_name": "Annual Report",
+      "is_draft": false,
+      "accuracy_category": "medium_confidence"
+    },
+    {
+      "id": "922e302b-798e-45de-a26c-f75ad16fbac8",
+      "signal_date": "2024-05-08",
+      "classification": "reinforced",
+      "confidence": 7,
+      "source_name": "Annual Report",
+      "is_draft": false,
+      "accuracy_category": "high_confidence"
+    },
+    {
+      "id": "27491a38-a9e5-48e5-9123-7f3798451374",
+      "signal_date": "2024-06-09",
+      "classification": "reinforced",
+      "confidence": 8,
+      "source_name": "Annual Report",
+      "is_draft": false,
+      "accuracy_category": "high_confidence"
+    },
+    {
+      "id": "688bd596-e5b7-4890-a8f4-4c79ded48a06",
+      "signal_date": "2024-07-11",
+      "classification": "reinforced",
+      "confidence": 6,
+      "source_name": "Annual Report",
+      "is_draft": false,
+      "accuracy_category": "medium_confidence"
+    },
+    {
+      "id": "904bfe9b-a36e-40aa-96bc-0c05d5f410f5",
+      "signal_date": "2024-08-12",
+      "classification": "reinforced",
+      "confidence": 7,
+      "source_name": "Annual Report",
+      "is_draft": false,
+      "accuracy_category": "high_confidence"
+    }
+  ],
+  "measurement_source": "synthetic_baseline"
+}
