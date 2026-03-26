@@ -5,6 +5,27 @@ import type { Objective, Signal } from "@/lib/types";
 import { getStage, scoreToStage } from "@/lib/momentum";
 import { EvidenceDrawer } from "./EvidenceDrawer";
 
+function getDeadlineBadge(objective: Objective): { label: string; className: string } | null {
+  if (objective.commitment_type === "evergreen" || !objective.committed_until) return null;
+
+  const deadline = new Date(objective.committed_until);
+  const now = new Date();
+  const threeMonthsFromNow = new Date();
+  threeMonthsFromNow.setMonth(threeMonthsFromNow.getMonth() + 3);
+
+  if (deadline < now) {
+    return { label: "Overdue", className: "text-red-500 bg-red-500/10" };
+  }
+
+  const dateLabel = new Intl.DateTimeFormat("en-US", { month: "short", year: "numeric" }).format(deadline);
+
+  if (deadline <= threeMonthsFromNow) {
+    return { label: `Due ${dateLabel}`, className: "text-amber-500 bg-amber-500/10" };
+  }
+
+  return { label: `Due ${dateLabel}`, className: "text-amber-500/70" };
+}
+
 interface ObjectiveCardProps { objective: Objective; signals: Signal[]; }
 
 export function ObjectiveCard({ objective, signals }: ObjectiveCardProps) {
@@ -34,6 +55,15 @@ export function ObjectiveCard({ objective, signals }: ObjectiveCardProps) {
                 <span>{stage.label}</span>
                 <span>({stage.score > 0 ? "+" : ""}{stage.score})</span>
               </span>
+              {(() => {
+                const badge = getDeadlineBadge(objective);
+                if (!badge) return null;
+                return (
+                  <span className={`font-mono text-[10px] uppercase tracking-wider px-1.5 py-0.5 rounded-full ${badge.className}`}>
+                    {badge.label}
+                  </span>
+                );
+              })()}
             </div>
             <h3 className="font-serif font-bold text-base text-card-foreground">{objective.title}</h3>
             {objective.subtitle && (

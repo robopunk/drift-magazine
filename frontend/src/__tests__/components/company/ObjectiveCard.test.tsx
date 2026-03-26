@@ -11,6 +11,7 @@ const mockObjective: Objective = {
   exit_date: null, exit_manner: null, transparency_score: null,
   verdict_text: null, successor_objective_id: null,
   momentum_score: 3, terminal_state: null,
+  committed_from: null, committed_until: null, commitment_type: "evergreen",
 };
 
 describe("ObjectiveCard", () => {
@@ -28,5 +29,35 @@ describe("ObjectiveCard", () => {
   it("shows Boardroom Allegory caption", () => {
     render(<ObjectiveCard objective={mockObjective} signals={[]} />);
     expect(screen.getByText(/altitude has a way/)).toBeInTheDocument();
+  });
+
+  it("shows 'Overdue' badge when committed_until is in the past", () => {
+    const overdueObj = {
+      ...mockObjective,
+      commitment_type: "annual" as const,
+      committed_from: "2024-01-01",
+      committed_until: "2024-12-31",
+    };
+    render(<ObjectiveCard objective={overdueObj} signals={[]} />);
+    expect(screen.getByText("Overdue")).toBeInTheDocument();
+  });
+
+  it("shows 'Due' badge when committed_until is in the future", () => {
+    const futureDate = new Date();
+    futureDate.setFullYear(futureDate.getFullYear() + 1);
+    const futureObj = {
+      ...mockObjective,
+      commitment_type: "annual" as const,
+      committed_from: "2024-01-01",
+      committed_until: futureDate.toISOString().split("T")[0],
+    };
+    render(<ObjectiveCard objective={futureObj} signals={[]} />);
+    expect(screen.getByText(/^Due /)).toBeInTheDocument();
+  });
+
+  it("does not show deadline badge for evergreen objectives", () => {
+    render(<ObjectiveCard objective={mockObjective} signals={[]} />);
+    expect(screen.queryByText("Overdue")).not.toBeInTheDocument();
+    expect(screen.queryByText(/^Due /)).not.toBeInTheDocument();
   });
 });
