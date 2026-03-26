@@ -22,6 +22,15 @@ const OBJECTIVE_COLOURS = [
   "#14b8a6", "#6366f1", "#ef4444", "#84cc16", "#06b6d4",
 ];
 
+const EXIT_MANNER_LABELS_CANVAS: Record<string, string> = {
+  silent: "SILENT DROP",
+  phased: "PHASED OUT",
+  morphed: "MORPHED",
+  transparent: "TRANSPARENT EXIT",
+  achieved: "ACHIEVED",
+  resurrected: "RESURRECTED",
+};
+
 interface TooltipState {
   objectiveId: string;
   viewportX: number;
@@ -146,6 +155,26 @@ export function TimelineCanvas({ objectives, signals, onNavigateToEvidence, fisc
           latestSignalIdx = i;
           break;
         }
+      }
+
+      // Add terminal node for proved/buried objectives
+      if (obj.terminal_state && obj.exit_date) {
+        const exitDate = new Date(obj.exit_date);
+        const globalOrigin = new Date(minDate);
+        const globalOriginMonth = new Date(globalOrigin.getFullYear(), globalOrigin.getMonth(), 1);
+        const exitMonthOffset = (exitDate.getFullYear() - globalOriginMonth.getFullYear()) * 12 +
+          (exitDate.getMonth() - globalOriginMonth.getMonth());
+        const terminalX = exitMonthOffset * MONTH_WIDTH + MONTH_WIDTH / 2;
+        const terminalY = scoreToY(obj.momentum_score);
+        const terminalType = obj.terminal_state === "proved" ? "terminal-proved" : "terminal-buried";
+
+        monthlyNodes.push({
+          type: terminalType,
+          month: exitDate,
+          x: terminalX,
+          y: terminalY,
+          score: obj.momentum_score,
+        });
       }
 
       return { objective: obj, nodes: monthlyNodes, latestSignalIdx };
@@ -493,9 +522,15 @@ export function TimelineCanvas({ objectives, signals, onNavigateToEvidence, fisc
                             ? "#f59e0b"
                             : colour;
                         const effectiveType =
-                          node.type === "signal" && i === latestSignalIdx ? "latest" : node.type;
+                          node.type === "terminal-proved" || node.type === "terminal-buried"
+                            ? node.type
+                            : node.type === "signal" && i === latestSignalIdx ? "latest" : node.type;
                         const stageLabel =
-                          node.type !== "cadence" && node.type !== "stale" && node.type !== "origin"
+                          node.type === "terminal-proved"
+                            ? "PROVED"
+                            : node.type === "terminal-buried"
+                            ? (objective.exit_manner ? EXIT_MANNER_LABELS_CANVAS[objective.exit_manner] : "BURIED")
+                            : node.type !== "cadence" && node.type !== "stale" && node.type !== "origin"
                             ? `${stageInfo.emoji} ${stageInfo.label.toUpperCase()} ${node.score >= 0 ? "+" : ""}${node.score}`
                             : undefined;
                         const dateLabel =
