@@ -27,6 +27,9 @@ function makeObjective(overrides: Partial<Objective> & { id: string; title: stri
     successor_objective_id: null,
     momentum_score: 0,
     terminal_state: null,
+    committed_from: null,
+    committed_until: null,
+    commitment_type: "evergreen",
     ...overrides,
   };
 }
@@ -141,6 +144,49 @@ describe("TimelineCanvas", () => {
     const junLabels = screen.getAllByText("Jun");
     // One at bottom (existing) + one at top (new) = 2
     expect(junLabels.length).toBeGreaterThanOrEqual(2);
+  });
+
+  it("renders a deadline flag for objectives with a committed_until date", () => {
+    const objWithDeadline = [
+      makeObjective({
+        id: "d",
+        title: "Deadline Objective",
+        display_number: 4,
+        momentum_score: 2,
+        committed_until: "2026-06-30",
+        committed_from: "2025-01-01",
+        commitment_type: "annual" as const,
+      }),
+    ];
+    const sigs = [makeSignal("d", "2025-06-01", "stated")];
+    const { container } = render(
+      <TimelineCanvas objectives={objWithDeadline} signals={sigs} onNavigateToEvidence={vi.fn()} />
+    );
+    // Select the objective first by clicking its legend entry
+    const legendButton = screen.getByText("Deadline Objective").closest("button");
+    if (legendButton) fireEvent.click(legendButton);
+    const deadlineFlag = container.querySelector("[data-deadline-flag]");
+    expect(deadlineFlag).toBeInTheDocument();
+  });
+
+  it("does not render deadline flag for evergreen objectives", () => {
+    const objEvergreen = [
+      makeObjective({
+        id: "e",
+        title: "Evergreen Objective",
+        display_number: 5,
+        momentum_score: 1,
+        commitment_type: "evergreen" as const,
+      }),
+    ];
+    const sigs = [makeSignal("e", "2025-06-01", "stated")];
+    const { container } = render(
+      <TimelineCanvas objectives={objEvergreen} signals={sigs} onNavigateToEvidence={vi.fn()} />
+    );
+    const legendButton = screen.getByText("Evergreen Objective").closest("button");
+    if (legendButton) fireEvent.click(legendButton);
+    const deadlineFlag = container.querySelector("[data-deadline-flag]");
+    expect(deadlineFlag).not.toBeInTheDocument();
   });
 
   it("does not trigger drag on click without movement", () => {

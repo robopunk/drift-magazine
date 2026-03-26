@@ -9,6 +9,7 @@ import { TimelineNode } from "./TimelineNode";
 import { TimelinePath } from "./TimelinePath";
 import { TimelineTooltip } from "./TimelineTooltip";
 import { CrossingMarker } from "./CrossingMarker";
+import { DeadlineFlag } from "./DeadlineFlag";
 
 interface TimelineCanvasProps {
   objectives: Objective[];
@@ -227,6 +228,25 @@ export function TimelineCanvas({ objectives, signals, onNavigateToEvidence, fisc
     const dayFraction = today.getDate() / 30;
     return (monthsFromStart + dayFraction) * MONTH_WIDTH;
   }, [minDate]);
+
+  // Deadline flags for objectives with commitment windows
+  const deadlineFlags = useMemo(() => {
+    return visibleObjectives
+      .filter((obj) => obj.commitment_type !== "evergreen" && obj.committed_until)
+      .map((obj) => {
+        const deadlineDate = new Date(obj.committed_until!);
+        const start = new Date(minDate);
+        const startMonth = new Date(start.getFullYear(), start.getMonth(), 1);
+        const monthsFromStart =
+          (deadlineDate.getFullYear() - startMonth.getFullYear()) * 12 +
+          (deadlineDate.getMonth() - startMonth.getMonth());
+        const dayFraction = deadlineDate.getDate() / 30;
+        const x = (monthsFromStart + dayFraction) * MONTH_WIDTH;
+        const isOverdue = deadlineDate < now;
+        const label = new Intl.DateTimeFormat("en-US", { month: "short", year: "numeric" }).format(deadlineDate);
+        return { objectiveId: obj.id, x, isOverdue, label };
+      });
+  }, [visibleObjectives, minDate, now]);
 
   // Tooltip data
   const tooltipData = useMemo(() => {
@@ -491,6 +511,18 @@ export function TimelineCanvas({ objectives, signals, onNavigateToEvidence, fisc
                 <text x={todayX} y={PADDING_Y - 4} fontSize={8} fill="var(--primary)" fontFamily="var(--font-ibm-plex-mono)" textAnchor="middle" opacity={0.7}>
                   Today
                 </text>
+
+                {/* Deadline flags */}
+                {deadlineFlags.map(({ objectiveId, x, isOverdue, label }) => (
+                  <DeadlineFlag
+                    key={`deadline-${objectiveId}`}
+                    x={x}
+                    canvasTop={PADDING_Y}
+                    canvasBottom={PADDING_Y + 8 * STAGE_HEIGHT}
+                    isOverdue={isOverdue}
+                    label={label}
+                  />
+                ))}
 
                 {/* Paths for selected objectives */}
                 {objectiveNodeSets.map(({ objective, nodes }) => {
