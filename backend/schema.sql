@@ -531,3 +531,10 @@ alter table companies add column if not exists exchange varchar(10);
 -- ALTER TABLE companies ADD COLUMN IF NOT EXISTS accountability_tier text
 --   CHECK (accountability_tier IN ('Exemplary','Solid','Watchlist','Drifting','Compromised'));
 -- [Then create compute_accountability_score() and triggers — see docs/superpowers/plans/2026-03-26-performance-grading.md]
+
+-- ── V5.1 MIGRATION: Firecrawl Source Content ──────────────────────────────
+-- Run once against existing databases.
+-- Stores the Firecrawl markdown snapshot for audit trail and human verification.
+-- Safe for Supabase Postgres 15: nullable column addition is zero downtime.
+
+ALTER TABLE signals ADD COLUMN IF NOT EXISTS source_content text;
