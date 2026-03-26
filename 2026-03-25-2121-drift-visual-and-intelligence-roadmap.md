@@ -91,10 +91,10 @@
 
 | Phase | Scope | Status |
 |---|---|---|
-| 3.0 | Brainstorm + spec session (Sonnet) | ⬜ Pending |
-| 3.1 | Schema — `committed_until`, `target_date`, `commitment_type` fields | ⬜ Pending |
-| 3.2 | Agent — fiscal-year-aware classification, multi-year window logic | ⬜ Pending |
-| 3.3 | Frontend — committed window overlay on timeline, fairness indicators | ⬜ Pending |
+| 3.0 | Brainstorm + spec session (Sonnet) | ✅ Delivered |
+| 3.1 | Schema — `committed_until`, `target_date`, `commitment_type` fields | ✅ Delivered |
+| 3.2 | Agent — fiscal-year-aware classification, multi-year window logic | ✅ Delivered |
+| 3.3 | Frontend — committed window overlay on timeline, fairness indicators | ✅ Delivered |
 
 **Intent for 3.0 brainstorm:** How do we represent a fiscal-year commitment vs a multi-year one? What does "overdue" look like vs "still within window"? How does the agent determine commitment type from source text? What does the timeline canvas show to indicate the committed window (a shaded zone? a deadline marker?)?
 
@@ -123,3 +123,4 @@
 | 2026-03-25 | 1.3 | SVG node migration, 6 types, stackIndex tick stagger, always-visible labels |
 | 2026-03-25 | 1.4 | Top axis month labels, mirrors bottom row, reuses monthLabels memo |
 | 2026-03-26 | 2.0-2.3 | Proved lifecycle: terminal_state enum, ProvedCard, 5-tab system, 3-section legend, terminal nodes |
+| 2026-03-26 | 3.0-3.3 | Committed duration: commitment_type enum, deadline_shifted classification, DeadlineFlag component, ObjectiveCard badge, agent prompt updates |
