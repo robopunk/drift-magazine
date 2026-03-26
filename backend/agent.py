@@ -61,6 +61,7 @@ SIGNAL_CLASSES = [
     "retired_transparent",
     "retired_silent",
     "year_end_review",
+    "deadline_shifted",
 ]
 
 MODEL              = DEFAULT_MODEL     # Active model — set by CLI or defaults
@@ -217,6 +218,13 @@ def build_intake_prompt(company: dict) -> str:
         4. Identify any objectives that may ALREADY have been dropped, softened, or morphed
            since first stated — if the initiative is more than 6 months old.
 
+        5. For each objective, determine the committed delivery window:
+           - ANNUAL: Tied to the company's fiscal year ending month {company.get('fiscal_year_end_month', 12)}.
+             Set committed_from to the fiscal year start, committed_until to the fiscal year end.
+           - MULTI_YEAR: The company stated an explicit future target date (e.g., "by 2027", "within 3 years").
+             Set committed_from to first_stated_date, committed_until to the stated target.
+           - EVERGREEN: No stated deadline — ongoing priority. Set both dates to null.
+
         RETURN FORMAT — respond with ONLY valid JSON, no markdown, no preamble:
 
         {{
@@ -234,7 +242,10 @@ def build_intake_prompt(company: dict) -> str:
               "status": "active|watch|drifting|achieved|dropped|morphed",
               "first_stated_date": "YYYY-MM-DD",
               "first_stated_source": "Source name e.g. Spin-off Prospectus",
-              "is_in_graveyard": false,
+              "terminal_state": "null|proved|buried",
+              "commitment_type": "annual|multi_year|evergreen",
+              "committed_from": "YYYY-MM-DD or null if evergreen",
+              "committed_until": "YYYY-MM-DD or null if evergreen",
               "display_order": 1,
               "signals": [
                 {{
@@ -266,7 +277,10 @@ def build_monthly_prompt(company: dict, objectives: list[dict]) -> str:
     """
     last_run = company.get("last_research_run", "never")
     obj_summary = "\n".join([
-        f"  - [{o['status'].upper()}] {o['title']} (last confirmed: {o.get('last_confirmed_date', 'unknown')})"
+        f"  - [{o['status'].upper()}] {o['title']} "
+        f"(last confirmed: {o.get('last_confirmed_date', 'unknown')}, "
+        f"commitment: {o.get('commitment_type', 'evergreen')}, "
+        f"deadline: {o.get('committed_until', 'none')})"
         for o in objectives
     ])
 
@@ -304,6 +318,13 @@ def build_monthly_prompt(company: dict, objectives: list[dict]) -> str:
         4. Flag any objective that may now be a GRAVEYARD CANDIDATE (status change to dropped/morphed).
            This requires strong evidence — not just one absence.
 
+        5. COMMITMENT WINDOW AWARENESS:
+           For each objective with a committed window (commitment_type != 'evergreen'):
+           - Has the company confirmed the original timeline is still on track?
+           - Has the company extended or shortened the deadline?
+             If so, classify as "deadline_shifted" and include old and new dates in excerpt.
+           - Has the deadline passed with no acknowledgment? Note this.
+
         CLASSIFICATION GUIDE:
         - "reinforced"         → Explicitly reaffirmed, often with progress metrics or new specifics
         - "softened"           → Language hedged, scope reduced, timeline extended without explanation
@@ -312,6 +333,7 @@ def build_monthly_prompt(company: dict, objectives: list[dict]) -> str:
         - "achieved"           → Company explicitly claims this objective has been met
         - "retired_transparent"→ Company explicitly states they are ending this objective with explanation
         - "retired_silent"     → Confirmation it has been silently dropped (requires multiple absences)
+        - "deadline_shifted"   → Company has moved its committed deadline (extended or shortened)
 
         RETURN FORMAT — respond with ONLY valid JSON, no markdown, no preamble:
 
@@ -367,12 +389,13 @@ def build_correlation_prompt(company: dict, objectives: list[dict], signals: lis
     # Build objective summaries
     obj_lines = []
     for o in objectives:
-        status_tag = "GRAVEYARD" if o.get("is_in_graveyard") else o.get("status", "active").upper()
+        status_tag = "PROVED" if o.get("terminal_state") == "proved" else "BURIED" if o.get("terminal_state") == "buried" else o.get("status", "active").upper()
         obj_lines.append(
             f"  [{status_tag}] {o['title']} (id: {o['id']})\n"
             f"    Subtitle: {o.get('subtitle', 'N/A')}\n"
             f"    Original quote: \"{o.get('original_quote', 'N/A')}\"\n"
-            f"    Momentum: {o.get('momentum_score', 0)} | Status: {o.get('status')} | Graveyard: {o.get('is_in_graveyard', False)}\n"
+            f"    Momentum: {o.get('momentum_score', 0)} | Status: {o.get('status')} | Terminal: {o.get('terminal_state', 'none')}\n"
+            f"    Commitment: {o.get('commitment_type', 'evergreen')} | Deadline: {o.get('committed_until', 'none')}\n"
             f"    Exit manner: {o.get('exit_manner', 'N/A')} | Verdict: {o.get('verdict_text', 'None')}"
         )
     obj_block = "\n".join(obj_lines)
@@ -428,15 +451,15 @@ def build_correlation_prompt(company: dict, objectives: list[dict], signals: lis
 
         Graveyard promotion rules:
         - 3+ consecutive softened/reframed/absent signals = graveyard candidate (exit_manner: "silent" or "phased")
-        - Cross-reference evidence of silent completion = status: "achieved", exit_manner: "achieved", is_in_graveyard: FALSE
-        - Explicit "achieved" classification in own signals = status: "achieved", exit_manner: "achieved", is_in_graveyard: FALSE
-        - "retired_transparent" signal = is_in_graveyard: true, exit_manner: "transparent"
-        - "retired_silent" confirmed = is_in_graveyard: true, exit_manner: "silent"
-        - Morphed into successor = is_in_graveyard: true, exit_manner: "morphed", set successor_objective_id to the UUID of the successor objective
+        - Cross-reference evidence of silent completion = status: "achieved", exit_manner: "achieved", terminal_state: "proved"
+        - Explicit "achieved" classification in own signals = status: "achieved", exit_manner: "achieved", terminal_state: "proved"
+        - "retired_transparent" signal = terminal_state: "buried", exit_manner: "transparent"
+        - "retired_silent" confirmed = terminal_state: "buried", exit_manner: "silent"
+        - Morphed into successor = terminal_state: "buried", exit_manner: "morphed", set successor_objective_id to the UUID of the successor objective
 
         CRITICAL: Achieved objectives are NOT graveyard entries. The graveyard is exclusively
         for failures (silent drops, phased outs, morphs). A silently achieved objective is a
-        SUCCESS — it gets status "achieved" and is_in_graveyard: false.
+        SUCCESS — it gets status "achieved" and terminal_state: "proved".
 
         Momentum score guidelines (evaluate holistically, not as rigid formulas):
         - Recent "reinforced" with high confidence: push up (+1 per strong reinforcement, cap at +4)
@@ -448,6 +471,12 @@ def build_correlation_prompt(company: dict, objectives: list[dict], signals: lis
         - "retired_transparent": set to -4
         Consider recency, confidence, and context. One strong reinforcement after two softenings
         may warrant a higher score than arithmetic suggests.
+
+        COMMITMENT WINDOW CONTEXT:
+        When evaluating momentum, consider the commitment window:
+        - An objective approaching its deadline with strong signals deserves credit
+        - An objective past its deadline with no acknowledgment is more concerning than one still within window
+        - Deadline shifts (extensions) without explanation should be flagged
 
         PASS 3 — VERDICT WRITING:
         For any objective transitioning to graveyard, write a verdict_text paragraph (2-4 sentences).
@@ -467,7 +496,7 @@ def build_correlation_prompt(company: dict, objectives: list[dict], signals: lis
               "proposed_momentum_score": 3,
               "momentum_reasoning": "Brief explanation of trajectory assessment",
               "proposed_status": "active|watch|drifting|achieved|dropped|morphed|null (null = no change)",
-              "is_in_graveyard": false,
+              "terminal_state": "proved|buried|null",
               "exit_manner": "silent|phased|morphed|transparent|achieved|null",
               "exit_date": "YYYY-MM-DD or null",
               "transparency_score": "very_low|low|medium|high|null",
@@ -628,7 +657,10 @@ def run_monthly(claude: anthropic.Anthropic, db: Client, company_id: str):
             if prop.get("transparency_score"):
                 obj_update["transparency_score"] = prop["transparency_score"]
             if prop["proposed_status"] in ("dropped", "morphed"):
-                obj_update["is_in_graveyard"] = True
+                obj_update["terminal_state"] = "buried"
+                obj_update["exit_date"] = date.today().isoformat()
+            elif prop["proposed_status"] == "achieved":
+                obj_update["terminal_state"] = "proved"
                 obj_update["exit_date"] = date.today().isoformat()
             db.table("objectives").update(obj_update).eq("id", prop["objective_id"]).execute()
 
@@ -739,8 +771,8 @@ def run_correlation_pass(claude: anthropic.Anthropic, db: Client, company_id: st
                 obj_patch["momentum_score"] = update["proposed_momentum_score"]
             if update.get("proposed_status"):
                 obj_patch["status"] = update["proposed_status"]
-            if update.get("is_in_graveyard") is not None:
-                obj_patch["is_in_graveyard"] = update["is_in_graveyard"]
+            if update.get("terminal_state"):
+                obj_patch["terminal_state"] = update["terminal_state"]
             if update.get("exit_manner"):
                 obj_patch["exit_manner"] = update["exit_manner"]
             if update.get("exit_date"):
