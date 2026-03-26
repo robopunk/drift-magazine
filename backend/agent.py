@@ -26,6 +26,7 @@ Environment variables required (.env):
 
 import os
 import sys
+import re
 import json
 import time
 import argparse
@@ -116,6 +117,240 @@ def prefetch_company_docs(company: dict, api_key: Optional[str]) -> str:
         + f"\n{divider}\n"
         "Use these as primary sources. Then use web_search for any additional recent disclosures.\n"
     )
+
+# ── MARKDOWN PARSING FUNCTIONS ──────────────────────────────────────────────────
+
+def extract_tables_from_markdown(markdown: str) -> list[list[dict]]:
+    """Extract markdown tables into list of table data structures.
+
+    Each table is represented as a list of dicts (rows), where keys are column headers
+    and values are cell contents.
+
+    Args:
+        markdown: Raw markdown string
+
+    Returns:
+        List of tables (each table is a list of dicts representing rows).
+        Returns empty list if no valid tables found or parsing errors occur.
+    """
+    if not markdown:
+        return []
+
+    tables = []
+    lines = markdown.split('\n')
+    i = 0
+
+    while i < len(lines):
+        line = lines[i]
+
+        # Check if this line starts a markdown table (starts with |)
+        if line.strip().startswith('|'):
+            # Try to parse table starting at i
+            try:
+                table_lines = [line]
+                i += 1
+
+                # Collect header separator and data rows
+                if i < len(lines) and '---' in lines[i]:
+                    table_lines.append(lines[i])
+                    i += 1
+
+                    # Collect data rows (stop at first non-table line)
+                    while i < len(lines) and lines[i].strip().startswith('|'):
+                        table_lines.append(lines[i])
+                        i += 1
+
+                    # Parse the table
+                    if len(table_lines) >= 3:
+                        headers_line = table_lines[0]
+                        data_lines = table_lines[2:]  # Skip separator
+
+                        # Parse headers
+                        headers = [h.strip() for h in headers_line.split('|')[1:-1]]
+
+                        # Parse data rows
+                        table_data = []
+                        for data_line in data_lines:
+                            cells = [c.strip() for c in data_line.split('|')[1:-1]]
+                            # Only add if same number of cells as headers
+                            if len(cells) == len(headers):
+                                row = dict(zip(headers, cells))
+                                table_data.append(row)
+
+                        if table_data:
+                            tables.append(table_data)
+                else:
+                    i += 1
+            except Exception:
+                # Gracefully skip malformed tables
+                i += 1
+        else:
+            i += 1
+
+    return tables
+
+
+def extract_timestamp_from_markdown(markdown: str) -> Optional[datetime]:
+    """Extract publication/update date from markdown.
+
+    Recognizes patterns: "Published: ...", "Last Updated: ...", "Date: ...", "Posted: ..."
+
+    Args:
+        markdown: Raw markdown string
+
+    Returns:
+        Parsed datetime object if found, None otherwise.
+    """
+    if not markdown:
+        return None
+
+    try:
+        from dateutil import parser
+    except ImportError:
+        # Fallback if dateutil not available
+        return None
+
+    date_patterns = [
+        "published:",
+        "last updated:",
+        "date:",
+        "posted:",
+    ]
+
+    lines = markdown.split('\n')
+    for line in lines:
+        line_lower = line.lower()
+        for pattern in date_patterns:
+            if pattern in line_lower:
+                # Extract the date part (after the pattern)
+                idx = line_lower.find(pattern)
+                date_str = line[idx + len(pattern):].strip()
+
+                try:
+                    return parser.parse(date_str, fuzzy=True)
+                except (ValueError, parser.ParserError):
+                    continue
+
+    return None
+
+
+def parse_firecrawl_content(markdown: str) -> dict:
+    """Parse Firecrawl markdown output into structured signal data.
+
+    Extracts tables, timestamps, and plain text from markdown. Removes markdown
+    syntax to produce clean prose.
+
+    Args:
+        markdown: Raw Firecrawl markdown output
+
+    Returns:
+        Dict with keys:
+            - content_text: Plain text without markdown syntax
+            - tables: List of extracted table data (each is list of dicts)
+            - timestamp: Parsed datetime if found, else None
+            - has_structured_data: Bool (True if tables or timestamp found)
+    """
+    if not markdown:
+        return {
+            "content_text": "",
+            "tables": [],
+            "timestamp": None,
+            "has_structured_data": False,
+        }
+
+    # Extract tables and timestamp
+    tables = extract_tables_from_markdown(markdown)
+    timestamp = extract_timestamp_from_markdown(markdown)
+
+    # Remove markdown syntax to get plain text
+    content_text = markdown
+    # Remove markdown headers (##, ###, etc.)
+    import re
+    content_text = re.sub(r'^#+\s+', '', content_text, flags=re.MULTILINE)
+    # Remove markdown bold (**text**)
+    content_text = re.sub(r'\*\*(.+?)\*\*', r'\1', content_text)
+    # Remove markdown italic (*text*)
+    content_text = re.sub(r'\*(.+?)\*', r'\1', content_text)
+    # Remove markdown code blocks
+    content_text = re.sub(r'```[\s\S]*?```', '', content_text)
+    # Remove inline code
+    content_text = re.sub(r'`([^`]+)`', r'\1', content_text)
+    # Remove markdown table lines (|---|)
+    content_text = re.sub(r'^\|[-\s|]+\|$', '', content_text, flags=re.MULTILINE)
+    # Remove table cell markers (leading/trailing |)
+    content_text = re.sub(r'^\s*\|\s+', '', content_text, flags=re.MULTILINE)
+    content_text = re.sub(r'\s+\|\s*$', '', content_text, flags=re.MULTILINE)
+    # Clean up extra whitespace
+    content_text = re.sub(r'\n\s*\n', '\n', content_text)
+    content_text = content_text.strip()
+
+    has_structured_data = bool(tables or timestamp)
+
+    return {
+        "content_text": content_text,
+        "tables": tables,
+        "timestamp": timestamp,
+        "has_structured_data": has_structured_data,
+    }
+
+
+def calculate_signal_confidence(
+    evidence_type: str,
+    source_type: str = "web_search",
+    has_tables: bool = False,
+    has_timestamp: bool = False,
+    has_quote: bool = False,
+) -> int:
+    """Calculate confidence score for a signal (1-10 scale).
+
+    Base score determined by evidence type, with bonuses for data quality:
+    - Evidence type: stated=7, reinforced=8, softened=6, reframed=5, absent=4, achieved=9
+    - Source type: web_search base, firecrawl +0 (Firecrawl rewards apply via structured data)
+    - Structured data: if has_tables or has_timestamp, +1 (max once)
+    - Quote bonus: if has_quote, +1
+
+    Args:
+        evidence_type: Type of signal (stated, reinforced, softened, etc.)
+        source_type: Source (web_search, firecrawl, other)
+        has_tables: Whether parsed content has structured tables
+        has_timestamp: Whether parsed content has extracted timestamp
+        has_quote: Whether signal includes direct quote
+
+    Returns:
+        Confidence score (1-10, capped at 10)
+    """
+    # Base score by evidence type
+    base_scores = {
+        "stated": 7,
+        "reinforced": 8,
+        "softened": 6,
+        "reframed": 5,
+        "absent": 4,
+        "achieved": 9,
+        "retired_transparent": 8,
+        "retired_silent": 6,
+        "morphed": 5,
+        "year_end_review": 7,
+        "deadline_shifted": 5,
+    }
+
+    score = base_scores.get(evidence_type, 5)  # Default to 5 if unknown type
+
+    # Source type adjustments
+    if source_type == "firecrawl":
+        pass  # No penalty for Firecrawl; structured data bonus applied below
+    elif source_type == "web_search":
+        pass  # Base score already accounts for this
+
+    # Quality bonuses
+    if has_tables or has_timestamp:
+        score += 1
+
+    if has_quote:
+        score += 1
+
+    # Cap at 10
+    return min(score, 10)
 
 # ── CONFIG ──────────────────────────────────────────────────────────────────
 
