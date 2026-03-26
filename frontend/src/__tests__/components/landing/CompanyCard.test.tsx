@@ -13,6 +13,7 @@ const mockCompany: CompanySummary = {
   initiative_subtitle: null,
   ir_page_url: null,
   overall_commitment_score: 72,
+  accountability_tier: "Solid",
   tracking_active: true,
   fiscal_year_end_month: 12,
   last_research_run: "2026-03-01",
@@ -46,5 +47,15 @@ describe("CompanyCard", () => {
     render(<CompanyCard company={mockCompany} />);
     const link = screen.getByRole("link");
     expect(link).toHaveAttribute("href", "/company/sdz");
+  });
+
+  it("renders accountability tier label", () => {
+    render(<CompanyCard company={mockCompany} />);
+    expect(screen.getByText("Solid")).toBeInTheDocument();
+  });
+
+  it("does not render a progress bar", () => {
+    const { container } = render(<CompanyCard company={mockCompany} />);
+    expect(container.querySelector(".h-1.bg-muted")).not.toBeInTheDocument();
   });
 });
