@@ -678,6 +678,13 @@ def run_monthly(claude: anthropic.Anthropic, db: Client, company_id: str):
         obj_id_map = "\n".join([f"  {o['title']}: {o['id']}" for o in objectives])
         full_prompt = prompt + f"\n\nOBJECTIVE ID REFERENCE:\n{obj_id_map}"
 
+        firecrawl_key = os.environ.get("FIRECRAWL_API_KEY")
+        firecrawl_context = prefetch_company_docs(company, firecrawl_key)
+        if firecrawl_context:
+            full_prompt = full_prompt + firecrawl_context
+            url_count = (1 if company.get("ir_page_url") else 0) + len(company.get("additional_sources") or [])
+            print(f"  → Pre-fetched {url_count} document(s) via Firecrawl")
+
         print("  → Calling Claude with web search…")
         response = claude.messages.create(
             model=MODEL,
