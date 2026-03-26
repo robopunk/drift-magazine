@@ -1,12 +1,13 @@
 "use client";
 
-export type TabId = "timeline" | "objectives" | "buried" | "evidence";
+export type TabId = "timeline" | "objectives" | "proved" | "buried" | "evidence";
 
 interface TabBarProps {
   activeTab: TabId;
   onTabChange: (tab: TabId) => void;
   counts: {
     objectives: number;
+    proved: number;
     buried: number;
     evidence: number;
   };
@@ -15,6 +16,7 @@ interface TabBarProps {
 const TABS: { id: TabId; label: string; countKey?: keyof TabBarProps["counts"] }[] = [
   { id: "timeline", label: "Timeline" },
   { id: "objectives", label: "Objectives", countKey: "objectives" },
+  { id: "proved", label: "Proved", countKey: "proved" },
   { id: "buried", label: "Buried", countKey: "buried" },
   { id: "evidence", label: "Evidence", countKey: "evidence" },
 ];
@@ -40,7 +42,9 @@ export function TabBar({ activeTab, onTabChange, counts }: TabBarProps) {
               {count != null && (
                 <span
                   className={`ml-1.5 text-xs font-mono px-1.5 py-0.5 rounded-full ${
-                    tab.id === "buried" && count > 0
+                    tab.id === "proved" && count > 0
+                      ? "bg-primary/10 text-primary"
+                      : tab.id === "buried" && count > 0
                       ? "bg-destructive/10 text-destructive"
                       : "bg-muted text-muted-foreground"
                   }`}
