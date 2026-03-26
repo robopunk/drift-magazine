@@ -1,5 +1,19 @@
 # Changelog
 
+## [3.3.0] - 2026-03-26
+
+### Added
+- **Accountability score** — 0–100 grade auto-computed from objective momentum, exit history, and signal recency
+- **Accountability tier** — 5-label classification: Exemplary / Solid / Watchlist / Drifting / Compromised
+- **`compute_accountability_score()` Postgres function** — VOID function writing score + tier to `companies` table
+- **Auto-trigger** — score recomputes on every `objectives` or `signals` change
+- **`lib/accountability.ts`** — tier colour map utility
+- `accountability_tier` field on `Company` type
+
+### Changed
+- **`CompanyHeader`** — grade block now shows tier label as primary, score as secondary metadata
+- **`CompanyCard`** — replaces momentum emoji + progress bar with accountability tier label + score
+
 ## [3.1.0] - 2026-03-26
 
 ### Added

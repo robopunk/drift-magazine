@@ -106,11 +106,9 @@
 
 | Phase | Scope | Status |
 |---|---|---|
-| 4.0 | Brainstorm + spec session (Sonnet) | ⬜ Pending |
-| 4.1 | Grading algorithm — inputs, weighting, scale | ⬜ Pending |
-| 4.2 | Frontend — grade display on company header and landing card | ⬜ Pending |
-
-**Intent for 4.0 brainstorm:** What inputs go into the grade (momentum trajectory, silence periods, graveyard exits, transparency scores, achieved count)? What scale (A–F? 0–100? Drift-specific labels)? How does it update as new signals come in? How is it explained to the reader without feeling arbitrary?
+| 4.0 | Brainstorm + spec (this document) | ✅ Delivered |
+| 4.1 | Schema — `accountability_tier` column, `compute_accountability_score()` function, triggers | ✅ Delivered |
+| 4.2 | Frontend — `CompanyHeader` + `CompanyCard` grade display | ✅ Delivered |
 
 ---
 
@@ -124,3 +122,4 @@
 | 2026-03-25 | 1.4 | Top axis month labels, mirrors bottom row, reuses monthLabels memo |
 | 2026-03-26 | 2.0-2.3 | Proved lifecycle: terminal_state enum, ProvedCard, 5-tab system, 3-section legend, terminal nodes |
 | 2026-03-26 | 3.0-3.3 | Committed duration: commitment_type enum, deadline_shifted classification, DeadlineFlag component, ObjectiveCard badge, agent prompt updates |
+| 2026-03-26 | 4.0-4.2 | Accountability score + tier: Postgres function, auto-trigger, CompanyHeader + CompanyCard display |
