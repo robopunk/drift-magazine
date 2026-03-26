@@ -31,7 +31,8 @@ create type signal_classification as enum (
   'achieved',     -- Claimed completed
   'retired_transparent',  -- Officially retired with explanation
   'retired_silent',       -- Disappeared without announcement
-  'year_end_review'       -- Fiscal year-end editorial review
+  'year_end_review',      -- Fiscal year-end editorial review
+  'deadline_shifted'      -- Company moved its committed deadline
 );
 
 create type exit_manner as enum (
@@ -155,6 +156,12 @@ create table objectives (
   momentum_score        integer,                -- 1-5
   evidence_count        integer default 0,
   terminal_state        terminal_state,           -- null = active, 'proved' = delivered, 'buried' = graveyard
+
+  -- Commitment window
+  committed_from        date,
+  committed_until       date,
+  commitment_type       text not null default 'evergreen'
+                        check (commitment_type in ('annual', 'multi_year', 'evergreen')),
 
   -- Sort order on page
   display_order         integer default 0
@@ -302,6 +309,44 @@ create trigger trg_objective_counts
   for each row execute function refresh_company_counts();
 
 
+-- ── FUNCTION: auto-escalate overdue objectives ─────────────────
+-- Called daily via pg_cron or Supabase scheduled function.
+-- Moves active objectives past their committed_until to 'watch' status
+-- and inserts an 'absent' signal noting the expiry.
+
+create or replace function escalate_overdue_objectives()
+returns void language plpgsql as $$
+declare
+  obj record;
+begin
+  for obj in
+    select id, company_id, title, committed_until
+    from objectives
+    where committed_until < current_date
+      and status = 'active'
+      and terminal_state is null
+      and commitment_type != 'evergreen'
+  loop
+    -- Escalate status
+    update objectives set status = 'watch', status_changed_at = now()
+    where id = obj.id;
+
+    -- Insert system signal
+    insert into signals (
+      objective_id, company_id, signal_date, source_type, source_name,
+      classification, confidence, excerpt, agent_reasoning, detected_by, is_draft
+    ) values (
+      obj.id, obj.company_id, current_date, 'other', 'System — Deadline Escalation',
+      'absent', 10,
+      'Committed window expired (' || obj.committed_until || ') with no update from company. Status auto-escalated to watch.',
+      'Automatic escalation: objective was active past its committed_until date with no deadline_shifted signal.',
+      'system', false
+    );
+  end loop;
+end;
+$$;
+
+
 -- ── VIEWS ───────────────────────────────────────────────────
 
 -- Company summary for the landing page grid
@@ -322,7 +367,13 @@ select
   c.last_signal_date,
   c.last_research_run,
   json_agg(
-    json_build_object('status', o.status, 'title', o.title, 'terminal_state', o.terminal_state)
+    json_build_object(
+      'status', o.status,
+      'title', o.title,
+      'terminal_state', o.terminal_state,
+      'committed_until', o.committed_until,
+      'commitment_type', o.commitment_type
+    )
     order by o.display_order
   ) filter (where o.id is not null) as objectives_summary
 from companies c
@@ -443,3 +494,34 @@ alter table companies add column if not exists exchange varchar(10);
 
 -- Step 6: Add proved_count to companies
 -- ALTER TABLE companies ADD COLUMN proved_count integer DEFAULT 0;
+
+
+-- ── V4 MIGRATIONS: Commitment Windows ───────────────────────────
+-- Run these against existing installations to bring them up to v4 schema
+
+-- Step 1: Add commitment columns
+-- ALTER TABLE objectives ADD COLUMN committed_from date;
+-- ALTER TABLE objectives ADD COLUMN committed_until date;
+-- ALTER TABLE objectives ADD COLUMN commitment_type text NOT NULL DEFAULT 'evergreen'
+--   CHECK (commitment_type IN ('annual', 'multi_year', 'evergreen'));
+
+-- Step 2: Add new signal classification
+-- ALTER TYPE signal_classification ADD VALUE 'deadline_shifted';
+
+-- Step 3: Create escalation function (copy from above)
+
+-- Step 4: Update v_company_summary view (copy from above)
+
+-- Step 5: Seed Sandoz commitment windows
+-- UPDATE objectives SET commitment_type = 'multi_year', committed_from = '2023-10-01', committed_until = '2028-12-31'
+--   WHERE title = 'Global Biosimilar Leadership';
+-- UPDATE objectives SET commitment_type = 'annual', committed_from = '2024-01-01', committed_until = '2025-12-31'
+--   WHERE title = 'US Biosimilar Penetration';
+-- UPDATE objectives SET commitment_type = 'annual', committed_from = '2024-01-01', committed_until = '2025-12-31'
+--   WHERE title LIKE 'Emerging Markets%';
+-- UPDATE objectives SET commitment_type = 'multi_year', committed_from = '2023-10-01', committed_until = '2027-12-31'
+--   WHERE title LIKE 'Next-Wave%';
+-- UPDATE objectives SET commitment_type = 'multi_year', committed_from = '2023-10-01', committed_until = '2026-12-31'
+--   WHERE title LIKE 'Manufacturing%';
+-- UPDATE objectives SET commitment_type = 'annual', committed_from = '2024-01-01', committed_until = '2025-12-31'
+--   WHERE title LIKE 'Margin Expansion%';
