@@ -48,6 +48,8 @@ create type exit_manner as enum (
 -- ALTER TYPE signal_classification ADD VALUE 'year_end_review';
 -- ALTER TABLE companies ADD COLUMN fiscal_year_end_month integer DEFAULT 12 CHECK (fiscal_year_end_month BETWEEN 1 AND 12);
 
+create type terminal_state as enum ('proved', 'buried');
+
 create type transparency_score as enum (
   'very_low',     -- No communication of change
   'low',          -- Minimal / indirect acknowledgment
@@ -102,6 +104,7 @@ create table companies (
   -- Computed/cached (refreshed by agent)
   overall_commitment_score   integer,           -- 0-100
   active_objective_count     integer default 0,
+  proved_count               integer default 0,
   graveyard_count            integer default 0,
   last_research_run          timestamptz,
   last_signal_date           date,
@@ -151,7 +154,7 @@ create table objectives (
   -- Display / scoring
   momentum_score        integer,                -- 1-5
   evidence_count        integer default 0,
-  is_in_graveyard       boolean default false,
+  terminal_state        terminal_state,           -- null = active, 'proved' = delivered, 'buried' = graveyard
 
   -- Sort order on page
   display_order         integer default 0
@@ -159,7 +162,7 @@ create table objectives (
 
 create index idx_objectives_company on objectives(company_id);
 create index idx_objectives_status on objectives(status);
-create index idx_objectives_graveyard on objectives(is_in_graveyard);
+create index idx_objectives_terminal on objectives(terminal_state);
 
 
 -- ── SIGNALS ─────────────────────────────────────────────────
@@ -277,13 +280,17 @@ begin
     active_objective_count = (
       select count(*) from objectives
       where company_id = coalesce(new.company_id, old.company_id)
-        and status not in ('dropped','morphed')
-        and is_in_graveyard = false
+        and terminal_state is null
+    ),
+    proved_count = (
+      select count(*) from objectives
+      where company_id = coalesce(new.company_id, old.company_id)
+        and terminal_state = 'proved'
     ),
     graveyard_count = (
       select count(*) from objectives
       where company_id = coalesce(new.company_id, old.company_id)
-        and is_in_graveyard = true
+        and terminal_state = 'buried'
     )
   where id = coalesce(new.company_id, old.company_id);
   return coalesce(new, old);
@@ -310,12 +317,12 @@ select
   c.accent_color,
   c.overall_commitment_score,
   c.active_objective_count,
+  c.proved_count,
   c.graveyard_count,
   c.last_signal_date,
   c.last_research_run,
-  -- Aggregate pip data for the card
   json_agg(
-    json_build_object('status', o.status, 'title', o.title, 'is_graveyard', o.is_in_graveyard)
+    json_build_object('status', o.status, 'title', o.title, 'terminal_state', o.terminal_state)
     order by o.display_order
   ) filter (where o.id is not null) as objectives_summary
 from companies c
@@ -413,3 +420,26 @@ insert into companies (
 -- Run these against existing installations to bring them up to v2 schema
 
 alter table companies add column if not exists exchange varchar(10);
+
+
+-- ── V3 MIGRATIONS: Terminal State ──────────────────────────────
+-- Run these against existing installations to bring them up to v3 schema
+
+-- Step 1: Create the new enum
+-- CREATE TYPE terminal_state AS ENUM ('proved', 'buried');
+
+-- Step 2: Add the new column
+-- ALTER TABLE objectives ADD COLUMN terminal_state terminal_state;
+
+-- Step 3: Migrate existing data
+-- UPDATE objectives SET terminal_state = 'buried' WHERE is_in_graveyard = true;
+
+-- Step 4: Drop old column and index
+-- ALTER TABLE objectives DROP COLUMN is_in_graveyard;
+-- DROP INDEX IF EXISTS idx_objectives_graveyard;
+
+-- Step 5: Add new indexes
+-- CREATE INDEX idx_objectives_terminal ON objectives(terminal_state);
+
+-- Step 6: Add proved_count to companies
+-- ALTER TABLE companies ADD COLUMN proved_count integer DEFAULT 0;
