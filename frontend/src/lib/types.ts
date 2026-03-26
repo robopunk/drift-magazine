@@ -8,7 +8,7 @@ export type ObjectiveStatus =
 export type SignalClassification =
   | "stated" | "reinforced" | "softened" | "reframed"
   | "absent" | "achieved" | "retired_transparent" | "retired_silent"
-  | "year_end_review";
+  | "year_end_review" | "deadline_shifted";
 
 export type ExitManner =
   | "silent" | "phased" | "morphed" | "transparent" | "achieved" | "resurrected";
@@ -72,6 +72,9 @@ export interface Objective {
   successor_objective_id: string | null;
   momentum_score: number;
   terminal_state: TerminalState | null;
+  committed_from: string | null;
+  committed_until: string | null;
+  commitment_type: 'annual' | 'multi_year' | 'evergreen';
 }
 
 export interface Signal {
