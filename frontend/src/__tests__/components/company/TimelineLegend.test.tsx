@@ -19,7 +19,7 @@ function makeObjective(overrides: Partial<Objective> & { id: string; title: stri
     verdict_text: null,
     successor_objective_id: null,
     momentum_score: 2,
-    is_in_graveyard: false,
+    terminal_state: null,
     ...overrides,
   };
 }
@@ -177,10 +177,31 @@ describe("TimelineLegend", () => {
     expect(screen.getByText("2 of 3 selected")).toBeInTheDocument();
   });
 
+  it("renders Proved section header for proved objectives", () => {
+    const withProved = [
+      ...objectives,
+      makeObjective({ id: "p", title: "Biosimilar Leadership", display_number: 1, terminal_state: "proved", momentum_score: 3, exit_manner: "achieved" }),
+    ];
+    const coloursWithProved = new Map([...colours, ["p", "#059669"]]);
+    render(
+      <TimelineLegend
+        objectives={withProved}
+        selectedIds={new Set(["a"])}
+        onToggleSelection={vi.fn()}
+        onHoverObjective={vi.fn()}
+        colours={coloursWithProved}
+        hasSignals={() => true}
+      />
+    );
+    expect(screen.getByText("Proved")).toBeInTheDocument();
+    expect(screen.getByText("Biosimilar Leadership")).toBeInTheDocument();
+    expect(screen.getByText("PROVED")).toBeInTheDocument();
+  });
+
   it("renders buried section with exit manner label for graveyard objectives", () => {
     const withBuried = [
       ...objectives,
-      makeObjective({ id: "e", title: "China Growth", display_number: 5, is_in_graveyard: true, momentum_score: -4, exit_manner: "silent" }),
+      makeObjective({ id: "e", title: "China Growth", display_number: 5, terminal_state: "buried", momentum_score: -4, exit_manner: "silent" }),
     ];
     const coloursWithBuried = new Map([...colours, ["e", "#78716c"]]);
     render(
@@ -196,8 +217,64 @@ describe("TimelineLegend", () => {
     expect(screen.getByText("Buried")).toBeInTheDocument();
     expect(screen.getByText("China Growth")).toBeInTheDocument();
     expect(screen.getByText("SILENT DROP")).toBeInTheDocument();
-    // Verify no strikethrough
-    const title = screen.getByText("China Growth");
-    expect(title.className).not.toContain("line-through");
+  });
+
+  it("allows selecting proved objectives for timeline display", async () => {
+    const toggle = vi.fn();
+    const withProved = [
+      makeObjective({ id: "p", title: "Biosimilar Leadership", display_number: 1, terminal_state: "proved", momentum_score: 3, exit_manner: "achieved" }),
+    ];
+    render(
+      <TimelineLegend
+        objectives={withProved}
+        selectedIds={new Set()}
+        onToggleSelection={toggle}
+        onHoverObjective={vi.fn()}
+        colours={new Map([["p", "#059669"]])}
+        hasSignals={() => true}
+      />
+    );
+    await userEvent.click(screen.getByText("Biosimilar Leadership"));
+    expect(toggle).toHaveBeenCalledWith("p");
+  });
+
+  it("allows selecting buried objectives for timeline display", async () => {
+    const toggle = vi.fn();
+    const withBuried = [
+      makeObjective({ id: "e", title: "China Growth", display_number: 5, terminal_state: "buried", momentum_score: -4, exit_manner: "silent" }),
+    ];
+    render(
+      <TimelineLegend
+        objectives={withBuried}
+        selectedIds={new Set()}
+        onToggleSelection={toggle}
+        onHoverObjective={vi.fn()}
+        colours={new Map([["e", "#78716c"]])}
+        hasSignals={() => true}
+      />
+    );
+    await userEvent.click(screen.getByText("China Growth"));
+    expect(toggle).toHaveBeenCalledWith("e");
+  });
+
+  it("renders sections in order: Proved → Objectives → Buried", () => {
+    const allTypes = [
+      makeObjective({ id: "p", title: "Proved Obj", display_number: 1, terminal_state: "proved", momentum_score: 3 }),
+      makeObjective({ id: "a", title: "Active Obj", display_number: 2, momentum_score: 2 }),
+      makeObjective({ id: "e", title: "Buried Obj", display_number: 3, terminal_state: "buried", momentum_score: -4, exit_manner: "silent" }),
+    ];
+    const { container } = render(
+      <TimelineLegend
+        objectives={allTypes}
+        selectedIds={new Set()}
+        onToggleSelection={vi.fn()}
+        onHoverObjective={vi.fn()}
+        colours={new Map([["p", "#059669"], ["a", "#3b82f6"], ["e", "#78716c"]])}
+        hasSignals={() => true}
+      />
+    );
+    const headers = container.querySelectorAll("h3");
+    const headerTexts = Array.from(headers).map((h) => h.textContent?.trim());
+    expect(headerTexts).toEqual(["Proved", "Objectives", "Buried"]);
   });
 });

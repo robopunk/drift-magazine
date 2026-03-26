@@ -24,8 +24,9 @@ const EXIT_MANNER_LABELS: Record<string, string> = {
 };
 
 export function TimelineLegend({ objectives, selectedIds, onToggleSelection, onHoverObjective, colours, hasSignals }: TimelineLegendProps) {
-  const alive = objectives.filter((o) => !o.is_in_graveyard);
-  const buried = objectives.filter((o) => o.is_in_graveyard);
+  const proved = objectives.filter((o) => o.terminal_state === "proved");
+  const alive = objectives.filter((o) => o.terminal_state === null);
+  const buried = objectives.filter((o) => o.terminal_state === "buried");
   const atLimit = selectedIds.size >= 3;
   const [legendTooltip, setLegendTooltip] = useState<{ objective: Objective; rect: DOMRect } | null>(null);
 
@@ -35,7 +36,8 @@ export function TimelineLegend({ objectives, selectedIds, onToggleSelection, onH
     const isSelected = selectedIds.has(obj.id);
     const hasData = hasSignals(obj.id);
     const isDisabled = (!isSelected && atLimit) || !hasData;
-    const isBuried = obj.is_in_graveyard;
+    const isProved = obj.terminal_state === "proved";
+    const isBuried = obj.terminal_state === "buried";
 
     return (
       <button
@@ -91,7 +93,9 @@ export function TimelineLegend({ objectives, selectedIds, onToggleSelection, onH
               {obj.title}
             </p>
             <p className="font-mono text-[9.5px] uppercase tracking-wider mt-0.5" style={{ color: colour }}>
-              {isBuried && obj.exit_manner
+              {isProved
+                ? "PROVED"
+                : isBuried && obj.exit_manner
                 ? (
                     <>
                       {EXIT_MANNER_LABELS[obj.exit_manner] ?? obj.exit_manner.toUpperCase()}
@@ -111,6 +115,15 @@ export function TimelineLegend({ objectives, selectedIds, onToggleSelection, onH
   return (
     <div className="w-[210px] shrink-0 border-r border-border flex flex-col">
       <div className="flex-1 overflow-y-auto py-2 px-1.5">
+        {proved.length > 0 && (
+          <>
+            <h3 className="font-mono text-[9px] uppercase tracking-[1.5px] text-muted-foreground px-2 mb-2">
+              Proved
+            </h3>
+            {proved.map(renderItem)}
+            <div className="border-t border-border my-3 mx-2" />
+          </>
+        )}
         <h3 className="font-mono text-[9px] uppercase tracking-[1.5px] text-muted-foreground px-2 mb-2">
           Objectives
         </h3>
