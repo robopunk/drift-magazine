@@ -33,6 +33,14 @@
 - Sandoz IR page may have dynamic content Firecrawl can't handle
 - Schema migration requires downtime
 
+**Plans:** 2 plans
+
+Plans:
+- [ ] 01-01-PLAN.md — Foundation: dependencies, schema migration, env config, test scaffold
+- [ ] 01-02-PLAN.md — Agent code updates (retry, draft fix, source_content) + unit tests
+
+**Requirements:** [FR1, FR2, FR4, FR5, NFR2, NFR3, NFR4]
+
 ---
 
 ### Phase 2: Quality Measurement & Page Maturity
@@ -50,7 +58,7 @@
 - [ ] Objectives/signals reviewed for editorial standards (brand/language.html compliance)
 
 #### Success Criteria
-- Average confidence ≥8.0/10 (from 6.5)
+- Average confidence >=8.0/10 (from 6.5)
 - False negative rate <5% (from ~15%)
 - No regression in signal accuracy
 - Sandoz page achieves research-grade maturity (editorial standards)
@@ -92,27 +100,27 @@
 ## Milestones & Timeline
 
 ```
-Week 1 (Mar 24-30)    │ Phase 1: Integration & Testing
-                      │ - Firecrawl free tier SDK setup
-                      │ - Manual Sandoz test runs
-                      │ - Rate limit handling
-                      │ - Schema updates
-                      │
-Week 2 (Mar 31-Apr 6) │ Phase 2: Quality & Maturity
-                      │ - Baseline measurements (Sandoz)
-                      │ - Signal logic refinement
-                      │ - Editorial content curation
-                      │
-Week 3 (Apr 7-13)     │ Phase 3: Production & Gate
-                      │ - Final testing & QA
-                      │ - Documentation
-                      │ - Production deployment
-                      │ - Monetization gate setup
-                      │
-Apr 14+               │ v4.0.0 Stable (Sandoz)
-                      │ - Firecrawl fully integrated
-                      │ - Improved signal quality
-                      │ - Awaiting monetization for scale
+Week 1 (Mar 24-30)    | Phase 1: Integration & Testing
+                      | - Firecrawl free tier SDK setup
+                      | - Manual Sandoz test runs
+                      | - Rate limit handling
+                      | - Schema updates
+                      |
+Week 2 (Mar 31-Apr 6) | Phase 2: Quality & Maturity
+                      | - Baseline measurements (Sandoz)
+                      | - Signal logic refinement
+                      | - Editorial content curation
+                      |
+Week 3 (Apr 7-13)     | Phase 3: Production & Gate
+                      | - Final testing & QA
+                      | - Documentation
+                      | - Production deployment
+                      | - Monetization gate setup
+                      |
+Apr 14+               | v4.0.0 Stable (Sandoz)
+                      | - Firecrawl fully integrated
+                      | - Improved signal quality
+                      | - Awaiting monetization for scale
 ```
 
 ---
@@ -124,7 +132,7 @@ Apr 14+               │ v4.0.0 Stable (Sandoz)
 | Avg Signal Confidence (Sandoz) | 6.5/10 | 8.0/10 | Phase 2 complete |
 | False Negative Rate (Sandoz) | ~15% | <5% | Phase 2 complete |
 | Firecrawl Success Rate (free tier) | N/A | >90% | Phase 1 complete |
-| Agent Runtime (Sandoz) | ~5 min | ≤10 min | Phase 1 complete |
+| Agent Runtime (Sandoz) | ~5 min | <=10 min | Phase 1 complete |
 | Page Maturity (Sandoz) | Basic | Research-grade | Phase 2 complete |
 | Test Coverage | 85% | 95%+ | Phase 3 complete |
 
@@ -187,15 +195,15 @@ Apr 14+               │ v4.0.0 Stable (Sandoz)
 ## Dependencies & Blockers
 
 ### External Dependencies
-- ✅ Firecrawl free tier account (sign-up at firecrawl.dev, ~1 hour)
-- ✅ Claude API (already available)
-- ✅ Supabase (already running)
+- Firecrawl free tier account (sign-up at firecrawl.dev, ~1 hour)
+- Claude API (already available)
+- Supabase (already running)
 
 ### Internal Dependencies
-- ✅ Codebase analysis (STACK.md, ARCHITECTURE.md, CONCERNS.md) — **COMPLETE**
-- ✅ Project initialization (PROJECT.md, REQUIREMENTS.md) — **IN PROGRESS**
-- → Phase 1 plan (PLAN.md for Phase 1)
-- → Phase 1 execution
+- Codebase analysis (STACK.md, ARCHITECTURE.md, CONCERNS.md) — **COMPLETE**
+- Project initialization (PROJECT.md, REQUIREMENTS.md) — **COMPLETE**
+- Phase 1 plan — **COMPLETE** (2 plans created)
+- Phase 1 execution
 
 ### Blockers
 - None identified at this stage. All prerequisites met.
@@ -215,10 +223,10 @@ Apr 14+               │ v4.0.0 Stable (Sandoz)
 
 ## Next Steps
 
-1. ✅ Project initialization complete (PROJECT.md, REQUIREMENTS.md, ROADMAP.md)
-2. → **Next:** Run `/gsd:plan-phase 1` to create detailed Phase 1 plan
-3. → Then: Execute Phase 1 (Firecrawl integration)
-4. → Then: Measure, refine, deploy
+1. Project initialization complete (PROJECT.md, REQUIREMENTS.md, ROADMAP.md)
+2. Phase 1 planned (2 plans in 2 waves)
+3. **Next:** Run `/gsd:execute-phase 1` to execute Phase 1
+4. Then: Measure, refine, deploy
 
 ---
 
@@ -228,6 +236,7 @@ Apr 14+               │ v4.0.0 Stable (Sandoz)
 |---------|------|---------|
 | 1.0 | 2026-03-26 | Initial roadmap created (paid API, multi-company) |
 | 1.1 | 2026-03-26 | Revised for free tier, Sandoz-only, maturity-first gate |
+| 1.2 | 2026-03-26 | Phase 1 planned: 2 plans, 2 waves |
 
 ---
 
@@ -235,5 +244,5 @@ Apr 14+               │ v4.0.0 Stable (Sandoz)
 
 - **Project Owner:** Stefano (pending approval)
 - **Technical Lead:** Claude Code
-- **Status:** Ready for Phase 1 planning
+- **Status:** Phase 1 planned, ready for execution
 - **Date:** 2026-03-26
