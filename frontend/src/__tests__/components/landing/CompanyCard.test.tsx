@@ -20,6 +20,7 @@ const mockCompany: CompanySummary = {
   objectives: [],
   active_count: 4,
   drifting_count: 1,
+  proved_count: 0,
   buried_count: 3,
   editorial_verdict: "On pace, but the cracks are showing in the margin story.",
 };

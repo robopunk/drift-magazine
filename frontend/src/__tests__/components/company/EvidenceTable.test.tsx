@@ -9,7 +9,7 @@ const mockObjectives: Objective[] = [{
   title: "Global Biosimilar Leadership", subtitle: null, original_quote: null,
   status: "on_record", first_stated_date: null, last_confirmed_date: null,
   exit_date: null, exit_manner: null, transparency_score: null,
-  verdict_text: null, successor_objective_id: null, momentum_score: 3, is_in_graveyard: false,
+  verdict_text: null, successor_objective_id: null, momentum_score: 3, terminal_state: null,
 }];
 
 const mockSignals: Signal[] = [

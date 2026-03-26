@@ -10,7 +10,7 @@ const mockObjective: Objective = {
   first_stated_date: "2023-10-04", last_confirmed_date: "2026-02-15",
   exit_date: null, exit_manner: null, transparency_score: null,
   verdict_text: null, successor_objective_id: null,
-  momentum_score: 3, is_in_graveyard: false,
+  momentum_score: 3, terminal_state: null,
 };
 
 describe("ObjectiveCard", () => {

@@ -26,7 +26,7 @@ function makeObjective(overrides: Partial<Objective> & { id: string; title: stri
     verdict_text: null,
     successor_objective_id: null,
     momentum_score: 0,
-    is_in_graveyard: false,
+    terminal_state: null,
     ...overrides,
   };
 }
