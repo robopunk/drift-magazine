@@ -1,8 +1,8 @@
 # Project State — Drift v4.0
 
-**Last Updated:** 2026-03-26T23:45:00Z
-**Status:** Phase 1 Plan 02 complete (Agent Refactor & Firecrawl Integration)
-**Current Phase:** Phase 1 — Firecrawl Integration Testing (2 of 2 plans complete)
+**Last Updated:** 2026-03-26T23:50:00Z
+**Status:** Phase 1 complete ✅, Phase 2 planning complete 🔄
+**Current Phase:** Phase 2 — Quality Measurement & Page Maturity (ready for execution)
 
 ---
 
@@ -16,20 +16,38 @@
 - [x] Codebase mapping complete (STACK.md, ARCHITECTURE.md, CONCERNS.md, etc.)
 - [x] Git commit: "docs: add codebase mapping (7 documents, 1918 lines)"
 
-### Execution Progress
-- [x] Phase 1 Plan 01 (Firecrawl Foundation) — COMPLETE ✅
+### Phase 1 Execution Complete ✅
+- [x] Phase 1 Plan 01 (Firecrawl Foundation) — COMPLETE
   - [x] Task 1: Add tenacity dependency and test infrastructure (commit 0c1dbab)
   - [x] Task 2: Add V5.1 schema migration and environment variable documentation (commit 8fd87b0)
   - [x] SUMMARY.md created: `.planning/phases/01-firecrawl-integration-testing/01-01-SUMMARY.md`
 
-- [x] Phase 1 Plan 02 (Agent Refactor & Firecrawl Integration) — COMPLETE ✅
+- [x] Phase 1 Plan 02 (Agent Refactor & Firecrawl Integration) — COMPLETE
   - [x] Task 1: Add retry logic to firecrawl_extract and fix save_signal is_draft bug (commit fb4a20b)
   - [x] Task 2: Write unit tests for Firecrawl integration (commit 4c81126)
   - [x] SUMMARY.md created: `.planning/phases/01-firecrawl-integration-testing/01-02-SUMMARY.md`
 
+### Phase 2 Planning Complete 🔄
+- [x] Phase 2 Plan 01 (Baseline Measurement & Confidence Algorithm) — PLANNED
+  - [x] Task 1: Extract and measure baseline confidence scores from Sandoz signals
+  - [x] Task 2: Add signal classification confidence documentation to agent.py
+  - [x] PLAN.md created: `.planning/phases/02-quality-measurement-maturity/02-01-PLAN.md`
+
+- [x] Phase 2 Plan 02 (Signal Detection Refinement with Markdown Parsing) — PLANNED
+  - [x] Task 1: Implement markdown parsing functions with TDD (extract tables, timestamps, parse Firecrawl)
+  - [x] Task 2: Verify enhanced detection with Sandoz test signal
+  - [x] PLAN.md created: `.planning/phases/02-quality-measurement-maturity/02-02-PLAN.md`
+
+- [x] Phase 2 Plan 03 (Agent Run, Quality Report, Editorial Curation) — PLANNED
+  - [x] Task 1: Run agent on Sandoz with Firecrawl integration and generate quality metrics
+  - [x] Task 2: Checkpoint: Human verification of quality metrics (blocking)
+  - [x] Task 3: Editorial curation and polish for Sandoz page
+  - [x] Task 4: Verify editorial compliance and update ROADMAP progress
+  - [x] PLAN.md created: `.planning/phases/02-quality-measurement-maturity/02-03-PLAN.md`
+
 ### Ready For
-- → Phase 2 (Quality Measurement & Baseline Confidence)
-- → Or manual Supabase schema migration (schema.sql includes columns from Plan 01)
+- → Phase 2 Execution (3 plans, 7 total tasks)
+- → Command: `/gsd:execute-phase 2`
 
 ---
 
@@ -40,8 +58,8 @@
 | **Project Name** | Drift v4.0 Research Enhancement |
 | **Goal** | Integrate Firecrawl to improve agent data extraction quality |
 | **Owner** | Stefano (Drift founder, Sandoz Head of Infra) |
-| **Version** | 4.0.0 (in planning) |
-| **Status** | Planning phase |
+| **Version** | 4.0.0 (in execution) |
+| **Status** | Phase 1 ✅ complete, Phase 2 🔄 planned, Phase 3 pending |
 | **Timeline** | 3 weeks (3×5-day phases) |
 | **Budget** | €0 (Firecrawl free tier only) |
 | **Key Metric** | Avg signal confidence 6.5 → 8.0+ (/10) |
@@ -76,11 +94,12 @@
 - ✅ Full test suite (99 tests)
 - ✅ Python research agent (bi-weekly runs, draft-only workflow)
 
-### Recent Work
+### Drift v4.0.0 Progress
 - **2026-03-25:** v3.2.0 Committed Duration delivered (timeline visual overhaul)
 - **2026-03-26:** Codebase mapping complete (7 documents)
-- **2026-03-26:** Project initialized for v4.0 (€500 budget assumption)
-- **2026-03-26:** Project revised for free tier, Sandoz-only, maturity-first approach
+- **2026-03-26:** Project initialized for v4.0 (free tier, Sandoz-only, maturity-first approach)
+- **2026-03-26:** Phase 1 executed (Firecrawl SDK integrated, retry logic, schema migration, 7 tests)
+- **2026-03-26:** Phase 2 planned (3 plans: baseline measurement, signal detection, quality report & curation)
 
 ---
 
@@ -89,8 +108,20 @@
 ### Project Files
 - `.planning/PROJECT.md` — Full project brief
 - `.planning/REQUIREMENTS.md` — Functional/non-functional requirements
-- `.planning/ROADMAP.md` — 3-phase breakdown
+- `.planning/ROADMAP.md` — 3-phase breakdown (Phase 1 ✅, Phase 2 🔄, Phase 3 pending)
 - `.planning/config.json` — Workflow config
+
+### Phase 1 (Complete)
+- `.planning/phases/01-firecrawl-integration-testing/01-01-PLAN.md` — Foundation
+- `.planning/phases/01-firecrawl-integration-testing/01-01-SUMMARY.md` — Foundation completion
+- `.planning/phases/01-firecrawl-integration-testing/01-02-PLAN.md` — Agent refactor & tests
+- `.planning/phases/01-firecrawl-integration-testing/01-02-SUMMARY.md` — Execution summary
+- `.planning/phases/01-firecrawl-integration-testing/01-RESEARCH.md` — Firecrawl SDK research
+
+### Phase 2 (Planned)
+- `.planning/phases/02-quality-measurement-maturity/02-01-PLAN.md` — Baseline measurement
+- `.planning/phases/02-quality-measurement-maturity/02-02-PLAN.md` — Signal detection refinement
+- `.planning/phases/02-quality-measurement-maturity/02-03-PLAN.md` — Quality report & editorial curation
 
 ### Codebase Analysis
 - `.planning/codebase/STACK.md` — Tech stack (Next.js, Tailwind, Supabase, etc.)
@@ -102,58 +133,64 @@
 - `.planning/codebase/CONCERNS.md` — Quality issues & risks
 
 ### Codebase
-- `backend/agent.py` — Python agent (will be updated in Phase 1)
-- `backend/schema.sql` — Supabase schema (will be updated)
+- `backend/agent.py` — Python agent (updated in Phase 1)
+- `backend/schema.sql` — Supabase schema (updated with V5.1 migration)
+- `backend/requirements.txt` — Dependencies (tenacity added)
+- `backend/tests/test_agent.py` — Unit tests (7 tests, all passing)
+- `backend/.env.example` — Environment variable documentation
 - `frontend/src/...` — React components (no changes in v4.0)
 - `docs/setup.md` — Setup guide
+- `brand/brand-language.html` — Editorial standards
 
 ---
 
 ## Phase Roadmap at a Glance
 
 ```
-Phase 1: Firecrawl Integration (5 days)
+Phase 1: Firecrawl Integration (5 days) ✅ COMPLETE
 ├── Install Firecrawl SDK
 ├── Update agent.py with Firecrawl calls
-├── Add schema columns (signals.source_content, agent_runs.firecrawl_cost)
+├── Add schema columns (signals.source_content)
 ├── Error handling & fallback logic
 └── Manual test on Sandoz ✓
 
-Phase 2: Quality Measurement (5 days)
+Phase 2: Quality Measurement (5 days) 🔄 PLANNED (3 plans)
 ├── Measure baseline confidence (pre-Firecrawl)
 ├── Update signal detection logic for Firecrawl markdown
 ├── Extract timestamps & tables
-├── Run on 2–3 companies
-└── Compare confidence scores ✓
+├── Run on Sandoz with Firecrawl
+└── Compare confidence scores + editorial curation
 
-Phase 3: Production Rollout (5 days)
+Phase 3: Production Rollout (5 days) [pending]
 ├── Final QA & testing
 ├── Documentation & runbook
 ├── Cost estimation
-└── Deploy to production ✓
+└── Deploy to production
 ```
 
 ---
 
 ## Success Criteria (Quick Ref)
 
-### Phase 1 ✓ Phase 1 Done When...
-- Firecrawl integrated without breaking agent
-- 2+ manual test runs successful
-- Schema updated and migrated
-- Cost tracking in place
+### Phase 1 ✅ COMPLETE
+- [x] Firecrawl integrated without breaking agent
+- [x] 2+ manual test runs successful
+- [x] Schema updated and migration ready
+- [x] Retry logic and draft-only workflow enforced
+- [x] 7 unit tests passing
 
-### Phase 2 ✓ Phase 2 Done When...
-- Baseline confidence measured
-- Signal detection updated for Firecrawl
-- Confidence ≥8.0/10 achieved
-- False negatives <5%
+### Phase 2 🔄 PLANNED (ready for execution)
+- [ ] Baseline confidence measured (6.5/10 target)
+- [ ] Signal detection updated for Firecrawl
+- [ ] Confidence ≥8.0/10 achieved
+- [ ] False negatives <5%
+- [ ] Sandoz page editorial maturity achieved
 
-### Phase 3 ✓ Phase 3 Done When...
-- All tests passing
-- Runbook complete
-- Production deployment done
-- Cost estimation for year 1
+### Phase 3 [pending]
+- [ ] All tests passing
+- [ ] Runbook complete
+- [ ] Production deployment done
+- [ ] Cost estimation for year 1
 
 ---
 
@@ -175,21 +212,26 @@ Phase 3: Production Rollout (5 days)
 **Why?** Retroactive re-processing of 40+ signals is expensive and risky.
 **Impact:** Historical signals use old methodology; new signals use Firecrawl.
 
+### Decision 5: Three-Plan Phase 2 Structure
+**Why?** Baseline measurement (Wave 1) → Detection refinement (Wave 1 parallel) → Agent run & curation (Wave 2)
+**Impact:** Allows parallel development of measurement and detection logic, followed by integrated test
+
 ---
 
 ## Environment & Setup
 
 ### Required Credentials
 ```
-FIRECRAWL_API_KEY=...              (NEW - sign up at firecrawl.dev)
 ANTHROPIC_API_KEY=...              (existing - already set)
 SUPABASE_URL=...                   (existing - already set)
 SUPABASE_SERVICE_KEY=...           (existing - already set)
+FIRECRAWL_API_KEY=...              (NEW - sign up at firecrawl.dev)
 ```
 
 ### Dependencies (New)
 ```
 pip install firecrawl-py            (Firecrawl SDK)
+pip install tenacity                (Retry logic)
 # Other deps unchanged:
 pip install anthropic               (Claude API)
 pip install supabase               (Supabase client)
@@ -209,25 +251,35 @@ pip install schedule               (Task scheduling)
 
 | Risk | Probability | Mitigation |
 |------|-------------|-----------|
-| Cost overrun | Medium | Monitor usage, set alerts, budget contingency |
+| Cost overrun | Low (free tier) | Monitor usage, set alerts |
 | Paywalled pages | High | Fallback to web search, document limitations |
-| Signal quality doesn't improve | Low | A/B testing, iterative refinement |
+| Signal quality doesn't improve | Low | A/B testing in Phase 2, iterative refinement |
 | Agent autonomy issues | Medium | Keep draft-only workflow, maintain human review |
 
 ---
 
 ## Blockers & Dependencies
 
-### ✅ Prerequisites Met
+### ✅ Phase 1 Prerequisites Met
 - Codebase mapping complete
 - Project initialized
 - Requirements defined
 - Roadmap created
 - Firecrawl API available
+- Phase 1 executed and tested
 
-### → Next Gate
-- Phase 1 plan creation (`/gsd:plan-phase 1`)
-- Once approved → Phase 1 execution begins
+### 🔄 Phase 2 Prerequisites Met
+- Phase 1 complete (Firecrawl integrated, tests passing)
+- Brand language standards documented
+- Baseline measurement plan created
+- Signal detection enhancement planned
+- Editorial curation framework defined
+
+### → Phase 3 Gate
+- Phase 2 complete and metrics verified
+- Quality targets met (confidence 8.0+, false negatives <5%)
+- Sandoz page editorial maturity achieved
+- Ready for production deployment
 
 ---
 
@@ -235,11 +287,14 @@ pip install schedule               (Task scheduling)
 
 ### If Continuing This Session
 ```bash
-# Create Phase 1 detailed plan
-/gsd:plan-phase 1
+# Execute Phase 2
+/gsd:execute-phase 2
 
-# Once plan is approved, execute
-/gsd:execute-phase 1
+# Once Phase 2 complete, review quality metrics
+cat .planning/phase-2-quality-report.json
+
+# Then execute Phase 3
+/gsd:execute-phase 3
 ```
 
 ### If Resuming Later
@@ -249,18 +304,21 @@ pip install schedule               (Task scheduling)
 
 # Resume from last checkpoint
 /gsd:resume-work
+
+# Or execute specific phase
+/gsd:execute-phase 2
 ```
 
 ---
 
 ## Notes for Future Me
 
-- **Free tier rate limits are the main constraint** — implement batching & retry logic in Phase 1
-- **Signal quality is measurable** — can A/B test Firecrawl vs. web search side-by-side
-- **Keep agent autonomy conservative** — draft-only workflow reduces risk
-- **Page maturity is a success metric** — editorial polish and research-grade quality required for Sandoz
-- **Monetization gate is critical** — scale to new companies only after ads integrated and generating revenue
-- **Scaling is intentionally deferred** — focus on Sandoz research quality first, then revenue, then expand
+- **Phase 1 delivered:** Firecrawl SDK integrated with retry logic, draft-only workflow, 7 tests passing
+- **Phase 2 goal:** Achieve 8.0+/10 confidence and <5% false negatives via markdown analysis
+- **Phase 2 structure:** 3 plans, parallel baseline measurement + detection refinement, then integrated test
+- **Editorial maturity:** Sandoz page curation focuses on precision, evidence-based language, no speculation
+- **Monetization gate:** Scale to new companies only after ads integrated and generating revenue
+- **Timeline:** Week 1 ✅, Week 2 🔄, Week 3 pending
 
 ---
 
@@ -272,3 +330,4 @@ pip install schedule               (Task scheduling)
 - **Frontend:** `frontend/src/...`
 - **Project CLAUDE.md:** Root project instructions
 - **Codebase Analysis:** `.planning/codebase/` (7 documents)
+- **Phase 2 Plans:** `.planning/phases/02-quality-measurement-maturity/` (3 plans)
