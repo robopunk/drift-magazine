@@ -36,6 +36,7 @@ from typing import Optional
 import anthropic
 from supabase import create_client, Client
 from dotenv import load_dotenv
+from tenacity import retry, stop_after_attempt, wait_random_exponential, retry_if_exception_type
 
 try:
     from firecrawl import FirecrawlApp
@@ -47,27 +48,46 @@ load_dotenv()
 
 # ── FIRECRAWL HELPERS ────────────────────────────────────────────────────────
 
+# Module-level cache for prefetched content (populated by prefetch_company_docs)
+_last_prefetch_contents: dict[str, str] = {}
+
+
+@retry(
+    wait=wait_random_exponential(min=2, max=30),
+    stop=stop_after_attempt(3),
+    retry=retry_if_exception_type(Exception),
+    reraise=True,
+)
+def _scrape_with_retry(app, url: str) -> dict:
+    """Scrape a URL with retry on transient errors. Raises after 3 failures."""
+    return app.scrape_url(url, params={"formats": ["markdown"]})
+
+
 def firecrawl_extract(url: str, api_key: str, max_chars: int = 30_000) -> Optional[str]:
     """Scrape a URL with Firecrawl and return clean markdown, or None on any error."""
     if not _FIRECRAWL_AVAILABLE or not api_key:
         return None
     try:
         app = FirecrawlApp(api_key=api_key)
-        result = app.scrape_url(url, params={"formats": ["markdown"]})
+        result = _scrape_with_retry(app, url)
         content = result.get("markdown") or result.get("content") or ""
         if not content:
             return None
         return content[:max_chars]
     except Exception as e:
-        print(f"  ⚠ Firecrawl extract failed for {url}: {e}")
+        print(f"  [WARN] Firecrawl extract failed for {url}: {e}")
         return None
 
 
 def prefetch_company_docs(company: dict, api_key: Optional[str]) -> str:
     """Scrape company IR page + additional_sources via Firecrawl.
     Returns a formatted block to prepend to the agent prompt.
+    Also populates _last_prefetch_contents for source_content storage.
     Returns empty string if api_key is None or no URLs configured."""
-    if not api_key:
+    global _last_prefetch_contents
+    _last_prefetch_contents = {}
+
+    if not api_key or not _FIRECRAWL_AVAILABLE:
         return ""
 
     urls: list[str] = []
@@ -83,6 +103,7 @@ def prefetch_company_docs(company: dict, api_key: Optional[str]) -> str:
         content = firecrawl_extract(url, api_key)
         if content:
             sections.append(f"[Source: {url}]\n\n{content}")
+            _last_prefetch_contents[url] = content
 
     if not sections:
         return ""
@@ -101,6 +122,7 @@ def prefetch_company_docs(company: dict, api_key: Optional[str]) -> str:
 ANTHROPIC_API_KEY  = os.environ["ANTHROPIC_API_KEY"]
 SUPABASE_URL       = os.environ["SUPABASE_URL"]
 SUPABASE_KEY       = os.environ["SUPABASE_SERVICE_KEY"]
+FIRECRAWL_API_KEY  = os.environ.get("FIRECRAWL_API_KEY")  # Optional — None disables Firecrawl
 
 DEFAULT_MODEL      = "claude-sonnet-4-6"
 INTAKE_MODEL       = "claude-sonnet-4-6"   # Override via --model flag
@@ -180,9 +202,9 @@ def update_agent_run(db: Client, run_id: str, **kwargs):
 
 
 def save_signal(db: Client, signal: dict) -> str:
-    """Save a signal directly as published (autonomous mode)."""
+    """Save a signal as draft by default. Requires human approval to publish."""
     if "is_draft" not in signal:
-        signal["is_draft"] = False
+        signal["is_draft"] = True
     result = db.table("signals").insert(signal).execute()
     return result.data[0]["id"]
 
@@ -594,8 +616,7 @@ def run_intake(claude: anthropic.Anthropic, db: Client, company_id: str):
     try:
         prompt = build_intake_prompt(company)
 
-        firecrawl_key = os.environ.get("FIRECRAWL_API_KEY")
-        firecrawl_context = prefetch_company_docs(company, firecrawl_key)
+        firecrawl_context = prefetch_company_docs(company, FIRECRAWL_API_KEY)
         if firecrawl_context:
             prompt = prompt + firecrawl_context
             url_count = (1 if company.get("ir_page_url") else 0) + len(company.get("additional_sources") or [])
@@ -631,6 +652,12 @@ def run_intake(claude: anthropic.Anthropic, db: Client, company_id: str):
             for sig in signals:
                 sig["objective_id"] = obj_id
                 sig["company_id"]   = company_id
+                # Attach Firecrawl source content if available (FR3 audit trail)
+                if _last_prefetch_contents and sig.get("source_url") in _last_prefetch_contents:
+                    sig["source_content"] = _last_prefetch_contents[sig["source_url"]][:10000]
+                elif _last_prefetch_contents:
+                    # Use the first prefetched content as general source context
+                    sig["source_content"] = next(iter(_last_prefetch_contents.values()))[:10000]
                 save_signal(db, sig)
                 total_signals += 1
 
@@ -678,8 +705,7 @@ def run_monthly(claude: anthropic.Anthropic, db: Client, company_id: str):
         obj_id_map = "\n".join([f"  {o['title']}: {o['id']}" for o in objectives])
         full_prompt = prompt + f"\n\nOBJECTIVE ID REFERENCE:\n{obj_id_map}"
 
-        firecrawl_key = os.environ.get("FIRECRAWL_API_KEY")
-        firecrawl_context = prefetch_company_docs(company, firecrawl_key)
+        firecrawl_context = prefetch_company_docs(company, FIRECRAWL_API_KEY)
         if firecrawl_context:
             full_prompt = full_prompt + firecrawl_context
             url_count = (1 if company.get("ir_page_url") else 0) + len(company.get("additional_sources") or [])
@@ -700,10 +726,16 @@ def run_monthly(claude: anthropic.Anthropic, db: Client, company_id: str):
 
         result = json.loads(result_text)
 
-        # Save new signals (autonomous — published directly)
+        # Save new signals (draft by default for human review)
         new_signals = result.get("new_signals", [])
         for sig in new_signals:
             sig["company_id"] = company_id
+            # Attach Firecrawl source content if available (FR3 audit trail)
+            if _last_prefetch_contents and sig.get("source_url") in _last_prefetch_contents:
+                sig["source_content"] = _last_prefetch_contents[sig["source_url"]][:10000]
+            elif _last_prefetch_contents:
+                # Use the first prefetched content as general source context
+                sig["source_content"] = next(iter(_last_prefetch_contents.values()))[:10000]
             save_signal(db, sig)
 
         # Apply status changes directly (autonomous mode)
