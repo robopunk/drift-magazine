@@ -138,10 +138,19 @@ export function TimelineLegend({ objectives, selectedIds, onToggleSelection, onH
           </>
         )}
       </div>
-      <div className="border-t border-border px-2 py-2 text-center">
-        <span className="font-mono text-[9px] text-muted-foreground">
-          {selectedIds.size} of {objectives.filter((o) => hasSignals(o.id)).length} selected
-        </span>
+      <div className="border-t border-border px-2 py-2">
+        <div className="flex items-center gap-1.5 mb-1.5">
+          <svg width={16} height={12} viewBox="0 0 16 12">
+            <line x1={8} y1={0} x2={8} y2={12} stroke="#f59e0b" strokeWidth={1.5} strokeDasharray="2,2" opacity={0.7} />
+            <polygon points="8,0 14,3 8,6" fill="#f59e0b" opacity={0.6} />
+          </svg>
+          <span className="font-mono text-[8.5px] text-muted-foreground">Committed deadline</span>
+        </div>
+        <div className="text-center">
+          <span className="font-mono text-[9px] text-muted-foreground">
+            {selectedIds.size} of {objectives.filter((o) => hasSignals(o.id)).length} selected
+          </span>
+        </div>
       </div>
       {legendTooltip && (
         <TimelineLegendTooltip
