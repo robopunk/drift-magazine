@@ -1,4 +1,5 @@
 import type { Company } from "@/lib/types";
+import { TIER_COLOURS } from "@/lib/accountability";
 
 interface CompanyHeaderProps {
   company: Company;
@@ -32,13 +33,21 @@ export function CompanyHeader({ company, editorialAssessment }: CompanyHeaderPro
             )}
           </div>
 
-          {company.overall_commitment_score != null && (
+          {company.accountability_tier != null && (
             <div className="text-right shrink-0">
-              <div className="text-4xl font-serif font-bold text-foreground">
-                {company.overall_commitment_score}
+              <div
+                className="font-mono text-[1.05rem] font-semibold uppercase tracking-[0.05em]"
+                style={{ color: TIER_COLOURS[company.accountability_tier] }}
+              >
+                {company.accountability_tier.toUpperCase()}
               </div>
-              <div className="text-xs font-mono text-muted-foreground uppercase tracking-wider">
-                / 100
+              {company.overall_commitment_score != null && (
+                <div className="font-mono text-[0.7rem] text-muted-foreground mt-0.5">
+                  {company.overall_commitment_score} / 100
+                </div>
+              )}
+              <div className="font-mono text-[0.6rem] text-muted-foreground uppercase tracking-[0.12em] mt-0.5">
+                Accountability
               </div>
             </div>
           )}
