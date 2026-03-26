@@ -76,10 +76,10 @@
 
 | Phase | Scope | Status |
 |---|---|---|
-| 2.0 | Brainstorm + spec session (Sonnet) | ⬜ Pending |
-| 2.1 | Schema — `achieved` status, exit fields, migration | ⬜ Pending |
-| 2.2 | Frontend — Achieved section in legend + company page tab | ⬜ Pending |
-| 2.3 | Timeline — visual treatment for achieved endpoint on canvas | ⬜ Pending |
+| 2.0 | Brainstorm + spec session (Sonnet) | ✅ Delivered |
+| 2.1 | Schema — `terminal_state` enum, migration, views/triggers | ✅ Delivered |
+| 2.2 | Frontend — ProvedCard, Proved tab, legend 3-section, TabBar 5-tab | ✅ Delivered |
+| 2.3 | Timeline — terminal node types (proved + buried) on canvas | ✅ Delivered |
 
 **Intent for 2.0 brainstorm:** How does an objective become achieved? What evidence is required? How is it displayed differently from buried (which is a failure/silence) vs achieved (which is a success)? What does the achieved endpoint look like on the spline — a star, a checkmark burst, a bold terminus? What metadata does an achieved objective carry (date achieved, final score, transparency rating)?
 
@@ -122,3 +122,4 @@
 | 2026-03-25 | 1.2 | Area fill (clipPath split), emerald above / red below, dashed stroke below ground |
 | 2026-03-25 | 1.3 | SVG node migration, 6 types, stackIndex tick stagger, always-visible labels |
 | 2026-03-25 | 1.4 | Top axis month labels, mirrors bottom row, reuses monthLabels memo |
+| 2026-03-26 | 2.0-2.3 | Proved lifecycle: terminal_state enum, ProvedCard, 5-tab system, 3-section legend, terminal nodes |

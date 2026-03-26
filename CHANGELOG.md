@@ -1,5 +1,20 @@
 # Changelog
 
+## [3.1.0] - 2026-03-26
+
+### Added
+- **Proved terminal state** — new positive lifecycle endpoint for objectives companies delivered on
+- **ProvedCard component** — emerald-themed card with trophy emoji, duration, final momentum, transparency bar
+- **Proved tab** — dedicated company page tab for proved objectives
+- **Terminal nodes on timeline** — 🏆 proved and ⚰️ buried endpoints plotted on spline with full signal history
+- **Legend 3-section layout** — Proved → Objectives → Buried ordering, all sections selectable
+
+### Changed
+- **`terminal_state` enum** replaces `is_in_graveyard` boolean — unified `proved | buried | null` model
+- **TabBar** — 5 tabs (Timeline, Objectives, Proved, Buried, Evidence) with emerald/destructive badge tinting
+- **TimelineLegend** — buried objectives now selectable for timeline canvas (previously disabled)
+- **Schema** — `terminal_state` column, updated views/triggers, `proved_count` on companies table
+
 ## [3.0.0] - 2026-03-25
 
 ### Added
