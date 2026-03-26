@@ -47,8 +47,9 @@ export default async function CompanyPage({ params }: Props) {
     getSignals(company.id),
   ]);
 
-  const buried = objectives.filter((o) => o.is_in_graveyard);
-  const active = objectives.filter((o) => !o.is_in_graveyard);
+  const proved = objectives.filter((o) => o.terminal_state === "proved");
+  const buried = objectives.filter((o) => o.terminal_state === "buried");
+  const active = objectives.filter((o) => o.terminal_state === null);
 
   return (
     <>
@@ -57,6 +58,7 @@ export default async function CompanyPage({ params }: Props) {
         company={company}
         objectives={objectives}
         activeObjectives={active}
+        provedObjectives={proved}
         buriedObjectives={buried}
         signals={signals}
       />

@@ -8,6 +8,7 @@ import { AdSlot } from "@/components/landing/AdSlot";
 import { TimelineCanvas } from "@/components/company/TimelineCanvas";
 import { MobileObjectiveList } from "@/components/mobile/MobileObjectiveList";
 import { ObjectiveCard } from "@/components/company/ObjectiveCard";
+import { ProvedCard } from "@/components/company/ProvedCard";
 import { BuriedCard } from "@/components/company/BuriedCard";
 import { EvidenceTable } from "@/components/company/EvidenceTable";
 
@@ -15,6 +16,7 @@ interface CompanyPageClientProps {
   company: Company;
   objectives: Objective[];
   activeObjectives: Objective[];
+  provedObjectives: Objective[];
   buriedObjectives: Objective[];
   signals: Signal[];
 }
@@ -23,6 +25,7 @@ export function CompanyPageClient({
   company,
   objectives,
   activeObjectives,
+  provedObjectives,
   buriedObjectives,
   signals,
 }: CompanyPageClientProps) {
@@ -47,6 +50,7 @@ export function CompanyPageClient({
         onTabChange={handleTabChange}
         counts={{
           objectives: activeObjectives.length,
+          proved: provedObjectives.length,
           buried: buriedObjectives.length,
           evidence: signals.length,
         }}
@@ -75,6 +79,27 @@ export function CompanyPageClient({
                 <ObjectiveCard key={obj.id} objective={obj} signals={signals.filter((s) => s.objective_id === obj.id)} />
               ))}
             </div>
+          )
+        )}
+        {activeTab === "proved" && (
+          provedObjectives.length === 0 ? (
+            <div className="text-center py-20">
+              <p className="font-serif text-lg text-foreground">No proved objectives yet.</p>
+              <p className="font-sans text-sm text-muted-foreground mt-1">Objectives are marked as proved when companies deliver on their commitments.</p>
+            </div>
+          ) : (
+            <>
+              <div className="mb-6 p-4 bg-muted rounded-lg">
+                <div className="flex items-center gap-2 mb-2">
+                  <span className="text-xl">🏆</span>
+                  <h2 className="font-serif font-bold text-lg text-foreground">Proved</h2>
+                </div>
+                <p className="font-serif italic text-sm text-muted-foreground">Objectives that companies committed to publicly — and delivered.</p>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {provedObjectives.map((obj) => (<ProvedCard key={obj.id} objective={obj} />))}
+              </div>
+            </>
           )
         )}
         {activeTab === "buried" && (
