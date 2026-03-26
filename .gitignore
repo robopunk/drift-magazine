@@ -50,3 +50,6 @@ test-artifacts/
 
 # Skills cache
 .claude/skills/
+
+.vercel
+.env*.local
