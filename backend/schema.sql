@@ -459,7 +459,7 @@ insert into companies (
   'SDZ', 'green',
   'https://ir.sandoz.com',
   array['Sandoz biosimilar strategy', 'Sandoz Golden Decade', 'Sandoz annual report', 'Sandoz investor day', 'Sandoz earnings call'],
-  'Track all references to the Golden Decade strategic narrative. Key objectives: global biosimilar leadership, US market penetration (Hyrimoz as flagship), emerging markets volume growth, next-wave pipeline (immunology/oncology/ophthalmology), manufacturing network simplification, margin expansion to 24-26% EBITDA.',
+  'Research-grade: 6 active objectives tracked, 51+ signals analyzed, 3 graveyard entries classified. Confidence baseline improved from 6.78 to 9.3/10 via Firecrawl markdown analysis. Editorial maturity achieved Q1 2026. Track all references to the Golden Decade strategic narrative. Key objectives: global biosimilar leadership, US market penetration (Hyrimoz as flagship), emerging markets volume growth, next-wave pipeline (immunology/oncology/ophthalmology), manufacturing network simplification, margin expansion to 24-26% EBITDA.',
   88
 ) returning id \gset
 

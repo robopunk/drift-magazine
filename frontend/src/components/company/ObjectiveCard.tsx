@@ -3,6 +3,7 @@ import { useState } from "react";
 import { AnimatePresence } from "framer-motion";
 import type { Objective, Signal } from "@/lib/types";
 import { getStage, scoreToStage } from "@/lib/momentum";
+import { getConfidenceColor, getConfidenceLabel } from "@/lib/classifications";
 import { EvidenceDrawer } from "./EvidenceDrawer";
 
 function getDeadlineBadge(objective: Objective): { label: string; className: string } | null {
@@ -31,6 +32,9 @@ interface ObjectiveCardProps { objective: Objective; signals: Signal[]; }
 export function ObjectiveCard({ objective, signals }: ObjectiveCardProps) {
   const [expanded, setExpanded] = useState(false);
   const stage = getStage(scoreToStage(objective.momentum_score));
+  const avgConfidence = signals.length > 0
+    ? Math.round((signals.reduce((sum, s) => sum + s.confidence, 0) / signals.length) * 10) / 10
+    : null;
   const warningLevel =
     objective.momentum_score <= -2
       ? "border-status-dropped"
@@ -79,6 +83,16 @@ export function ObjectiveCard({ objective, signals }: ObjectiveCardProps) {
         </div>
         <div className="mt-3 flex flex-wrap gap-3 text-xs font-mono text-muted-foreground">
           <span>{signals.length} signals</span>
+          {avgConfidence !== null && (
+            <span
+              className="inline-flex items-center gap-1"
+              style={{ color: getConfidenceColor(avgConfidence) }}
+              title={`Average confidence: ${getConfidenceLabel(avgConfidence)}`}
+            >
+              <span className="inline-block w-1.5 h-1.5 rounded-full" style={{ backgroundColor: getConfidenceColor(avgConfidence) }} />
+              {avgConfidence}/10 avg confidence
+            </span>
+          )}
           {objective.first_stated_date && <span>First stated: {objective.first_stated_date}</span>}
           {objective.last_confirmed_date && <span>Last confirmed: {objective.last_confirmed_date}</span>}
         </div>

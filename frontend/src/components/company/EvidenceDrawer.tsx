@@ -1,7 +1,7 @@
 "use client";
 import { motion } from "framer-motion";
 import type { Signal } from "@/lib/types";
-import { CLASSIFICATION_COLOURS } from "@/lib/classifications";
+import { CLASSIFICATION_COLOURS, getConfidenceColor, getConfidenceLabel } from "@/lib/classifications";
 
 interface EvidenceDrawerProps { signals: Signal[]; onClose: () => void; }
 
@@ -35,7 +35,14 @@ export function EvidenceDrawer({ signals, onClose }: EvidenceDrawerProps) {
                   {signal.excerpt && (
                     <p className="font-serif italic text-card-foreground text-xs">&ldquo;{signal.excerpt}&rdquo;</p>
                   )}
-                  <span className="font-mono text-[0.65rem] text-muted-foreground">{signal.confidence}/10 confidence</span>
+                  <span
+                    className="font-mono text-[0.65rem] inline-flex items-center gap-1"
+                    style={{ color: getConfidenceColor(signal.confidence) }}
+                    title={getConfidenceLabel(signal.confidence)}
+                  >
+                    <span className="inline-block w-1.5 h-1.5 rounded-full" style={{ backgroundColor: getConfidenceColor(signal.confidence) }} />
+                    {signal.confidence}/10 {getConfidenceLabel(signal.confidence).toLowerCase()}
+                  </span>
                 </div>
               </div>
             ))}

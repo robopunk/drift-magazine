@@ -1,7 +1,7 @@
 "use client";
 import { useState } from "react";
 import type { Signal, Objective, SignalClassification } from "@/lib/types";
-import { CLASSIFICATION_COLOURS } from "@/lib/classifications";
+import { CLASSIFICATION_COLOURS, getConfidenceColor, getConfidenceLabel } from "@/lib/classifications";
 
 interface EvidenceTableProps { signals: Signal[]; objectives: Objective[]; }
 
@@ -102,8 +102,15 @@ export function EvidenceTable({ signals, objectives }: EvidenceTableProps) {
                     )}
                   </td>
                   <td className="font-mono text-xs text-muted-foreground py-2 pr-4 whitespace-nowrap">{signal.source_name}</td>
-                  <td className="font-mono text-xs text-muted-foreground py-2">
-                    <span className="bg-muted px-1.5 py-0.5 rounded">{signal.confidence}/10</span>
+                  <td className="font-mono text-xs py-2">
+                    <span
+                      className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded"
+                      style={{ backgroundColor: getConfidenceColor(signal.confidence) + "15", color: getConfidenceColor(signal.confidence) }}
+                      title={getConfidenceLabel(signal.confidence)}
+                    >
+                      <span className="inline-block w-1.5 h-1.5 rounded-full" style={{ backgroundColor: getConfidenceColor(signal.confidence) }} />
+                      {signal.confidence}/10
+                    </span>
                   </td>
                 </tr>
               );
