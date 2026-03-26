@@ -1,8 +1,8 @@
 # Project State — Drift v4.0
 
-**Last Updated:** 2026-03-26T22:30:00Z
-**Status:** Phase 1 Plan 01 complete (Firecrawl Integration Foundation)
-**Current Phase:** Phase 1 — Firecrawl Integration Testing
+**Last Updated:** 2026-03-26T23:45:00Z
+**Status:** Phase 1 Plan 02 complete (Agent Refactor & Firecrawl Integration)
+**Current Phase:** Phase 1 — Firecrawl Integration Testing (2 of 2 plans complete)
 
 ---
 
@@ -22,9 +22,14 @@
   - [x] Task 2: Add V5.1 schema migration and environment variable documentation (commit 8fd87b0)
   - [x] SUMMARY.md created: `.planning/phases/01-firecrawl-integration-testing/01-01-SUMMARY.md`
 
+- [x] Phase 1 Plan 02 (Agent Refactor & Firecrawl Integration) — COMPLETE ✅
+  - [x] Task 1: Add retry logic to firecrawl_extract and fix save_signal is_draft bug (commit fb4a20b)
+  - [x] Task 2: Write unit tests for Firecrawl integration (commit 4c81126)
+  - [x] SUMMARY.md created: `.planning/phases/01-firecrawl-integration-testing/01-02-SUMMARY.md`
+
 ### Ready For
-- → Phase 1 Plan 02 (Agent Refactor & Firecrawl Integration)
-- → (Or manual schema migration execution in Supabase SQL editor)
+- → Phase 2 (Quality Measurement & Baseline Confidence)
+- → Or manual Supabase schema migration (schema.sql includes columns from Plan 01)
 
 ---
 
