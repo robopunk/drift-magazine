@@ -48,8 +48,12 @@ export default async function CompanyPage({ params }: Props) {
   ]);
 
   const proved = objectives.filter((o) => o.terminal_state === "proved");
-  const buried = objectives.filter((o) => o.terminal_state === "buried");
-  const active = objectives.filter((o) => o.terminal_state === null);
+  const buried = objectives.filter(
+    (o) => o.terminal_state === "buried" || (o.terminal_state == null && o.is_in_graveyard === true)
+  );
+  const active = objectives.filter(
+    (o) => o.terminal_state === null && o.is_in_graveyard !== true
+  );
 
   return (
     <>

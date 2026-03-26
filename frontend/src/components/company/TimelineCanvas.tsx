@@ -159,7 +159,8 @@ export function TimelineCanvas({ objectives, signals, onNavigateToEvidence, fisc
       }
 
       // Add terminal node for proved/buried objectives
-      if (obj.terminal_state && obj.exit_date) {
+      const hasTerminalState = obj.terminal_state || (obj.is_in_graveyard === true);
+      if (hasTerminalState && obj.exit_date) {
         const exitDate = new Date(obj.exit_date);
         const globalOrigin = new Date(minDate);
         const globalOriginMonth = new Date(globalOrigin.getFullYear(), globalOrigin.getMonth(), 1);

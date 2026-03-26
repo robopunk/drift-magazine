@@ -72,6 +72,7 @@ export interface Objective {
   successor_objective_id: string | null;
   momentum_score: number;
   terminal_state: TerminalState | null;
+  is_in_graveyard?: boolean | null;
   committed_from: string | null;
   committed_until: string | null;
   commitment_type: 'annual' | 'multi_year' | 'evergreen';

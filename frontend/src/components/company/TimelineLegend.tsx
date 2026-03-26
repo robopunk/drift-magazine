@@ -25,8 +25,10 @@ const EXIT_MANNER_LABELS: Record<string, string> = {
 
 export function TimelineLegend({ objectives, selectedIds, onToggleSelection, onHoverObjective, colours, hasSignals }: TimelineLegendProps) {
   const proved = objectives.filter((o) => o.terminal_state === "proved");
-  const alive = objectives.filter((o) => o.terminal_state === null);
-  const buried = objectives.filter((o) => o.terminal_state === "buried");
+  const alive = objectives.filter((o) => o.terminal_state === null && o.is_in_graveyard !== true);
+  const buried = objectives.filter(
+    (o) => o.terminal_state === "buried" || (o.terminal_state == null && o.is_in_graveyard === true)
+  );
   const atLimit = selectedIds.size >= 3;
   const [legendTooltip, setLegendTooltip] = useState<{ objective: Objective; rect: DOMRect } | null>(null);
 
@@ -37,7 +39,7 @@ export function TimelineLegend({ objectives, selectedIds, onToggleSelection, onH
     const hasData = hasSignals(obj.id);
     const isDisabled = (!isSelected && atLimit) || !hasData;
     const isProved = obj.terminal_state === "proved";
-    const isBuried = obj.terminal_state === "buried";
+    const isBuried = obj.terminal_state === "buried" || (obj.terminal_state == null && obj.is_in_graveyard === true);
 
     return (
       <button
