@@ -47,7 +47,7 @@ The Drift research agent currently uses basic web search and Claude API for sign
 - **Markdown output** — Preserves structure without HTML noise
 - **Metadata extraction** — Title, published date, author, etc.
 - **Table parsing** — Converts tables to structured markdown
-- **Pricing:** Pay-per-page, ~$0.01-0.05 per page with bulk discounts
+- **Pricing:** Free tier (rate-limited, ~1-5 req/min); paid plans available for scale
 
 ### Integration Points
 1. **Agent intake step** — When researching a new company, use Firecrawl to extract IR page structure
@@ -65,26 +65,27 @@ The Drift research agent currently uses basic web search and Claude API for sign
 ## Scope & Constraints
 
 ### In Scope
-- Integrate Firecrawl API into `agent.py`
+- Integrate Firecrawl **free tier** into `agent.py`
 - Update signal detection logic to use Firecrawl output
 - Measure confidence improvement (baseline → post-Firecrawl)
-- Test with 2–3 companies (Sandoz, Roche, Volkswagen)
-- Update agent_runs table schema to track Firecrawl usage
+- Test with **Sandoz only** (mature single company first)
+- Improve page maturity: content curation, editorial polish, signal quality
 
 ### Out of Scope
+- Multi-company scaling (defer until post-monetization)
 - Paywall/login-required pages (Firecrawl can't handle these)
 - Real-time monitoring (still bi-weekly schedule)
-- New company intake (focus on existing tracked companies first)
 - Graveyard retroactive updates (apply logic to new signals only)
+- Cost tracking (free tier = no cost monitoring needed)
 
 ---
 
 ## Dependencies & Prerequisites
 
 ### External Services
-- **Firecrawl API** — requires account & API key (€ cost per request)
+- **Firecrawl API** — free tier account (sign-up at firecrawl.dev)
 - **Claude API** — already integrated, no changes needed
-- **Supabase** — existing backend, add `firecrawl_usage` tracking column
+- **Supabase** — existing backend, minimal schema changes
 
 ### Tech Stack
 - Python 3.11+ (already used)
@@ -93,7 +94,7 @@ The Drift research agent currently uses basic web search and Claude API for sign
 
 ### Environment Variables
 ```
-FIRECRAWL_API_KEY=...        # New
+FIRECRAWL_API_KEY=...         # Free tier key (optional if using unauthenticated free access)
 ANTHROPIC_API_KEY=...         # Existing
 SUPABASE_URL=...              # Existing
 SUPABASE_SERVICE_KEY=...      # Existing
@@ -104,23 +105,24 @@ SUPABASE_SERVICE_KEY=...      # Existing
 ## Acceptance Criteria
 
 ### Phase 1: Integration & Testing
-- [ ] Firecrawl SDK integrated into agent.py
-- [ ] Agent can fetch and parse company IR pages via Firecrawl
+- [ ] Firecrawl free tier SDK integrated into agent.py
+- [ ] Agent can fetch and parse Sandoz IR page via Firecrawl
 - [ ] Firecrawl markdown stored in signals table (new column)
-- [ ] Agent runs on Sandoz without errors
-- [ ] 2+ agent runs complete with Firecrawl data collection
+- [ ] Agent runs on Sandoz without errors or rate limit issues
+- [ ] 2+ successful agent runs with Firecrawl data collection
 
-### Phase 2: Quality Measurement
+### Phase 2: Quality Measurement & Page Maturity
 - [ ] Baseline confidence measured (pre-Firecrawl signals)
 - [ ] Post-Firecrawl signals classified with new logic
 - [ ] Confidence scores compared; improvement ≥10% without regression
 - [ ] False negative rate does not increase
+- [ ] Page content curation and editorial polish
 
-### Phase 3: Rollout & Validation
+### Phase 3: Production & Monetization Gate
 - [ ] Agent.py ready for production bi-weekly runs
-- [ ] Firecrawl cost estimation for 1-year operation (<€500)
 - [ ] Edge cases documented (paywalls, dynamic content, missing IR pages)
-- [ ] Astronomer/operations team can run agent without manual intervention
+- [ ] Integration tests passing (>95% coverage)
+- [ ] **Monetization gate set:** Ads integrated and generating revenue before scaling to new companies
 
 ---
 
@@ -130,19 +132,19 @@ SUPABASE_SERVICE_KEY=...      # Existing
 |--------|---------|--------|----------|
 | Avg signal confidence | 6.5/10 | 8.0/10 | 🔴 Critical |
 | False negative rate | ~15% | <5% | 🔴 Critical |
-| Firecrawl success rate | N/A | >90% | 🟡 High |
-| Agent runtime | ~5 min/company | ≤10 min/company | 🟡 High |
-| Cost per agent run | ~$0.50 | <$2.00 | 🟡 High |
+| Firecrawl success rate (free tier) | N/A | >90% | 🟡 High |
+| Agent runtime (Sandoz) | ~5 min | ≤10 min | 🟡 High |
+| Page maturity | Basic | Research-grade | 🔴 Critical |
 
 ---
 
 ## Timeline & Milestones
 
-**Estimated duration:** 2–3 weeks (phased rollout)
+**Estimated duration:** 2–3 weeks (Sandoz focus)
 
-- **Week 1:** Firecrawl integration, basic testing
-- **Week 2:** Quality measurement, refinement
-- **Week 3:** Production validation, documentation
+- **Week 1:** Firecrawl integration, Sandoz testing
+- **Week 2:** Quality measurement, page maturity work, editorial polish
+- **Week 3:** Production validation, documentation, monetization gate
 
 ---
 
@@ -150,11 +152,11 @@ SUPABASE_SERVICE_KEY=...      # Existing
 
 | Risk | Likelihood | Impact | Mitigation |
 |------|-----------|--------|-----------|
-| Firecrawl API rate limits | Medium | Agent slowdown | Implement retry logic, caching |
-| Paywalled IR pages | High | Partial coverage | Fall back to Claude web search |
-| Cost overrun | Medium | Budget impact | Monitor usage, set spend limits |
+| Firecrawl free tier rate limits | Medium | Agent slowdown | Implement retry logic, request batching |
+| Paywalled Sandoz IR pages | Low | Reduced coverage | Fall back to Claude web search |
 | Markdown parsing errors | Medium | Signal classification errors | Add validation, test edge cases |
 | Agent autonomy without review | High | Published errors | Maintain draft-only workflow |
+| Page maturity not improving | Medium | Project scope creep | Focus on editorial standards from CLAUDE.md |
 
 ---
 

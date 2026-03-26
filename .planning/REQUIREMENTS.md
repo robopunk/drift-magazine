@@ -9,7 +9,7 @@
 
 ## Overview
 
-Integrate **Firecrawl** into the Drift research agent to improve data extraction quality and signal confidence. The agent currently uses generic web search; Firecrawl will provide structured, clean page content → higher-quality signal classification.
+Integrate **Firecrawl free tier** into the Drift research agent to improve data extraction quality and signal confidence for Sandoz. The agent currently uses generic web search; Firecrawl will provide structured, clean page content → higher-quality signal classification. Focus is on maturing the Sandoz page to research-grade quality before scaling to additional companies.
 
 ---
 
@@ -48,14 +48,14 @@ Integrate **Firecrawl** into the Drift research agent to improve data extraction
 - **Priority:** 🟡 High
 - **Dependencies:** FR1, FR2
 
-### FR4: Cost Tracking & Controls
+### FR4: Free Tier Rate Limit Handling
 - **ID:** FR4
-- **Description:** Track Firecrawl API usage to prevent budget overruns
+- **Description:** Gracefully handle Firecrawl free tier rate limits (~1-5 req/min)
 - **Acceptance Criteria:**
-  - `agent_runs` table tracks Firecrawl requests and cost per run
-  - Environment variable `FIRECRAWL_API_KEY` secured (never logged)
-  - Monthly cost estimate available (via query or script)
-  - Cost per run stays <€2.00
+  - Agent implements exponential backoff retry logic for rate limit errors
+  - Request batching to minimize API calls per agent run
+  - Environment variable `FIRECRAWL_API_KEY` secured (never logged, if used)
+  - Graceful degradation if free tier limit exceeded (fallback to web search)
 - **Priority:** 🟡 High
 - **Dependencies:** FR1
 
@@ -146,26 +146,27 @@ And: Firecrawl metadata (URL, timestamp, status) stored in agent_runs
 ### Test 2: Signal Confidence Improves
 ```
 Given: Baseline signals created (pre-Firecrawl, confidence 6.5/10)
-When: Agent re-runs with Firecrawl integration
+When: Agent re-runs with Firecrawl integration on Sandoz
 Then: New signals have average confidence ≥8.0/10
 And: No regression in false negatives (<5% instead of 15%)
 ```
 
 ### Test 3: Fallback Works When Firecrawl Fails
 ```
-Given: A company page is paywalled or returns 404
+Given: A Sandoz page is paywalled or returns 404
 When: Agent attempts to fetch via Firecrawl
 Then: Firecrawl fails gracefully with logged error
 And: Agent falls back to Claude web search
 And: Agent run completes successfully
 ```
 
-### Test 4: Cost Stays Within Budget
+### Test 4: Free Tier Rate Limits Handled
 ```
-Given: Monthly Firecrawl budget = €500
-When: Agent runs bi-weekly for 1 month
-Then: Total Firecrawl cost ≤€100 (well under budget)
-And: Cost per company run ≤€2.00
+Given: Agent makes multiple requests near Firecrawl free tier limit
+When: Rate limit is triggered (429 response)
+Then: Agent implements exponential backoff and retries
+And: Agent continues processing after rate limit reset
+And: Agent run completes successfully (possibly with fallback if needed)
 ```
 
 ### Test 5: Audit Trail is Complete
@@ -185,9 +186,9 @@ And: Can trace signal back to original page content
 |--------|----------|--------|-------------|
 | Avg Signal Confidence | 6.5/10 | 8.0/10 | Score in signals table |
 | False Negative Rate | ~15% | <5% | Manual review of missed signals |
-| Firecrawl Success Rate | N/A | >90% | Successful fetches / total attempts |
-| Agent Runtime/Company | ~5 min | ≤10 min | Duration in agent_runs |
-| Cost per Run | ~€0.50 | <€2.00 | Cost tracking in agent_runs |
+| Firecrawl Success Rate (free tier) | N/A | >90% | Successful fetches / total attempts |
+| Agent Runtime (Sandoz) | ~5 min | ≤10 min | Duration in agent_runs |
+| Page Maturity Score | Basic | Research-grade | Editorial standards compliance |
 | Test Coverage | ~85% | 95%+ | Coverage report |
 
 ---
@@ -195,17 +196,19 @@ And: Can trace signal back to original page content
 ## Constraints & Assumptions
 
 ### Constraints
-- Budget: €500 for Firecrawl over 1 year
+- Budget: €0 (Firecrawl free tier only)
 - Timeline: 2–3 weeks to delivery
 - Team: Stefano + Claude (no additional engineers)
+- Company scope: **Sandoz only** (maturity-first; scale after monetization)
 - Infrastructure: Supabase, Python, existing CI/CD
 
 ### Assumptions
-- Firecrawl API is stable and reliable (>99.5% uptime)
-- Company IR pages are publicly accessible (no auth required)
-- Firecrawl can handle dynamic content (JavaScript-rendered pages)
+- Firecrawl free tier is stable and reliable for Sandoz IR pages
+- Sandoz IR page is publicly accessible (no auth required)
+- Firecrawl can handle Sandoz page dynamic content (if any)
 - Claude Opus is sufficient for signal classification (no specialized models needed)
 - Agent runs remain bi-weekly (no need to increase frequency)
+- Multi-company scaling deferred until after monetization (ads integration)
 
 ---
 
@@ -229,19 +232,20 @@ And: Can trace signal back to original page content
 This project will be broken into **3 phases:**
 
 1. **Phase 1: Firecrawl Integration & Testing** (Week 1)
-   - Install SDK, integrate into agent
+   - Install Firecrawl free tier SDK, integrate into agent
    - Test with Sandoz manually
-   - Verify data quality
+   - Verify free tier rate limits & data quality
 
-2. **Phase 2: Quality Measurement & Refinement** (Week 2)
-   - Run agent with Firecrawl on 2–3 companies
+2. **Phase 2: Quality Measurement & Page Maturity** (Week 2)
+   - Run agent with Firecrawl on Sandoz
    - Measure confidence improvement
+   - Editorial polish and content curation for Sandoz page
    - Adjust signal detection logic if needed
 
-3. **Phase 3: Production Rollout & Documentation** (Week 3)
+3. **Phase 3: Production & Monetization Gate** (Week 3)
    - Production deployment
    - Runbook and troubleshooting guide
-   - Cost estimation for year 1
+   - **Set monetization gate:** Scale to additional companies only after ads are integrated
 
 ---
 

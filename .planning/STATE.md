@@ -32,7 +32,7 @@
 | **Version** | 4.0.0 (in planning) |
 | **Status** | Planning phase |
 | **Timeline** | 3 weeks (3×5-day phases) |
-| **Budget** | €500 total |
+| **Budget** | €0 (Firecrawl free tier only) |
 | **Key Metric** | Avg signal confidence 6.5 → 8.0+ (/10) |
 
 ---
@@ -68,7 +68,8 @@
 ### Recent Work
 - **2026-03-25:** v3.2.0 Committed Duration delivered (timeline visual overhaul)
 - **2026-03-26:** Codebase mapping complete (7 documents)
-- **2026-03-26:** Project initialized for v4.0 (this session)
+- **2026-03-26:** Project initialized for v4.0 (€500 budget assumption)
+- **2026-03-26:** Project revised for free tier, Sandoz-only, maturity-first approach
 
 ---
 
@@ -243,11 +244,12 @@ pip install schedule               (Task scheduling)
 
 ## Notes for Future Me
 
-- **Firecrawl cost is the main risk** — monitor API usage carefully in Phase 1
+- **Free tier rate limits are the main constraint** — implement batching & retry logic in Phase 1
 - **Signal quality is measurable** — can A/B test Firecrawl vs. web search side-by-side
 - **Keep agent autonomy conservative** — draft-only workflow reduces risk
-- **Paywalled pages are expected** — document and plan fallback strategy
-- **Editorial standards are strict** — work with Stefano on confidence thresholds
+- **Page maturity is a success metric** — editorial polish and research-grade quality required for Sandoz
+- **Monetization gate is critical** — scale to new companies only after ads integrated and generating revenue
+- **Scaling is intentionally deferred** — focus on Sandoz research quality first, then revenue, then expand
 
 ---
 

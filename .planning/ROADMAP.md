@@ -11,76 +11,81 @@
 
 ### Phase 1: Firecrawl Integration & Testing
 **Duration:** 5 days (Week 1)
-**Goal:** Integrate Firecrawl SDK into agent, verify data extraction works reliably
+**Goal:** Integrate Firecrawl **free tier** SDK into agent, verify data extraction works reliably for Sandoz
 
 #### Deliverables
-- [ ] Firecrawl SDK installed in `backend/agent.py`
-- [ ] Agent can fetch IR page URLs and return clean markdown
+- [ ] Firecrawl free tier SDK installed in `backend/agent.py`
+- [ ] Agent can fetch Sandoz IR page and return clean markdown
 - [ ] Database schema updated (`signals.source_content` column)
-- [ ] Error handling & fallback logic implemented
+- [ ] Rate limit handling & fallback logic implemented
 - [ ] 2+ successful manual test runs on Sandoz
-- [ ] Cost tracking in `agent_runs` table
+- [ ] Free tier rate limits documented (request batching, retry strategy)
 
 #### Success Criteria
-- Firecrawl API integrated without breaking existing agent
+- Firecrawl SDK integrated without breaking existing agent
 - Agent runs successfully on Sandoz (no crashes)
 - Markdown output is clean and parseable
-- Cost per run ≤€2.00
+- Rate limit handling prevents agent failures
+- Firecrawl success rate >90%
 
 #### Risks
-- Firecrawl API rate limits or latency
-- Paywalled IR pages cause failures
+- Firecrawl free tier rate limits (1-5 req/min) too restrictive
+- Sandoz IR page may have dynamic content Firecrawl can't handle
 - Schema migration requires downtime
 
 ---
 
-### Phase 2: Quality Measurement & Refinement
+### Phase 2: Quality Measurement & Page Maturity
 **Duration:** 5 days (Week 2)
-**Goal:** Measure confidence improvement, refine signal detection logic
+**Goal:** Measure confidence improvement, refine signal detection logic, mature Sandoz page editorial quality
 
 #### Deliverables
 - [ ] Baseline confidence scores measured (pre-Firecrawl signals)
 - [ ] Signal detection logic updated for Firecrawl markdown
 - [ ] Timestamp/table extraction implemented
-- [ ] Agent runs on 2–3 companies (Sandoz, Roche, Volkswagen)
+- [ ] Agent runs on Sandoz with Firecrawl
 - [ ] Confidence scores calculated for new signals
 - [ ] Quality report generated (improvement %, false negatives, etc.)
+- [ ] Editorial content curation and polish for Sandoz page
+- [ ] Objectives/signals reviewed for editorial standards (brand/language.html compliance)
 
 #### Success Criteria
 - Average confidence ≥8.0/10 (from 6.5)
 - False negative rate <5% (from ~15%)
 - No regression in signal accuracy
+- Sandoz page achieves research-grade maturity (editorial standards)
 - All test cases passing
 
 #### Risks
 - Signal detection changes introduce false positives
 - Confidence scoring algorithm needs calibration
-- Measurement methodology disagreement
+- Page editorial curation more time-intensive than estimated
 
 ---
 
-### Phase 3: Production Rollout & Documentation
+### Phase 3: Production & Monetization Gate
 **Duration:** 5 days (Week 3)
-**Goal:** Deploy to production, document runbook, estimate costs
+**Goal:** Deploy to production, document runbook, set monetization gate for scaling
 
 #### Deliverables
 - [ ] Agent.py production-ready (all tests passing)
-- [ ] Runbook for Firecrawl troubleshooting written
-- [ ] Cost estimation for year 1 (extrapolated from test runs)
-- [ ] Edge cases documented (paywalls, dynamic content, etc.)
+- [ ] Runbook for Firecrawl troubleshooting written (free tier rate limits, retry strategy)
+- [ ] Edge cases documented (paywalled pages, dynamic content, fallback logic)
 - [ ] Operations team trained on agent monitoring
 - [ ] Deployment to production environment
+- [ ] **Monetization gate documented:** Criteria for scaling to additional companies (ads integration required)
 
 #### Success Criteria
 - Zero regressions in existing agent functionality
-- Firecrawl integration in production for 2+ weeks
-- No critical errors or cost overruns
+- Firecrawl free tier integration in production for 2+ weeks
+- No critical errors or rate limit issues
 - Documentation complete and reviewed
+- Monetization gate clearly defined and approved
 
 #### Risks
 - Production deployment introduces unforeseen issues
-- Firecrawl cost is higher than estimated
-- Operations team needs additional training
+- Free tier rate limits prevent bi-weekly execution
+- Scaling criteria unclear or difficult to achieve
 
 ---
 
@@ -88,24 +93,26 @@
 
 ```
 Week 1 (Mar 24-30)    │ Phase 1: Integration & Testing
-                      │ - Firecrawl SDK setup
-                      │ - Manual test runs
+                      │ - Firecrawl free tier SDK setup
+                      │ - Manual Sandoz test runs
+                      │ - Rate limit handling
                       │ - Schema updates
                       │
-Week 2 (Mar 31-Apr 6) │ Phase 2: Quality Measurement
-                      │ - Baseline measurements
+Week 2 (Mar 31-Apr 6) │ Phase 2: Quality & Maturity
+                      │ - Baseline measurements (Sandoz)
                       │ - Signal logic refinement
-                      │ - Multi-company testing
+                      │ - Editorial content curation
                       │
-Week 3 (Apr 7-13)     │ Phase 3: Production Rollout
+Week 3 (Apr 7-13)     │ Phase 3: Production & Gate
                       │ - Final testing & QA
                       │ - Documentation
                       │ - Production deployment
+                      │ - Monetization gate setup
                       │
-Apr 14+               │ v4.0.0 Stable Release
+Apr 14+               │ v4.0.0 Stable (Sandoz)
                       │ - Firecrawl fully integrated
                       │ - Improved signal quality
-                      │ - Ready for scale-up
+                      │ - Awaiting monetization for scale
 ```
 
 ---
@@ -114,27 +121,27 @@ Apr 14+               │ v4.0.0 Stable Release
 
 | Metric | Baseline | Target | Deadline |
 |--------|----------|--------|----------|
-| Avg Signal Confidence | 6.5/10 | 8.0/10 | Phase 2 complete |
-| False Negative Rate | ~15% | <5% | Phase 2 complete |
-| Firecrawl Success Rate | N/A | >90% | Phase 1 complete |
-| Agent Runtime | ~5 min | ≤10 min | Phase 1 complete |
-| Cost per Run | ~€0.50 | <€2.00 | Phase 1 complete |
+| Avg Signal Confidence (Sandoz) | 6.5/10 | 8.0/10 | Phase 2 complete |
+| False Negative Rate (Sandoz) | ~15% | <5% | Phase 2 complete |
+| Firecrawl Success Rate (free tier) | N/A | >90% | Phase 1 complete |
+| Agent Runtime (Sandoz) | ~5 min | ≤10 min | Phase 1 complete |
+| Page Maturity (Sandoz) | Basic | Research-grade | Phase 2 complete |
 | Test Coverage | 85% | 95%+ | Phase 3 complete |
 
 ---
 
 ## Risks & Contingencies
 
-### Risk 1: Firecrawl API Latency / Cost Overrun
+### Risk 1: Free Tier Rate Limits Too Restrictive
 **Probability:** Medium
-**Impact:** Timeline slip or budget impact
+**Impact:** Agent cannot execute bi-weekly schedule
 **Mitigation:**
-- Monitor API usage during Phase 1
-- Set cost alerts with Firecrawl account
-- Implement request caching to reduce API calls
-- Budget 50% contingency
+- Test rate limits during Phase 1
+- Implement request batching and intelligent caching
+- Stagger requests across multiple time windows
+- Document rate limit behavior
 
-**Contingency:** If cost exceeds €300, prioritize only high-value companies (Sandoz, Roche) and skip others.
+**Contingency:** If free tier insufficient, evaluate Firecrawl paid tier post-monetization (after ads revenue available).
 
 ---
 
@@ -147,20 +154,20 @@ Apr 14+               │ v4.0.0 Stable Release
 - Document which companies have paywall issues
 - Explore wayback.org as alternative source
 
-**Contingency:** Accept lower coverage for paywalled companies; focus on public-content companies.
+**Contingency:** If Sandoz page is paywalled, revert to web search; focus on other companies with public IR pages post-monetization.
 
 ---
 
-### Risk 3: Signal Quality Doesn't Improve
-**Probability:** Low
-**Impact:** Project ROI questioned
+### Risk 3: Page Maturity Work Exceeds Scope
+**Probability:** Medium
+**Impact:** Timeline slip, Phase 2 overruns
 **Mitigation:**
-- Start with comprehensive baseline measurement
-- Run A/B testing (Firecrawl vs. web search on same signals)
-- Collaborate with Stefano on editorial judgment
-- Adjust signal detection logic iteratively
+- Define "research-grade maturity" clearly in Phase 1 kickoff
+- Focus editorial work on brand/language standards (CLAUDE.md)
+- Timebox editorial curation to Phase 2 (avoid scope creep)
+- Prioritize high-impact improvements only
 
-**Contingency:** Revert to web-search-only and invest time in Claude prompt engineering instead.
+**Contingency:** Move non-critical editorial polish to Phase 4 (post-monetization); deliver Phase 3 with core maturity only.
 
 ---
 
@@ -180,7 +187,7 @@ Apr 14+               │ v4.0.0 Stable Release
 ## Dependencies & Blockers
 
 ### External Dependencies
-- ✅ Firecrawl API account (sign-up required, ~1 day)
+- ✅ Firecrawl free tier account (sign-up at firecrawl.dev, ~1 hour)
 - ✅ Claude API (already available)
 - ✅ Supabase (already running)
 
@@ -219,7 +226,8 @@ Apr 14+               │ v4.0.0 Stable Release
 
 | Version | Date | Changes |
 |---------|------|---------|
-| 1.0 | 2026-03-26 | Initial roadmap created |
+| 1.0 | 2026-03-26 | Initial roadmap created (paid API, multi-company) |
+| 1.1 | 2026-03-26 | Revised for free tier, Sandoz-only, maturity-first gate |
 
 ---
 
