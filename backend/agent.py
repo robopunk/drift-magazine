@@ -62,6 +62,40 @@ def firecrawl_extract(url: str, api_key: str, max_chars: int = 30_000) -> Option
         print(f"  ⚠ Firecrawl extract failed for {url}: {e}")
         return None
 
+
+def prefetch_company_docs(company: dict, api_key: Optional[str]) -> str:
+    """Scrape company IR page + additional_sources via Firecrawl.
+    Returns a formatted block to prepend to the agent prompt.
+    Returns empty string if api_key is None or no URLs configured."""
+    if not api_key:
+        return ""
+
+    urls: list[str] = []
+    if company.get("ir_page_url"):
+        urls.append(company["ir_page_url"])
+    urls.extend(company.get("additional_sources") or [])
+
+    if not urls:
+        return ""
+
+    sections = []
+    for url in urls:
+        content = firecrawl_extract(url, api_key)
+        if content:
+            sections.append(f"[Source: {url}]\n\n{content}")
+
+    if not sections:
+        return ""
+
+    divider = "=" * 60
+    return (
+        f"\n\nPRE-FETCHED DOCUMENTS (full text extracted before your search):\n"
+        f"{divider}\n"
+        + "\n\n---\n\n".join(sections)
+        + f"\n{divider}\n"
+        "Use these as primary sources. Then use web_search for any additional recent disclosures.\n"
+    )
+
 # ── CONFIG ──────────────────────────────────────────────────────────────────
 
 ANTHROPIC_API_KEY  = os.environ["ANTHROPIC_API_KEY"]
