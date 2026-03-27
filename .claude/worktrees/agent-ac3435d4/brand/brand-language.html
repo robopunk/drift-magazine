@@ -1,0 +1,886 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Drift — Brand Language & Editorial Standards</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;0,900;1,400;1,700&family=Source+Serif+4:ital,opsz,wght@0,8..60,300;0,8..60,400;0,8..60,600;1,8..60,300;1,8..60,400&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:          #F4EFE4;
+  --bg-warm:     #EDE5CF;
+  --bg-deep:     #E4D9C0;
+  --ink:         #1A1612;
+  --ink-light:   #3D3428;
+  --ink-muted:   #6B5C42;
+  --ink-faint:   #9A8A70;
+  --gold:        #9A6E20;
+  --gold-light:  #B8881E;
+  --gold-pale:   #EDD898;
+  --rule:        #D4C8A8;
+  --rule-dark:   #C4B48A;
+
+  /* Status palette — muted, authoritative */
+  --on-record:   #1E4A32;
+  --on-record-bg:#E8F5EE;
+  --watch:       #5A4010;
+  --watch-bg:    #FDF3E0;
+  --drifting:    #6B2A10;
+  --drifting-bg: #FBE8E0;
+  --off-record:  #3A1A1A;
+  --off-record-bg:#F5E8E8;
+
+  --shadow-sm: 0 1px 4px rgba(26,22,18,.06);
+  --shadow-md: 0 4px 16px rgba(26,22,18,.08);
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { font-size: 16px; }
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: 'Source Serif 4', Georgia, serif;
+  font-weight: 300;
+  line-height: 1.7;
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 0 2rem 6rem;
+}
+
+/* ── COVER ── */
+.cover {
+  padding: 5rem 0 3.5rem;
+  border-bottom: 2px solid var(--ink);
+  margin-bottom: 3rem;
+  position: relative;
+}
+.cover-overline {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: .6rem; letter-spacing: .18em; text-transform: uppercase;
+  color: var(--gold); margin-bottom: 1rem;
+  display: flex; align-items: center; gap: .75rem;
+}
+.cover-overline::before {
+  content: ''; width: 40px; height: 1px;
+  background: var(--gold); opacity: .6;
+}
+.cover-title {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(2.4rem, 5vw, 3.8rem);
+  font-weight: 900; letter-spacing: -.05em;
+  line-height: 1.0; color: var(--ink);
+  margin-bottom: .6rem;
+}
+.cover-title em { font-style: italic; color: var(--gold); }
+.cover-subtitle {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.05rem; font-style: italic;
+  color: var(--ink-muted); margin-bottom: 1.5rem;
+}
+.cover-meta {
+  display: flex; gap: 2rem; flex-wrap: wrap;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: .58rem; letter-spacing: .1em; text-transform: uppercase;
+  color: var(--ink-faint);
+}
+
+/* ── SECTION ── */
+.section {
+  margin-bottom: 3.5rem;
+  padding-bottom: 3.5rem;
+  border-bottom: 1px solid var(--rule);
+}
+.section:last-child { border-bottom: none; }
+
+.section-num {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: .56rem; letter-spacing: .16em; text-transform: uppercase;
+  color: var(--gold); margin-bottom: .5rem;
+  display: flex; align-items: center; gap: .6rem;
+}
+.section-num::after {
+  content: ''; flex: 1; height: 1px;
+  background: var(--gold-pale);
+}
+.section-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.6rem; font-weight: 700;
+  letter-spacing: -.04em; color: var(--ink);
+  margin-bottom: .6rem;
+}
+.section-intro {
+  font-size: .88rem; color: var(--ink-muted);
+  max-width: 680px; line-height: 1.75;
+  margin-bottom: 1.75rem;
+}
+
+/* ── PRINCIPLE CARD ── */
+.principle {
+  background: white;
+  border: 1px solid var(--rule);
+  border-left: 3px solid var(--ink);
+  border-radius: 0 5px 5px 0;
+  padding: 1.1rem 1.4rem;
+  margin-bottom: 1rem;
+  box-shadow: var(--shadow-sm);
+}
+.principle.gold { border-left-color: var(--gold); }
+.principle-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: .52rem; letter-spacing: .12em; text-transform: uppercase;
+  color: var(--ink-faint); margin-bottom: .3rem;
+}
+.principle-text {
+  font-family: 'Playfair Display', serif;
+  font-size: 1rem; font-weight: 600; font-style: italic;
+  color: var(--ink); line-height: 1.45;
+}
+.principle-sub {
+  font-size: .78rem; color: var(--ink-muted);
+  margin-top: .4rem; line-height: 1.65;
+}
+
+/* ── VOICE TABLE ── */
+.voice-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 1.5rem;
+  font-size: .82rem;
+}
+.voice-table thead tr {
+  border-bottom: 2px solid var(--ink);
+}
+.voice-table th {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: .54rem; letter-spacing: .12em; text-transform: uppercase;
+  color: var(--ink-faint); font-weight: 500;
+  padding: .5rem .75rem; text-align: left;
+}
+.voice-table th:first-child { color: var(--on-record); }
+.voice-table th:last-child  { color: var(--drifting); }
+.voice-table td {
+  padding: .65rem .75rem;
+  vertical-align: top;
+  border-bottom: 1px solid var(--rule);
+  line-height: 1.55;
+}
+.voice-table tr:last-child td { border-bottom: none; }
+.voice-table .col-write { color: var(--ink-light); }
+.voice-table .col-not {
+  color: var(--ink-faint);
+  text-decoration: line-through;
+  text-decoration-color: rgba(107,31,31,.35);
+}
+.voice-table tbody tr:hover td { background: var(--bg-warm); }
+
+/* ── CLASSIFICATION SYSTEM ── */
+.class-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+.class-card {
+  background: white;
+  border: 1px solid var(--rule);
+  border-radius: 6px;
+  padding: 1rem 1.1rem;
+  box-shadow: var(--shadow-sm);
+}
+.class-badge {
+  display: inline-flex; align-items: center;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: .56rem; letter-spacing: .1em; text-transform: uppercase;
+  padding: .22rem .55rem; border-radius: 3px;
+  margin-bottom: .55rem; font-weight: 500;
+}
+.class-name {
+  font-family: 'Playfair Display', serif;
+  font-size: .95rem; font-weight: 700;
+  color: var(--ink); margin-bottom: .25rem;
+}
+.class-desc {
+  font-size: .75rem; color: var(--ink-muted);
+  line-height: 1.6; margin-bottom: .6rem;
+}
+.class-example {
+  font-size: .72rem; font-style: italic;
+  color: var(--ink-light); line-height: 1.55;
+  background: var(--bg-warm); border-radius: 3px;
+  padding: .5rem .65rem;
+  border-left: 2px solid var(--rule-dark);
+}
+.class-example cite {
+  display: block; margin-top: .3rem;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: .5rem; letter-spacing: .06em;
+  color: var(--ink-faint); font-style: normal;
+}
+
+/* Status colours */
+.s-on-record  { background: var(--on-record-bg);  color: var(--on-record); }
+.s-watch      { background: var(--watch-bg);       color: var(--watch); }
+.s-drifting   { background: var(--drifting-bg);    color: var(--drifting); }
+.s-off-record { background: var(--off-record-bg);  color: var(--off-record); }
+
+/* ── MOMENTUM SCALE REFERENCE ── */
+.momentum-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: .8rem;
+  margin-bottom: 1.5rem;
+}
+.momentum-table th {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: .52rem; letter-spacing: .12em; text-transform: uppercase;
+  color: var(--ink-faint); font-weight: 500;
+  padding: .45rem .75rem; text-align: left;
+  border-bottom: 1px solid var(--rule-dark);
+}
+.momentum-table td {
+  padding: .6rem .75rem;
+  border-bottom: 1px solid var(--rule);
+  vertical-align: top;
+}
+.momentum-table tr:last-child td { border-bottom: none; }
+.momentum-table .m-score {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: .68rem; font-weight: 600;
+  letter-spacing: .04em;
+}
+.momentum-table .m-name {
+  font-family: 'Playfair Display', serif;
+  font-size: .88rem; font-weight: 700;
+}
+.m-above { color: var(--on-record); }
+.m-ground { color: var(--watch); }
+.m-below  { color: var(--off-record); }
+.momentum-table tr.ground-row td {
+  background: var(--bg-warm);
+  border-top: 1px solid var(--rule-dark);
+  border-bottom: 1px solid var(--rule-dark);
+}
+
+/* ── GRAVEYARD CLASSIFICATION ── */
+.gy-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+.gy-card {
+  background: white;
+  border: 1px solid var(--rule);
+  border-radius: 6px;
+  padding: 1rem 1.1rem;
+  box-shadow: var(--shadow-sm);
+}
+.gy-badge {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: .52rem; letter-spacing: .1em; text-transform: uppercase;
+  padding: .2rem .5rem; border-radius: 3px;
+  display: inline-block; margin-bottom: .5rem; font-weight: 500;
+}
+.gy-silent  { background: #FDECEA; color: #6B1F1F; border: 1px solid rgba(107,31,31,.2); }
+.gy-phased  { background: #FDF3E0; color: #6B4010; border: 1px solid rgba(107,64,16,.2); }
+.gy-morphed { background: #EAF2FB; color: #1B4F72; border: 1px solid rgba(27,79,114,.2); }
+.gy-transparent { background: #E8F5EE; color: #1E4A32; border: 1px solid rgba(30,74,50,.2); }
+.gy-name {
+  font-family: 'Playfair Display', serif;
+  font-size: .92rem; font-weight: 700;
+  color: var(--ink); margin-bottom: .25rem;
+}
+.gy-def {
+  font-size: .74rem; color: var(--ink-muted);
+  line-height: 1.6; margin-bottom: .55rem;
+}
+.gy-signal {
+  font-size: .7rem; color: var(--ink-light);
+  font-style: italic; line-height: 1.55;
+  background: var(--bg-warm); padding: .45rem .6rem;
+  border-radius: 3px;
+  border-left: 2px solid var(--rule-dark);
+}
+.gy-signal strong { font-style: normal; color: var(--ink); font-weight: 600; }
+
+/* ── TRANSPARENCY RUBRIC ── */
+.trans-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: .8rem;
+  margin-bottom: 1.5rem;
+}
+.trans-table th {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: .52rem; letter-spacing: .12em; text-transform: uppercase;
+  color: var(--ink-faint); font-weight: 500;
+  padding: .45rem .75rem; text-align: left;
+  border-bottom: 1px solid var(--rule-dark);
+}
+.trans-table td {
+  padding: .65rem .75rem;
+  border-bottom: 1px solid var(--rule);
+  vertical-align: top; line-height: 1.55;
+}
+.trans-table tr:last-child td { border-bottom: none; }
+.t-badge {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: .55rem; font-weight: 600;
+  letter-spacing: .07em; text-transform: uppercase;
+  padding: .2rem .5rem; border-radius: 3px; white-space: nowrap;
+}
+.t-very-low  { background: #FDECEA; color: #6B1F1F; }
+.t-low       { background: #FDF0E0; color: #7B3A10; }
+.t-medium    { background: #FEF9E0; color: #6B5010; }
+.t-high      { background: #E8F5EE; color: #1E4A32; }
+
+/* ── WORD LIST ── */
+.word-cols {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+.word-col-title {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: .56rem; letter-spacing: .12em; text-transform: uppercase;
+  margin-bottom: .6rem;
+  padding-bottom: .35rem;
+  border-bottom: 1px solid var(--rule);
+}
+.word-col-title.yes { color: var(--on-record); }
+.word-col-title.no  { color: var(--drifting); }
+.word-list {
+  list-style: none;
+  display: flex; flex-wrap: wrap; gap: .4rem;
+}
+.word-list li {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: .62rem; letter-spacing: .04em;
+  padding: .22rem .55rem;
+  border-radius: 3px;
+  background: white;
+  border: 1px solid var(--rule);
+  color: var(--ink-light);
+}
+.word-list.no-list li {
+  background: var(--bg-warm);
+  color: var(--ink-faint);
+  text-decoration: line-through;
+  text-decoration-color: rgba(107,31,31,.3);
+}
+
+/* ── FULL EXAMPLE ── */
+.example-block {
+  background: white;
+  border: 1px solid var(--rule);
+  border-radius: 7px;
+  overflow: hidden;
+  margin-bottom: 1.5rem;
+  box-shadow: var(--shadow-sm);
+}
+.example-head {
+  background: var(--ink);
+  padding: .65rem 1.1rem;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: .56rem; letter-spacing: .12em; text-transform: uppercase;
+  color: rgba(244,239,228,.5);
+  display: flex; justify-content: space-between;
+}
+.example-body { padding: 1.1rem; }
+.example-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: .52rem; letter-spacing: .1em; text-transform: uppercase;
+  color: var(--gold); margin-bottom: .3rem;
+}
+.example-text {
+  font-size: .82rem; color: var(--ink-light);
+  line-height: 1.75; margin-bottom: .75rem;
+}
+.example-text em { font-style: italic; }
+.example-text strong { font-weight: 600; color: var(--ink); }
+.example-divider {
+  height: 1px; background: var(--rule);
+  margin: .75rem 0;
+}
+
+/* ── POSITIONING STATEMENT ── */
+.positioning {
+  background: var(--ink);
+  border-radius: 8px;
+  padding: 2.5rem;
+  margin-bottom: 1.5rem;
+  position: relative; overflow: hidden;
+}
+.positioning::before {
+  content: '❝';
+  position: absolute; top: -1rem; left: 1.5rem;
+  font-family: 'Playfair Display', serif;
+  font-size: 7rem; font-weight: 900;
+  color: rgba(196,150,46,.08); line-height: 1;
+}
+.pos-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: .56rem; letter-spacing: .14em; text-transform: uppercase;
+  color: rgba(196,150,46,.55); margin-bottom: .75rem;
+}
+.pos-statement {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(1.1rem, 2.5vw, 1.5rem);
+  font-style: italic; font-weight: 400;
+  color: rgba(244,239,228,.85); line-height: 1.5;
+  margin-bottom: 1rem;
+  position: relative; z-index: 1;
+}
+.pos-statement strong {
+  font-weight: 700; color: rgba(196,150,46,.9);
+  font-style: normal;
+}
+.pos-variants {
+  display: flex; flex-direction: column; gap: .5rem;
+  position: relative; z-index: 1;
+}
+.pos-variant {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: .62rem; letter-spacing: .06em;
+  color: rgba(244,239,228,.35);
+  padding-left: 1rem;
+  border-left: 1px solid rgba(196,150,46,.2);
+}
+.pos-variant.primary { color: rgba(244,239,228,.65); font-size: .68rem; }
+
+/* ── RESPONSIVE ── */
+@media (max-width: 700px) {
+  body { padding: 0 1rem 4rem; }
+  .class-grid { grid-template-columns: 1fr; }
+  .gy-grid { grid-template-columns: 1fr; }
+  .word-cols { grid-template-columns: 1fr; }
+  .voice-table { font-size: .75rem; }
+  .cover { padding: 4rem 0 2.5rem; }
+}
+
+/* Print */
+@media print {
+  body { background: white; max-width: none; padding: 1cm 2cm; }
+  .cover { padding: 2cm 0 1cm; }
+}
+</style>
+</head>
+<body>
+
+<!-- COVER -->
+<div class="cover">
+  <div class="cover-overline">Brand Language & Editorial Standards</div>
+  <h1 class="cover-title"><em>Drift</em></h1>
+  <div class="cover-subtitle">What companies commit to. What the record shows. What disappeared.</div>
+  <div class="cover-meta">
+    <span>Version 1.0</span>
+    <span>March 2026</span>
+    <span>Internal Reference</span>
+    <span>Not for distribution</span>
+  </div>
+</div>
+
+<!-- ══ 01 WHAT DRIFT IS ══ -->
+<div class="section">
+  <div class="section-num">01</div>
+  <h2 class="section-title">What Drift is</h2>
+  <p class="section-intro">One paragraph. This is what every piece of communication — every editorial note, every classification, every company page — is ultimately in service of.</p>
+
+  <div class="positioning">
+    <div class="pos-label">The Core Positioning</div>
+    <p class="pos-statement">
+      Drift tracks what companies <strong>publicly commit to</strong>, how that language <strong>changes over time</strong>, and what happens to promises that <strong>quietly disappear</strong>.
+    </p>
+    <div class="pos-variants">
+      <div class="pos-variant primary">For investors, analysts, and strategists who need to know whether a company's stated direction is holding.</div>
+      <div class="pos-variant">All data sourced from public disclosures only. Every classification is evidenced. No proprietary data. No inside sources.</div>
+      <div class="pos-variant">The record is the product.</div>
+    </div>
+  </div>
+
+  <div class="principle gold">
+    <div class="principle-label">The Founding Distinction</div>
+    <div class="principle-text">Most accountability tools measure outcomes. Drift measures the language of commitment — and the silence that follows when commitment fades.</div>
+    <div class="principle-sub">Outcomes are visible to everyone. Language drift is visible only to those paying close attention over time. That is the gap Drift occupies.</div>
+  </div>
+
+  <div class="principle">
+    <div class="principle-label">What Drift is not</div>
+    <div class="principle-text">Drift is not a financial analytics tool. It does not model earnings, forecast performance, or rate management quality.</div>
+    <div class="principle-sub">Drift records what was said, when it was said, how the language changed, and what disappeared. The reader draws their own conclusions from the evidence. Drift names the pattern — it does not prosecute the company.</div>
+  </div>
+</div>
+
+<!-- ══ 02 THE BRAND PERSONALITY ══ -->
+<div class="section">
+  <div class="section-num">02</div>
+  <h2 class="section-title">Brand personality</h2>
+  <p class="section-intro">Two reference points held in tension. Neither is sufficient alone — the combination is the brand.</p>
+
+  <div class="class-grid">
+    <div class="class-card">
+      <div class="class-badge s-on-record">The McKinsey side</div>
+      <div class="class-name">Precision. Structure. Authority.</div>
+      <div class="class-desc">Every classification is specific. Every verdict is grounded. Language is tight and unambiguous. The reader trusts that words have been chosen carefully — because they have.</div>
+      <div class="class-example">
+        "The objective has been absent from investor communications for three consecutive reporting periods. No exit statement has been issued."
+        <cite>Classification language — precise, attributable, conclusive</cite>
+      </div>
+    </div>
+    <div class="class-card">
+      <div class="class-badge s-drifting">The journalism side</div>
+      <div class="class-name">Independence. Sourcing. Naming.</div>
+      <div class="class-desc">Drift names what it sees. Not with sensation, not with accusation — but with the willingness to use the right word for the right thing. "Silent drop" is not an accusation. It is a classification.</div>
+      <div class="class-example">
+        "Classified: Silent Drop. The original commitment was stated in the prospectus. It has not appeared in any investor communication since Q2 2024."
+        <cite>Verdict language — independent, sourced, direct</cite>
+      </div>
+    </div>
+  </div>
+
+  <div class="principle">
+    <div class="principle-label">The tone in one sentence</div>
+    <div class="principle-text">Drift is the kind of analyst who reads everything, remembers everything, and states conclusions clearly — without ever raising their voice.</div>
+  </div>
+</div>
+
+<!-- ══ 03 VOICE — WRITE / DON'T WRITE ══ -->
+<div class="section">
+  <div class="section-num">03</div>
+  <h2 class="section-title">Voice — write this, not that</h2>
+  <p class="section-intro">The left column is Drift's voice. The right column contains language that is either too emotional, too vague, or too judgmental for the editorial standard. These are not soft guidelines — they are the line between Drift and opinion journalism.</p>
+
+  <table class="voice-table">
+    <thead>
+      <tr>
+        <th>✓ Write this</th>
+        <th>✗ Not this</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="col-write">"The objective has been absent from investor communications for three consecutive reporting periods."</td>
+        <td class="col-not">"The company quietly buried its commitment."</td>
+      </tr>
+      <tr>
+        <td class="col-write">"Language has migrated from volume targets to profitability framing across four disclosure periods."</td>
+        <td class="col-not">"They changed their story."</td>
+      </tr>
+      <tr>
+        <td class="col-write">"Classified: Silent Drop. Transparency score: Very Low. No exit statement was issued."</td>
+        <td class="col-not">"They hoped no one would notice."</td>
+      </tr>
+      <tr>
+        <td class="col-write">"The original prospectus stated a site reduction from 26 to 18–20. The current framing contains no numeric reference."</td>
+        <td class="col-not">"The company walked back its operational promises."</td>
+      </tr>
+      <tr>
+        <td class="col-write">"This is the clearest case of a silent drop in the tracked portfolio."</td>
+        <td class="col-not">"This is a damning example of corporate evasion."</td>
+      </tr>
+      <tr>
+        <td class="col-write">"The commitment score has declined from 88 to 74 across three consecutive periods."</td>
+        <td class="col-not">"Confidence in this company is eroding."</td>
+      </tr>
+      <tr>
+        <td class="col-write">"Language classified as Softened: scope reduced, timeline extended, no explanation disclosed."</td>
+        <td class="col-not">"The goalposts have been moved."</td>
+      </tr>
+      <tr>
+        <td class="col-write">"The record shows no investor communication acknowledging the change in strategic direction."</td>
+        <td class="col-not">"They said nothing and hoped it would go unnoticed."</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="word-cols">
+    <div>
+      <div class="word-col-title yes">Words Drift uses</div>
+      <ul class="word-list">
+        <li>classified</li><li>evidenced</li><li>disclosed</li>
+        <li>absent</li><li>migrated</li><li>sourced</li>
+        <li>stated</li><li>recorded</li><li>observed</li>
+        <li>confirmed</li><li>consistent</li><li>inconsistent</li>
+        <li>reinforced</li><li>softened</li><li>reframed</li>
+        <li>trajectory</li><li>pattern</li><li>threshold</li>
+        <li>consecutive</li><li>disclosure</li>
+      </ul>
+    </div>
+    <div>
+      <div class="word-col-title no">Words Drift never uses</div>
+      <ul class="word-list no-list">
+        <li>damning</li><li>shocking</li><li>alarming</li>
+        <li>buried</li><li>hidden</li><li>covered up</li>
+        <li>exposed</li><li>caught</li><li>admitted</li>
+        <li>slammed</li><li>blasted</li><li>bombshell</li>
+        <li>denies</li><li>claims</li><li>insists</li>
+        <li>worrying</li><li>concerning</li><li>troubling</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<!-- ══ 04 STATUS CLASSIFICATION ══ -->
+<div class="section">
+  <div class="section-num">04</div>
+  <h2 class="section-title">Objective status classification</h2>
+  <p class="section-intro">Four statuses. Each has a precise definition and a bar for application. Status is assigned editorially — it is not a calculation. When in doubt, apply the more conservative status and monitor.</p>
+
+  <div class="class-grid">
+    <div class="class-card">
+      <div class="class-badge s-on-record">On Record</div>
+      <div class="class-name">Active, evidenced, holding.</div>
+      <div class="class-desc">The objective has been explicitly referenced in the most recent disclosure of each applicable type. Language is consistent with or stronger than the original statement. No scope reduction, hedging, or timeline extension detected.</div>
+      <div class="class-example">
+        "Biosimilar leadership leads the Annual Report narrative for the third consecutive year. 35+ active programmes cited. No language softening detected."
+        <cite>Sandoz · Biosimilar Leadership · March 2026</cite>
+      </div>
+    </div>
+    <div class="class-card">
+      <div class="class-badge s-watch">Under Watch</div>
+      <div class="class-name">Present, but trajectory shifting.</div>
+      <div class="class-desc">The objective remains publicly stated but one or more signals indicate a potential change: scope has narrowed, language has become more hedged, or the objective has been absent from one disclosure where it was expected. Not yet drifting — under active monitoring.</div>
+      <div class="class-example">
+        "Volume leadership language retained with added caveat: 'targeted expansion in high-return markets.' Minor scope reduction detected."
+        <cite>Sandoz · EM Volume Growth · March 2024</cite>
+      </div>
+    </div>
+    <div class="class-card">
+      <div class="class-badge s-drifting">Drifting</div>
+      <div class="class-name">Measurable language migration detected.</div>
+      <div class="class-desc">Multiple signals confirm the objective is shifting — either the language has changed substantially across two or more disclosure periods, numeric targets have been removed, or the framing has migrated from the original commitment without explanation. The objective still exists; its shape has changed.</div>
+      <div class="class-example">
+        "Three consecutive reporting periods without numeric site targets. Original prospectus commitment not referenced. Current framing: 'efficiency-led manufacturing network.'"
+        <cite>Sandoz · Manufacturing Simplification · March 2026</cite>
+      </div>
+    </div>
+    <div class="class-card">
+      <div class="class-badge s-off-record">Off Record</div>
+      <div class="class-name">Graveyard entry. Commitment has ended.</div>
+      <div class="class-desc">The objective has been confirmed as no longer active, by any of the four exit manners: silent, phased, morphed, or transparent. Off Record is not a value judgement — a transparently retired objective is as Off Record as a silently dropped one. The difference is in the transparency score.</div>
+      <div class="class-example">
+        "Confirmed absent from all investor materials since Q2 2024. No exit statement issued. Classified: Silent Drop. Transparency: Very Low."
+        <cite>Sandoz · China Growth Platform · June 2024</cite>
+      </div>
+    </div>
+  </div>
+
+  <div class="principle">
+    <div class="principle-label">Classification rule</div>
+    <div class="principle-text">Status is changed only when the evidence is unambiguous. One soft signal is not Drifting. One absence is not Off Record. Drift classifies conservatively and monitors actively.</div>
+    <div class="principle-sub">When upgrading a status (e.g. On Record → Under Watch), the editorial note must cite specific language from a specific disclosure. "Language felt weaker" is not evidence. "The term 'volume leadership' appeared in Q4 2023, Q1 2024, and has not appeared since" is evidence.</div>
+  </div>
+</div>
+
+<!-- ══ 05 MOMENTUM SCALE ══ -->
+<div class="section">
+  <div class="section-num">05</div>
+  <h2 class="section-title">The Momentum Scale</h2>
+  <p class="section-intro">Nine stages from Orbit to Buried. Each is an editorial classification of the current trajectory of a specific objective — how strongly it is being pursued, evidenced, and communicated. The scale maps directly to the timeline: stages above zero sit above the ground line; stages below zero sit below it.</p>
+
+  <table class="momentum-table">
+    <thead>
+      <tr>
+        <th>Stage</th>
+        <th>Name</th>
+        <th>Definition</th>
+        <th>Classification criteria</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td class="m-score m-above">+4</td><td class="m-name">Orbit</td><td>Objective exceeded. Company has redefined upward.</td><td>Original target met or surpassed; new, more ambitious commitment stated. Evidence of execution confirms overperformance.</td></tr>
+      <tr><td class="m-score m-above">+3</td><td class="m-name">Fly</td><td>Ahead of schedule. Language reinforced with results.</td><td>Explicit reaffirmation in most recent disclosure; execution signals (filings, milestones, data) corroborate stated trajectory. Language equal to or stronger than original.</td></tr>
+      <tr><td class="m-score m-above">+2</td><td class="m-name">Run</td><td>On track. Strong momentum, no concerns.</td><td>Objective mentioned in most recent disclosure; no hedging; no scope reduction; consistent with original language.</td></tr>
+      <tr><td class="m-score m-above">+1</td><td class="m-name">Walk</td><td>Active. Progressing steadily.</td><td>Objective present in disclosures; minor softening acceptable if no pattern; execution signals neutral to positive.</td></tr>
+      <tr class="ground-row"><td class="m-score m-ground">0</td><td class="m-name">Watch</td><td>Standing still. No clear signal either way.</td><td>Objective mentioned but without progress evidence; or one unexplained absence; or language mildly hedged. Trigger for active monitoring.</td></tr>
+      <tr><td class="m-score m-below">−1</td><td class="m-name">Crawl</td><td>Slowing. Language softening detected.</td><td>At least two signals showing reduced specificity, hedged language, or narrowed scope. Status: Drifting. Timeline or targets may have shifted without explanation.</td></tr>
+      <tr><td class="m-score m-below">−2</td><td class="m-name">Drag</td><td>Significant drift. Reframing underway.</td><td>Framing has changed materially from original commitment. Numeric targets absent for two or more periods. Pattern of deflection in Q&A.</td></tr>
+      <tr><td class="m-score m-below">−3</td><td class="m-name">Sink</td><td>Entering graveyard territory. Mostly absent.</td><td>Multiple consecutive absences across disclosure types. When mentioned, language bears little resemblance to original commitment. Graveyard classification pending.</td></tr>
+      <tr><td class="m-score m-below">−4</td><td class="m-name">Buried</td><td>Confirmed Off Record. Graveyard entry.</td><td>Objective has not appeared in investor communications for four or more periods across at least two disclosure types. Exit manner classified. Transparency score assigned.</td></tr>
+    </tbody>
+  </table>
+
+  <div class="principle">
+    <div class="principle-label">The ground line</div>
+    <div class="principle-text">Stage 0 (Watch) sits at the ground line. It is the threshold — the point at which an objective is neither clearly alive nor clearly declining. Crossing downward from Watch to Crawl is the editorial event.</div>
+    <div class="principle-sub">The ground crossing is when Drift alerts subscribers and updates the timeline. It is the most important single moment in an objective's lifecycle on the platform — the moment when drift becomes visible.</div>
+  </div>
+</div>
+
+<!-- ══ 06 GRAVEYARD CLASSIFICATION ══ -->
+<div class="section">
+  <div class="section-num">06</div>
+  <h2 class="section-title">Graveyard exit classification</h2>
+  <p class="section-intro">Not all exits are equal. Drift classifies how an objective ended — because the manner of exit is itself an accountability signal. A company that explicitly retires a commitment is more transparent than one that allows it to silently disappear. The classification is factual, not moral.</p>
+
+  <div class="gy-grid">
+    <div class="gy-card">
+      <div class="gy-badge gy-silent">⬛ Silent Drop</div>
+      <div class="gy-name">Disappeared without notice.</div>
+      <div class="gy-def">The objective was present, then absent — across multiple disclosure types, for multiple periods — with no investor communication acknowledging the change. No explanation. No announcement. The record simply stops.</div>
+      <div class="gy-signal"><strong>Detection signal:</strong> Four or more consecutive periods of absence across at least two disclosure types, with no retirement statement found in any public document.</div>
+    </div>
+    <div class="gy-card">
+      <div class="gy-badge gy-phased">⇣ Phased Out</div>
+      <div class="gy-name">Gradual erosion over time.</div>
+      <div class="gy-def">The objective did not vanish overnight — it faded. Language weight reduced across three or more periods; prominence declined from headline to footnote to absent. No announcement, but the pattern is visible in the record.</div>
+      <div class="gy-signal"><strong>Detection signal:</strong> Visible reduction in language prominence across at least three periods, culminating in absence. The decline slope is the evidence.</div>
+    </div>
+    <div class="gy-card">
+      <div class="gy-badge gy-morphed">↝ Morphed</div>
+      <div class="gy-name">Transformed into a successor commitment.</div>
+      <div class="gy-def">The original objective was replaced by a related but materially different commitment — often one that retains the spirit of ambition while removing the accountability of specifics. Numeric targets replaced by directional language. Geographic specificity replaced by portfolio framing.</div>
+      <div class="gy-signal"><strong>Detection signal:</strong> Original language retired; new framing serves a similar narrative function but lacks original specificity. A successor objective is identified and linked.</div>
+    </div>
+    <div class="gy-card">
+      <div class="gy-badge gy-transparent">✓ Transparent Exit</div>
+      <div class="gy-name">Explicitly retired with explanation.</div>
+      <div class="gy-def">The company publicly communicated the retirement of the commitment — in a disclosure document, an earnings call, or an investor communication — with an explanation of why the direction has changed. The highest transparency score available.</div>
+      <div class="gy-signal"><strong>Detection signal:</strong> Explicit statement in a primary source document acknowledging the change in strategic direction or the retirement of a specific commitment.</div>
+    </div>
+  </div>
+
+  <div class="section-intro" style="margin-bottom:1rem;">The transparency score — assigned to every graveyard entry — reflects how visible the exit was to investors and stakeholders at the time it occurred.</div>
+
+  <table class="trans-table">
+    <thead>
+      <tr><th>Score</th><th>Meaning</th><th>Criteria</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="t-badge t-very-low">Very Low</span></td>
+        <td>No communication of any kind.</td>
+        <td>The objective disappeared without any investor communication. No indirect acknowledgment. No framing change. No mention in Q&A. The record simply stops.</td>
+      </tr>
+      <tr>
+        <td><span class="t-badge t-low">Low</span></td>
+        <td>Minimal or indirect acknowledgment only.</td>
+        <td>A vague reference to changed priorities, or a single indirect comment in Q&A, not in prepared remarks. Not enough to constitute a proper investor communication.</td>
+      </tr>
+      <tr>
+        <td><span class="t-badge t-medium">Medium</span></td>
+        <td>Partial explanation, without full disclosure.</td>
+        <td>A partial acknowledgment — e.g. language change accompanied by a brief rationale, or a passing reference in an investor presentation without a full explanation of the strategic shift.</td>
+      </tr>
+      <tr>
+        <td><span class="t-badge t-high">High</span></td>
+        <td>Full, explicit communication with rationale.</td>
+        <td>The retirement was explicitly stated in a primary source document, with a clear rationale for the change. Investors had the information they needed to update their models and thesis.</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- ══ 07 NAMING SYSTEM ══ -->
+<div class="section">
+  <div class="section-num">07</div>
+  <h2 class="section-title">Naming conventions</h2>
+  <p class="section-intro">Consistent language across all company pages and classifications.</p>
+
+  <div class="example-block">
+    <div class="example-head">
+      <span>UI labels — preferred terms</span>
+      <span>All instances, all pages</span>
+    </div>
+    <div class="example-body">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.25rem;">
+        <div>
+          <div class="example-label">Sections</div>
+          <div class="example-text">
+            <strong>Live Commitments</strong> — not "Active Objectives"<br>
+            <strong>Off the Record</strong> — not "Graveyard" in formal contexts; Graveyard acceptable in UI<br>
+            <strong>The Signal Record</strong> — not "Evidence Drawer"<br>
+            <strong>Editorial Assessment</strong> — not "Summary"<br>
+            <strong>Commitment Timeline</strong> — not "History"
+          </div>
+        </div>
+        <div>
+          <div class="example-label">Status labels</div>
+          <div class="example-text">
+            <strong>On Record</strong> — not "Active"<br>
+            <strong>Under Watch</strong> — not "Watch" alone<br>
+            <strong>Drifting</strong> — not "Declining" or "At Risk"<br>
+            <strong>Off Record</strong> — not "Dropped" or "Dead"<br>
+            <strong>Achieved</strong> — used sparingly, requires strong evidence
+          </div>
+        </div>
+      </div>
+      <div class="example-divider"></div>
+      <div class="example-label">Graveyard exit labels</div>
+      <div class="example-text">
+        <strong>⬛ Silent Drop</strong> · <strong>⇣ Phased Out</strong> · <strong>↝ Morphed</strong> · <strong>✓ Transparent Exit</strong><br>
+        These labels appear verbatim on every graveyard entry. Do not paraphrase or vary.
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ 08 FULL EDITORIAL EXAMPLE ══ -->
+<div class="section">
+  <div class="section-num">08</div>
+  <h2 class="section-title">A complete editorial assessment — annotated</h2>
+  <p class="section-intro">The following is an annotated example of a full editorial assessment for a company page. Notes in brackets indicate which brand standard each phrase demonstrates.</p>
+
+  <div class="example-block">
+    <div class="example-head">
+      <span>Sandoz AG · Editorial Assessment · March 2026</span>
+      <span>Reference example</span>
+    </div>
+    <div class="example-body">
+      <div class="example-label">Published text</div>
+      <div class="example-text">
+        Sandoz enters 2026 with its Golden Decade narrative <em>largely intact</em> — all six active objectives remain publicly referenced. [<strong>Precise quantification. "Largely intact" is accurate — not "strong" or "solid."</strong>] The biosimilar leadership commitment is the strongest in the tracked portfolio: language has not softened once across nine reporting events. [<strong>Evidenced statement. Nine events is a specific claim, not an impression.</strong>]<br><br>
+
+        Two objectives show measurable drift. [<strong>"Measurable drift" — not "concerning drift" or "worrying signs."</strong>] Emerging Markets has migrated from volume leadership to profitability framing without announcement [<strong>"Without announcement" is factual. Not "secretly" or "quietly."</strong>], and Manufacturing Simplification has lost its specific numeric targets. Three objectives have entered the graveyard — one by silent drop, one by morphing, one by phased retirement. [<strong>Classification language used directly. The manner of exit is the story.</strong>]
+      </div>
+      <div class="example-divider"></div>
+      <div class="example-label">What makes this right</div>
+      <div class="example-text">
+        Every claim is verifiable from the signal record. The tone is the same whether the news is good (biosimilar leadership) or bad (China silent drop). No emotional language. No inference beyond what the record shows. The reader is given the classified evidence — the conclusion is theirs to draw.
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ 09 WHAT DRIFT IS BUILDING ══ -->
+<div class="section">
+  <div class="section-num">09</div>
+  <h2 class="section-title">What Drift is building — over time</h2>
+  <p class="section-intro">The brand is not static. As Drift scales from one company to many, the language system accumulates authority. These are the assets that compound.</p>
+
+  <div class="class-grid">
+    <div class="class-card">
+      <div class="class-badge s-on-record">The classified record</div>
+      <div class="class-name">The source of authority</div>
+      <div class="class-desc">Every signal, sourced and dated, classified and evidenced. The larger the record, the more authoritative the platform. This is why classification rigour is non-negotiable from day one — the record is the product.</div>
+    </div>
+    <div class="class-card">
+      <div class="class-badge s-watch">The graveyard</div>
+      <div class="class-name">The source of differentiation</div>
+      <div class="class-desc">No other product shows what companies stopped saying, how they stopped saying it, and whether anyone noticed. The graveyard is Drift's most distinctive feature — and the one most likely to be shared, cited, and remembered.</div>
+    </div>
+    <div class="class-card">
+      <div class="class-badge s-drifting">The language patterns</div>
+      <div class="class-name">The source of insight</div>
+      <div class="class-desc">As data accumulates across companies and sectors, patterns emerge: how long before a commitment typically drifts; which disclosure types show the earliest warning; which sectors have the highest silent drop rates. These cross-company insights are the premium product.</div>
+    </div>
+    <div class="class-card">
+      <div class="class-badge s-on-record">The editorial voice</div>
+      <div class="class-name">The source of trust</div>
+      <div class="class-desc">Drift's voice — precise, dry, evidenced, never sensational — is what separates it from opinion and from data. That voice, maintained consistently across every classification and every company page, is what makes the record trustworthy. Voice is infrastructure.</div>
+    </div>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<div style="padding-top:2rem;border-top:2px solid var(--ink);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:.75rem;">
+  <div>
+    <div style="font-family:'Playfair Display',serif;font-size:1rem;font-weight:700;font-style:italic;color:var(--ink);">Drift</div>
+    <div style="font-family:'JetBrains Mono',monospace;font-size:.5rem;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-faint);margin-top:.15rem;">Brand Language & Editorial Standards · v1.0</div>
+  </div>
+  <div style="font-family:'JetBrains Mono',monospace;font-size:.5rem;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-faint);">Internal reference · March 2026 · All data from public disclosures only</div>
+</div>
+
+</body>
+</html>

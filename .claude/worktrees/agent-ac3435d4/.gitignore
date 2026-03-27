@@ -1,0 +1,55 @@
+# Environment — never commit
+.env
+.env.local
+.env.production
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+venv/
+env/
+*.egg-info/
+dist/
+build/
+
+# Node (if added later)
+node_modules/
+.next/
+.nuxt/
+dist/
+
+# OS
+.DS_Store
+Thumbs.db
+.Spotlight-V100
+.Trashes
+
+# Editor
+.vscode/settings.json
+.idea/
+*.swp
+*.swo
+
+# Logs
+logs/
+*.log
+agent.log
+
+# Supabase local dev (if used)
+.supabase/
+supabase/.branches/
+supabase/.temp/
+
+# Brainstorm sessions (visual companion)
+.superpowers/
+
+# Test artifacts
+test-artifacts/
+
+# Skills cache
+.claude/skills/
+
+.vercel
+.env*.local

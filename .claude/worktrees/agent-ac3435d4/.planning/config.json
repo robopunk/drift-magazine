@@ -1,0 +1,39 @@
+{
+  "projectName": "Drift v4.0 Research Enhancement",
+  "version": "4.0.0",
+  "createdAt": "2026-03-26T21:00:00Z",
+  "workflow": {
+    "researchMode": "skip",
+    "discussMode": "interactive",
+    "plannerModel": "sonnet",
+    "executorModel": "sonnet",
+    "verificationEnabled": true,
+    "commitFrequency": "phase-end"
+  },
+  "constraints": {
+    "maxPhases": 10,
+    "maxIterations": 3,
+    "timeboxPerPhase": "5 days",
+    "budget": "€500"
+  },
+  "tools": {
+    "firecrawl": {
+      "enabled": true,
+      "provider": "firecrawl.dev",
+      "costPerRequest": "€0.01-0.05"
+    },
+    "anthropic": {
+      "enabled": true,
+      "model": "claude-opus-4-6"
+    },
+    "supabase": {
+      "enabled": true,
+      "useRLS": true
+    }
+  },
+  "versionControl": {
+    "strategy": "feature-branches",
+    "mainBranch": "master",
+    "prRequired": true
+  }
+}

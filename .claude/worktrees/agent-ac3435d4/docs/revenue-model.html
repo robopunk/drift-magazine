@@ -1,0 +1,1210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PromiseTrack · Revenue Model</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Source+Serif+4:opsz,wght@8..60,300;8..60,400;8..60,600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:         #F6F1E7;
+  --bg-dark:    #EDE5D0;
+  --bg-deeper:  #E0D5BC;
+  --ink:        #1C1917;
+  --ink-light:  #44403C;
+  --ink-muted:  #78716C;
+  --ink-faint:  #A8A29E;
+  --gold:       #A0782A;
+  --gold-light: #C4962E;
+  --gold-pale:  #F0E6C8;
+  --green:      #2D6A4F;
+  --green-bg:   #D8F3DC;
+  --red:        #6B1F1F;
+  --red-bg:     #FADBD8;
+  --amber:      #7B4F12;
+  --amber-bg:   #FDE8C8;
+  --blue:       #1B4F72;
+  --blue-bg:    #D6EAF8;
+  --rule:       #D4C9A8;
+  --ink-bg:     #1C1917;
+  --shadow-sm:  0 1px 3px rgba(28,25,23,.06);
+  --shadow-md:  0 4px 12px rgba(28,25,23,.08);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html{font-size:16px;scroll-behavior:smooth;}
+body{
+  background:var(--bg);
+  color:var(--ink);
+  font-family:'Source Serif 4',Georgia,serif;
+  font-weight:300;
+  line-height:1.6;
+}
+
+/* grain */
+body::before{
+  content:'';position:fixed;inset:0;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.025'/%3E%3C/svg%3E");
+  pointer-events:none;z-index:500;opacity:.5;
+}
+
+/* ── MASTHEAD ── */
+.mast{
+  background:var(--ink-bg);
+  padding:.9rem 2rem;
+  display:flex;align-items:center;justify-content:space-between;
+  border-bottom:2px solid var(--gold);
+  position:sticky;top:0;z-index:100;
+}
+.mast-name{
+  font-family:'Playfair Display',serif;
+  font-size:1.1rem;font-weight:700;
+  color:var(--bg);letter-spacing:-.02em;
+}
+.mast-name span{color:var(--gold-light);}
+.mast-sub{
+  font-family:'JetBrains Mono',monospace;
+  font-size:.58rem;letter-spacing:.1em;text-transform:uppercase;
+  color:rgba(212,201,168,.35);
+}
+
+/* ── PAGE ── */
+.page{max-width:1060px;margin:0 auto;padding:3rem 1.5rem 5rem;}
+
+/* ── HERO HEADER ── */
+.page-hero{
+  padding-bottom:2rem;
+  border-bottom:2px solid var(--rule);
+  margin-bottom:2.5rem;
+}
+.page-kicker{
+  font-family:'JetBrains Mono',monospace;
+  font-size:.6rem;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--gold);margin-bottom:.6rem;
+  display:flex;align-items:center;gap:.5rem;
+}
+.page-kicker::before{content:'';width:32px;height:1px;background:var(--gold);opacity:.5;}
+.page-title{
+  font-family:'Playfair Display',serif;
+  font-size:clamp(1.8rem,4vw,2.8rem);font-weight:700;
+  letter-spacing:-.04em;line-height:1.1;
+  color:var(--ink);margin-bottom:.75rem;
+}
+.page-title em{font-style:italic;color:var(--gold);}
+.page-desc{
+  font-size:.9rem;color:var(--ink-muted);
+  max-width:680px;line-height:1.75;
+}
+
+/* ── SECTION LABELS ── */
+.section-label{
+  display:flex;align-items:center;gap:.75rem;
+  margin-bottom:1.25rem;margin-top:2.5rem;
+}
+.section-label-text{
+  font-family:'JetBrains Mono',monospace;
+  font-size:.6rem;letter-spacing:.12em;text-transform:uppercase;
+  color:var(--ink-faint);
+}
+.section-label-rule{flex:1;height:1px;background:var(--rule);}
+
+/* ── ASSUMPTION SLIDERS ── */
+.assumptions-grid{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:1rem;
+  margin-bottom:2rem;
+}
+.assumption-card{
+  background:white;
+  border:1px solid var(--rule);
+  border-radius:8px;
+  padding:1rem 1.1rem;
+  box-shadow:var(--shadow-sm);
+}
+.assumption-label{
+  font-family:'JetBrains Mono',monospace;
+  font-size:.58rem;letter-spacing:.08em;text-transform:uppercase;
+  color:var(--ink-faint);margin-bottom:.35rem;
+}
+.assumption-value{
+  font-family:'Playfair Display',serif;
+  font-size:1.5rem;font-weight:700;
+  color:var(--ink);line-height:1;
+  margin-bottom:.5rem;
+}
+.assumption-value span{font-size:.85rem;color:var(--gold);}
+input[type=range]{
+  width:100%;
+  -webkit-appearance:none;
+  height:3px;border-radius:2px;
+  background:var(--rule);outline:none;cursor:pointer;
+  margin-bottom:.3rem;
+}
+input[type=range]::-webkit-slider-thumb{
+  -webkit-appearance:none;
+  width:14px;height:14px;border-radius:50%;
+  background:var(--gold);border:2px solid white;
+  box-shadow:0 1px 4px rgba(0,0,0,.15);
+}
+.assumption-hint{
+  font-family:'JetBrains Mono',monospace;
+  font-size:.52rem;color:var(--ink-faint);letter-spacing:.04em;
+}
+
+/* ── SCENARIO TABS ── */
+.scenario-tabs{
+  display:flex;gap:.5rem;margin-bottom:1.5rem;
+}
+.scen-tab{
+  font-family:'JetBrains Mono',monospace;
+  font-size:.6rem;letter-spacing:.08em;text-transform:uppercase;
+  padding:.5rem 1.1rem;border-radius:4px;
+  border:1px solid var(--rule);background:white;
+  color:var(--ink-muted);cursor:pointer;
+  transition:all .2s;
+}
+.scen-tab:hover{border-color:var(--gold);color:var(--gold);}
+.scen-tab.active{background:var(--ink);color:var(--bg);border-color:var(--ink);}
+
+/* ── REVENUE BREAKDOWN TABLE ── */
+.rev-table{
+  background:white;
+  border:1px solid var(--rule);
+  border-radius:10px;
+  overflow:hidden;
+  box-shadow:var(--shadow-sm);
+  margin-bottom:1.5rem;
+}
+.rev-header{
+  display:grid;
+  grid-template-columns:2fr 1fr 1fr 1fr 1fr;
+  gap:0;
+  background:var(--ink);
+  padding:.75rem 1.25rem;
+}
+.rev-header-cell{
+  font-family:'JetBrains Mono',monospace;
+  font-size:.55rem;letter-spacing:.1em;text-transform:uppercase;
+  color:rgba(212,201,168,.5);
+  text-align:right;
+}
+.rev-header-cell:first-child{text-align:left;}
+
+.rev-stream{
+  display:grid;
+  grid-template-columns:2fr 1fr 1fr 1fr 1fr;
+  gap:0;
+  padding:.85rem 1.25rem;
+  border-bottom:1px solid var(--bg-dark);
+  align-items:center;
+  transition:background .15s;
+}
+.rev-stream:last-child{border-bottom:none;}
+.rev-stream:hover{background:var(--bg);}
+
+.stream-name{
+  font-family:'Source Serif 4',serif;
+  font-size:.85rem;font-weight:600;
+  color:var(--ink);
+}
+.stream-desc{
+  font-size:.68rem;color:var(--ink-muted);
+  line-height:1.4;margin-top:.1rem;
+}
+.stream-badge{
+  display:inline-block;
+  font-family:'JetBrains Mono',monospace;
+  font-size:.5rem;letter-spacing:.06em;text-transform:uppercase;
+  padding:.15rem .4rem;border-radius:2px;margin-top:.25rem;
+}
+.badge-now{background:var(--green-bg);color:var(--green);}
+.badge-m3{background:var(--amber-bg);color:var(--amber);}
+.badge-m6{background:var(--blue-bg);color:var(--blue);}
+.badge-m12{background:var(--bg-darker,var(--bg-dark));color:var(--ink-faint);}
+
+.rev-cell{
+  font-family:'JetBrains Mono',monospace;
+  font-size:.75rem;color:var(--ink-light);
+  text-align:right;padding-left:.5rem;
+}
+.rev-cell.highlight{
+  font-size:.82rem;font-weight:600;
+  color:var(--green);
+}
+.rev-cell.zero{color:var(--ink-faint);}
+
+.rev-total{
+  display:grid;
+  grid-template-columns:2fr 1fr 1fr 1fr 1fr;
+  padding:.85rem 1.25rem;
+  background:var(--bg-dark);
+  border-top:2px solid var(--rule);
+}
+.total-label{
+  font-family:'JetBrains Mono',monospace;
+  font-size:.6rem;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--ink-muted);
+  display:flex;align-items:center;
+}
+.total-value{
+  font-family:'Playfair Display',serif;
+  font-size:1.05rem;font-weight:700;
+  color:var(--ink);text-align:right;
+}
+.total-value.green{color:var(--green);}
+
+/* ── COST TABLE ── */
+.cost-table{
+  background:white;
+  border:1px solid var(--rule);
+  border-radius:10px;
+  overflow:hidden;
+  margin-bottom:1.5rem;
+  box-shadow:var(--shadow-sm);
+}
+.cost-row{
+  display:grid;
+  grid-template-columns:2fr 1fr 1fr;
+  padding:.75rem 1.25rem;
+  border-bottom:1px solid var(--bg-dark);
+  align-items:center;
+}
+.cost-row:last-child{border-bottom:none;}
+.cost-row.header{
+  background:var(--bg-dark);
+  padding:.6rem 1.25rem;
+}
+.cost-label{
+  font-family:'Source Serif 4',serif;
+  font-size:.82rem;color:var(--ink);
+}
+.cost-note{font-size:.65rem;color:var(--ink-muted);margin-top:.1rem;}
+.cost-monthly{
+  font-family:'JetBrains Mono',monospace;
+  font-size:.75rem;color:var(--ink-light);
+  text-align:right;
+}
+.cost-annual{
+  font-family:'JetBrains Mono',monospace;
+  font-size:.75rem;color:var(--ink-muted);
+  text-align:right;
+}
+.cost-row.total-row{
+  background:var(--bg-dark);
+  border-top:2px solid var(--rule);
+}
+
+/* ── BREAKEVEN VISUAL ── */
+.breakeven-panel{
+  background:var(--ink-bg);
+  border-radius:10px;
+  padding:2rem;
+  margin-bottom:1.5rem;
+  position:relative;
+  overflow:hidden;
+}
+.breakeven-panel::before{
+  content:'';position:absolute;inset:0;
+  background-image:repeating-linear-gradient(
+    -30deg,transparent,transparent 60px,
+    rgba(160,120,42,.03) 60px,rgba(160,120,42,.03) 61px
+  );
+}
+.breakeven-inner{position:relative;z-index:1;}
+.breakeven-title{
+  font-family:'Playfair Display',serif;
+  font-size:1rem;font-weight:600;font-style:italic;
+  color:rgba(246,241,231,.7);margin-bottom:1.5rem;
+}
+
+/* Monthly P&L chart */
+.pnl-chart{
+  display:flex;align-items:flex-end;
+  gap:6px;height:120px;
+  margin-bottom:.75rem;
+}
+.pnl-bar-wrap{
+  flex:1;display:flex;flex-direction:column;
+  align-items:center;gap:3px;height:100%;
+  justify-content:flex-end;
+}
+.pnl-bar{
+  width:100%;border-radius:2px 2px 0 0;
+  min-height:2px;
+  transition:height .5s ease;
+}
+.pnl-bar.positive{background:var(--green);}
+.pnl-bar.negative{background:var(--red);}
+.pnl-bar.zero{background:rgba(255,255,255,.1);}
+.pnl-month{
+  font-family:'JetBrains Mono',monospace;
+  font-size:.45rem;color:rgba(212,201,168,.25);
+  letter-spacing:.04em;text-align:center;
+}
+.pnl-zero-line{
+  width:100%;height:1px;
+  background:rgba(255,255,255,.1);
+  margin-bottom:.25rem;
+  position:relative;
+}
+.pnl-zero-line::before{
+  content:'$0';
+  font-family:'JetBrains Mono',monospace;
+  font-size:.45rem;color:rgba(255,255,255,.2);
+  position:absolute;right:0;top:-8px;
+}
+
+.breakeven-stats{
+  display:flex;gap:2rem;
+  padding-top:1rem;
+  border-top:1px solid rgba(255,255,255,.06);
+}
+.be-stat{}
+.be-num{
+  font-family:'Playfair Display',serif;
+  font-size:1.4rem;font-weight:700;
+  color:var(--bg);line-height:1;
+}
+.be-num.gold{color:var(--gold-light);}
+.be-num.green{color:#6DD8A0;}
+.be-label{
+  font-family:'JetBrains Mono',monospace;
+  font-size:.52rem;letter-spacing:.08em;text-transform:uppercase;
+  color:rgba(212,201,168,.3);margin-top:.2rem;
+}
+
+/* ── STREAMS DETAIL ── */
+.stream-detail-grid{
+  display:grid;
+  grid-template-columns:repeat(2,1fr);
+  gap:1rem;
+  margin-bottom:1.5rem;
+}
+.stream-card{
+  background:white;
+  border:1px solid var(--rule);
+  border-radius:8px;
+  padding:1.1rem;
+  box-shadow:var(--shadow-sm);
+  position:relative;
+  overflow:hidden;
+}
+.stream-card::before{
+  content:'';
+  position:absolute;top:0;left:0;right:0;height:3px;
+  background:var(--stream-color,var(--rule));
+}
+.stream-card.now{--stream-color:var(--green);}
+.stream-card.m3{--stream-color:var(--gold);}
+.stream-card.m6{--stream-color:#2874A6;}
+.stream-card.m12{--stream-color:var(--ink-faint);}
+
+.sc-header{
+  display:flex;justify-content:space-between;align-items:flex-start;
+  margin-bottom:.6rem;
+}
+.sc-title{
+  font-family:'Playfair Display',serif;
+  font-size:.95rem;font-weight:700;color:var(--ink);
+}
+.sc-when{
+  font-family:'JetBrains Mono',monospace;
+  font-size:.52rem;letter-spacing:.06em;text-transform:uppercase;
+  padding:.2rem .5rem;border-radius:3px;
+}
+.sc-desc{
+  font-size:.75rem;color:var(--ink-muted);
+  line-height:1.6;margin-bottom:.75rem;
+}
+.sc-mechanics{
+  background:var(--bg);
+  border-radius:4px;
+  padding:.65rem .75rem;
+  margin-bottom:.65rem;
+}
+.sc-mech-label{
+  font-family:'JetBrains Mono',monospace;
+  font-size:.52rem;letter-spacing:.08em;text-transform:uppercase;
+  color:var(--ink-faint);margin-bottom:.3rem;
+}
+.sc-mech-item{
+  font-size:.72rem;color:var(--ink-light);
+  line-height:1.55;
+  padding-left:.75rem;
+  position:relative;
+}
+.sc-mech-item::before{
+  content:'→';position:absolute;left:0;
+  color:var(--gold);font-size:.65rem;
+}
+.sc-numbers{
+  display:flex;gap:.75rem;
+  padding-top:.6rem;
+  border-top:1px solid var(--rule);
+}
+.sc-num-item{}
+.sc-num-value{
+  font-family:'Playfair Display',serif;
+  font-size:.95rem;font-weight:700;color:var(--ink);line-height:1;
+}
+.sc-num-label{
+  font-family:'JetBrains Mono',monospace;
+  font-size:.5rem;letter-spacing:.06em;text-transform:uppercase;
+  color:var(--ink-faint);margin-top:.15rem;
+}
+
+/* ── RISK TABLE ── */
+.risk-table{
+  background:white;
+  border:1px solid var(--rule);
+  border-radius:8px;
+  overflow:hidden;
+  margin-bottom:1.5rem;
+  box-shadow:var(--shadow-sm);
+}
+.risk-row{
+  display:grid;
+  grid-template-columns:2fr 1fr 3fr;
+  gap:0;
+  padding:.8rem 1.25rem;
+  border-bottom:1px solid var(--bg-dark);
+  align-items:start;
+}
+.risk-row:last-child{border-bottom:none;}
+.risk-row.header{background:var(--bg-dark);padding:.55rem 1.25rem;}
+.risk-name{font-size:.82rem;color:var(--ink);font-weight:400;}
+.risk-level{
+  font-family:'JetBrains Mono',monospace;
+  font-size:.55rem;letter-spacing:.06em;text-transform:uppercase;
+  padding:.2rem .45rem;border-radius:3px;
+  display:inline-block;margin-top:.1rem;
+}
+.risk-level.high{background:var(--red-bg);color:var(--red);}
+.risk-level.med {background:var(--amber-bg);color:var(--amber);}
+.risk-level.low {background:var(--green-bg);color:var(--green);}
+.risk-mitigation{font-size:.72rem;color:var(--ink-muted);line-height:1.5;}
+
+/* ── VERDICT BOX ── */
+.verdict{
+  background:var(--bg-dark);
+  border:2px solid var(--gold-pale);
+  border-radius:10px;
+  padding:1.75rem;
+  margin-bottom:1.5rem;
+  position:relative;
+}
+.verdict::before{
+  content:'❝';
+  position:absolute;top:-.5rem;left:1.25rem;
+  font-family:'Playfair Display',serif;
+  font-size:5rem;font-weight:900;
+  color:rgba(160,120,42,.08);line-height:1;
+}
+.verdict-label{
+  font-family:'JetBrains Mono',monospace;
+  font-size:.6rem;letter-spacing:.12em;text-transform:uppercase;
+  color:var(--gold);margin-bottom:.75rem;
+}
+.verdict-text{
+  font-family:'Playfair Display',serif;
+  font-size:1.05rem;font-style:italic;
+  color:var(--ink);line-height:1.65;
+  margin-bottom:.75rem;
+}
+.verdict-subtext{
+  font-size:.78rem;color:var(--ink-muted);line-height:1.7;
+}
+
+/* ── TIMELINE ── */
+.roadmap{
+  position:relative;
+  padding-left:1.75rem;
+  margin-bottom:1.5rem;
+}
+.roadmap::before{
+  content:'';
+  position:absolute;left:6px;top:8px;bottom:8px;
+  width:1px;background:var(--rule);
+}
+.roadmap-item{
+  position:relative;
+  margin-bottom:1.5rem;
+  padding-left:.25rem;
+}
+.roadmap-item:last-child{margin-bottom:0;}
+.roadmap-item::before{
+  content:'';
+  position:absolute;left:-1.45rem;top:6px;
+  width:10px;height:10px;border-radius:50%;
+  border:2px solid white;
+  background:var(--ink-faint);
+}
+.roadmap-item.now::before{background:var(--green);}
+.roadmap-item.m3::before {background:var(--gold);}
+.roadmap-item.m6::before {background:#2874A6;}
+.roadmap-item.m12::before{background:var(--ink-muted);}
+
+.rm-period{
+  font-family:'JetBrains Mono',monospace;
+  font-size:.58rem;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--ink-faint);margin-bottom:.2rem;
+}
+.rm-title{
+  font-family:'Source Serif 4',serif;
+  font-size:.9rem;font-weight:600;color:var(--ink);
+  margin-bottom:.25rem;
+}
+.rm-desc{font-size:.75rem;color:var(--ink-muted);line-height:1.55;}
+.rm-revenue{
+  font-family:'JetBrains Mono',monospace;
+  font-size:.65rem;color:var(--green);
+  margin-top:.25rem;letter-spacing:.04em;
+}
+
+/* ── RESPONSIVE ── */
+@media(max-width:900px){
+  .assumptions-grid{grid-template-columns:repeat(2,1fr);}
+  .rev-header,.rev-stream,.rev-total{grid-template-columns:2fr 1fr 1fr 1fr;}
+  .rev-header-cell:nth-child(4),.rev-stream .rev-cell:nth-child(4),.total-value:nth-child(4){display:none;}
+  .stream-detail-grid{grid-template-columns:1fr;}
+}
+@media(max-width:600px){
+  .page{padding:2rem 1rem 4rem;}
+  .assumptions-grid{grid-template-columns:1fr;}
+  .rev-header,.rev-stream,.rev-total{grid-template-columns:2fr 1fr 1fr;}
+  .rev-header-cell:nth-child(3),.rev-stream .rev-cell:nth-child(3){display:none;}
+  .mast{padding:.75rem 1rem;}
+  .risk-row{grid-template-columns:1.5fr 1fr;}
+  .risk-mitigation{display:none;}
+  .breakeven-stats{gap:1rem;}
+  .scenario-tabs{flex-wrap:wrap;}
+}
+</style>
+</head>
+<body>
+
+<header class="mast">
+  <div>
+    <div class="mast-name">Promise<span>Track</span></div>
+  </div>
+  <div class="mast-sub">Revenue Model · Self-Finance Analysis</div>
+</header>
+
+<div class="page">
+
+  <!-- HERO -->
+  <div class="page-hero">
+    <div class="page-kicker">Business Model</div>
+    <h1 class="page-title">Can PromiseTrack<br><em>pay for itself?</em></h1>
+    <p class="page-desc">
+      A realistic, unvarnished projection of what it takes for a niche B2B editorial site tracking strategic accountability to reach self-financing. Adjust the assumptions — the model updates live.
+    </p>
+  </div>
+
+  <!-- ASSUMPTIONS -->
+  <div class="section-label">
+    <span class="section-label-text">Your assumptions</span>
+    <div class="section-label-rule"></div>
+    <span class="section-label-text">Drag to adjust — all figures update</span>
+  </div>
+
+  <div class="assumptions-grid">
+    <div class="assumption-card">
+      <div class="assumption-label">Monthly Visitors (Mo. 12)</div>
+      <div class="assumption-value" id="v-visitors">8,000 <span>/ mo</span></div>
+      <input type="range" id="sl-visitors" min="2000" max="50000" step="1000" value="8000" oninput="update()">
+      <div class="assumption-hint">Realistic for focused niche editorial in yr 1</div>
+    </div>
+    <div class="assumption-card">
+      <div class="assumption-label">Companies Tracked</div>
+      <div class="assumption-value" id="v-companies">24 <span>cos</span></div>
+      <input type="range" id="sl-companies" min="5" max="100" step="1" value="24" oninput="update()">
+      <div class="assumption-hint">Each adds ~2 hrs/mo review time for you</div>
+    </div>
+    <div class="assumption-card">
+      <div class="assumption-label">Premium Subscriber Price</div>
+      <div class="assumption-value" id="v-price">€29 <span>/ mo</span></div>
+      <input type="range" id="sl-price" min="9" max="79" step="5" value="29" oninput="update()">
+      <div class="assumption-hint">B2B research tools: €20–99 is realistic</div>
+    </div>
+    <div class="assumption-card">
+      <div class="assumption-label">Visitor → Subscriber Rate</div>
+      <div class="assumption-value" id="v-conv">1.2 <span>%</span></div>
+      <input type="range" id="sl-conv" min="0.3" max="5" step="0.1" value="1.2" oninput="update()">
+      <div class="assumption-hint">Industry avg for B2B editorial: 0.5–2%</div>
+    </div>
+    <div class="assumption-card">
+      <div class="assumption-label">Sponsor Rate (CPM)</div>
+      <div class="assumption-value" id="v-cpm">€12 <span>CPM</span></div>
+      <input type="range" id="sl-cpm" min="4" max="30" step="1" value="12" oninput="update()">
+      <div class="assumption-hint">B2B pharma/finance: €8–25 CPM realistic</div>
+    </div>
+    <div class="assumption-card">
+      <div class="assumption-label">Ad Impressions / Visitor</div>
+      <div class="assumption-value" id="v-impr">2.1 <span>pages</span></div>
+      <input type="range" id="sl-impr" min="1" max="5" step="0.1" value="2.1" oninput="update()">
+      <div class="assumption-hint">Deep readers: 2–3 pages per session</div>
+    </div>
+  </div>
+
+  <!-- SCENARIO TABS -->
+  <div class="scenario-tabs">
+    <button class="scen-tab active" onclick="setScenario('realistic')">Realistic</button>
+    <button class="scen-tab" onclick="setScenario('conservative')">Conservative</button>
+    <button class="scen-tab" onclick="setScenario('optimistic')">Optimistic</button>
+  </div>
+
+  <!-- REVENUE TABLE -->
+  <div class="section-label" style="margin-top:0;">
+    <span class="section-label-text">Month 12 revenue breakdown</span>
+    <div class="section-label-rule"></div>
+  </div>
+
+  <div class="rev-table">
+    <div class="rev-header">
+      <div class="rev-header-cell" style="text-align:left;">Revenue Stream</div>
+      <div class="rev-header-cell">Mo. 1</div>
+      <div class="rev-header-cell">Mo. 6</div>
+      <div class="rev-header-cell">Mo. 12</div>
+      <div class="rev-header-cell">Annual</div>
+    </div>
+
+    <div class="rev-stream">
+      <div>
+        <div class="stream-name">Display Advertising</div>
+        <div class="stream-desc">Carbon Ads or EthicalAds — contextual, no tracking, B2B CPMs</div>
+        <span class="stream-badge badge-now">Day 1</span>
+      </div>
+      <div class="rev-cell" id="r-ads-m1">—</div>
+      <div class="rev-cell" id="r-ads-m6">—</div>
+      <div class="rev-cell highlight" id="r-ads-m12">—</div>
+      <div class="rev-cell" id="r-ads-ann">—</div>
+    </div>
+
+    <div class="rev-stream">
+      <div>
+        <div class="stream-name">Direct Sponsorship</div>
+        <div class="stream-desc">1–2 sponsors per month (pharma data, IR tools, consultancies)</div>
+        <span class="stream-badge badge-m3">Month 3+</span>
+      </div>
+      <div class="rev-cell zero">€0</div>
+      <div class="rev-cell" id="r-spon-m6">—</div>
+      <div class="rev-cell highlight" id="r-spon-m12">—</div>
+      <div class="rev-cell" id="r-spon-ann">—</div>
+    </div>
+
+    <div class="rev-stream">
+      <div>
+        <div class="stream-name">Premium Subscriptions</div>
+        <div class="stream-desc">Full evidence records, API access, email alerts on objective changes</div>
+        <span class="stream-badge badge-m6">Month 6+</span>
+      </div>
+      <div class="rev-cell zero">€0</div>
+      <div class="rev-cell zero">€0</div>
+      <div class="rev-cell highlight" id="r-sub-m12">—</div>
+      <div class="rev-cell" id="r-sub-ann">—</div>
+    </div>
+
+    <div class="rev-stream">
+      <div>
+        <div class="stream-name">Company Research Reports</div>
+        <div class="stream-desc">Deep-dive PDF reports sold per company — €149–399 one-time</div>
+        <span class="stream-badge badge-m6">Month 6+</span>
+      </div>
+      <div class="rev-cell zero">€0</div>
+      <div class="rev-cell zero">€0</div>
+      <div class="rev-cell highlight" id="r-rep-m12">—</div>
+      <div class="rev-cell" id="r-rep-ann">—</div>
+    </div>
+
+    <div class="rev-stream">
+      <div>
+        <div class="stream-name">Enterprise Data Licensing</div>
+        <div class="stream-desc">Structured signal data feed for hedge funds, ESG platforms — €500–2000/mo</div>
+        <span class="stream-badge badge-m12">Month 12+</span>
+      </div>
+      <div class="rev-cell zero">€0</div>
+      <div class="rev-cell zero">€0</div>
+      <div class="rev-cell zero">€0</div>
+      <div class="rev-cell zero">€0</div>
+    </div>
+
+    <div class="rev-total">
+      <div class="total-label">Total Monthly Revenue</div>
+      <div class="total-value" id="t-m1">—</div>
+      <div class="total-value" id="t-m6">—</div>
+      <div class="total-value green" id="t-m12">—</div>
+      <div class="total-value green" id="t-ann">—</div>
+    </div>
+  </div>
+
+  <!-- COSTS -->
+  <div class="section-label">
+    <span class="section-label-text">Monthly operating costs</span>
+    <div class="section-label-rule"></div>
+  </div>
+
+  <div class="cost-table">
+    <div class="cost-row header">
+      <span style="font-family:'JetBrains Mono',monospace;font-size:.55rem;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-muted);">Cost Item</span>
+      <span style="font-family:'JetBrains Mono',monospace;font-size:.55rem;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-muted);text-align:right;">Monthly</span>
+      <span style="font-family:'JetBrains Mono',monospace;font-size:.55rem;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-muted);text-align:right;">Annual</span>
+    </div>
+    <div class="cost-row">
+      <div>
+        <div class="cost-label">Claude API (agent research)</div>
+        <div class="cost-note" id="c-api-note">24 companies × ~€1.50 avg</div>
+      </div>
+      <div class="cost-monthly" id="c-api">—</div>
+      <div class="cost-annual" id="c-api-ann">—</div>
+    </div>
+    <div class="cost-row">
+      <div>
+        <div class="cost-label">Supabase</div>
+        <div class="cost-note">Free tier up to ~50k rows; Pro at €25/mo if you scale</div>
+      </div>
+      <div class="cost-monthly" id="c-db">€0–25</div>
+      <div class="cost-annual">€0–300</div>
+    </div>
+    <div class="cost-row">
+      <div>
+        <div class="cost-label">Hosting (Vercel / Netlify)</div>
+        <div class="cost-note">Static site + serverless functions; free tier sufficient early on</div>
+      </div>
+      <div class="cost-monthly">€0–20</div>
+      <div class="cost-annual">€0–240</div>
+    </div>
+    <div class="cost-row">
+      <div>
+        <div class="cost-label">Domain + Email</div>
+        <div class="cost-note">promisetrack.com + transactional email (Resend free tier)</div>
+      </div>
+      <div class="cost-monthly">~€3</div>
+      <div class="cost-annual">~€36</div>
+    </div>
+    <div class="cost-row">
+      <div>
+        <div class="cost-label">Your time (opportunity cost)</div>
+        <div class="cost-note" id="c-time-note">~3 hrs/mo review + 2 hrs onboarding new companies</div>
+      </div>
+      <div class="cost-monthly" style="color:var(--ink-faint);">Not counted</div>
+      <div class="cost-annual" style="color:var(--ink-faint);">Not counted</div>
+    </div>
+    <div class="cost-row total-row">
+      <div class="cost-label" style="font-weight:600;">Total Cash Cost</div>
+      <div class="cost-monthly" id="c-total" style="font-family:'Playfair Display',serif;font-size:1rem;font-weight:700;color:var(--ink);">—</div>
+      <div class="cost-annual" id="c-total-ann" style="font-family:'Playfair Display',serif;font-size:.95rem;font-weight:700;color:var(--ink);">—</div>
+    </div>
+  </div>
+
+  <!-- BREAKEVEN CHART -->
+  <div class="section-label">
+    <span class="section-label-text">Monthly P&L trajectory</span>
+    <div class="section-label-rule"></div>
+  </div>
+
+  <div class="breakeven-panel">
+    <div class="breakeven-inner">
+      <div class="breakeven-title">Revenue minus costs — month by month</div>
+      <div class="pnl-chart" id="pnlChart"></div>
+      <div class="pnl-zero-line"></div>
+      <div class="breakeven-stats">
+        <div class="be-stat">
+          <div class="be-num gold" id="be-month">Mo. 8</div>
+          <div class="be-label">Breakeven Month</div>
+        </div>
+        <div class="be-stat">
+          <div class="be-num" id="be-deficit">—</div>
+          <div class="be-label">Total Pre-Breakeven Cost</div>
+        </div>
+        <div class="be-stat">
+          <div class="be-num green" id="be-yr1">—</div>
+          <div class="be-label">Year 1 Net Result</div>
+        </div>
+        <div class="be-stat">
+          <div class="be-num green" id="be-yr2">—</div>
+          <div class="be-label">Year 2 Projection</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- STREAM DEEP DIVES -->
+  <div class="section-label">
+    <span class="section-label-text">Revenue stream mechanics</span>
+    <div class="section-label-rule"></div>
+  </div>
+
+  <div class="stream-detail-grid">
+    <div class="stream-card now">
+      <div class="sc-header">
+        <div class="sc-title">Display Advertising</div>
+        <span class="stream-badge badge-now sc-when">Start now</span>
+      </div>
+      <p class="sc-desc">The lowest effort, lowest reward stream — but it starts on day one. Use Carbon Ads or EthicalAds: no surveillance tracking, professional B2B audience targeting, self-serve. Fits perfectly with the editorial brand.</p>
+      <div class="sc-mechanics">
+        <div class="sc-mech-label">How to activate</div>
+        <div class="sc-mech-item">Sign up at carbonads.net or ethicalads.io — approval takes 1–3 days</div>
+        <div class="sc-mech-item">Add one script tag to the site — done</div>
+        <div class="sc-mech-item">Place: right rail (desktop), mid-content strip, footer leaderboard</div>
+      </div>
+      <div class="sc-numbers">
+        <div class="sc-num-item">
+          <div class="sc-num-value" id="sd-ads-impr">—</div>
+          <div class="sc-num-label">Impressions/mo</div>
+        </div>
+        <div class="sc-num-item">
+          <div class="sc-num-value" id="sd-ads-rev">—</div>
+          <div class="sc-num-label">Mo. 12 revenue</div>
+        </div>
+        <div class="sc-num-item">
+          <div class="sc-num-value">~€12</div>
+          <div class="sc-num-label">Realistic CPM</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="stream-card m3">
+      <div class="sc-header">
+        <div class="sc-title">Direct Sponsorship</div>
+        <span class="stream-badge badge-m3 sc-when">Month 3+</span>
+      </div>
+      <p class="sc-desc">One or two sponsors per month — a dedicated sponsor card styled to match the editorial look. Target: pharma intelligence providers, IR software, ESG data platforms, management consultancies. €300–800/month per sponsor is realistic for a specialist B2B audience of 8–15k/mo.</p>
+      <div class="sc-mechanics">
+        <div class="sc-mech-label">How to sell it</div>
+        <div class="sc-mech-item">Cold email: "We track 24 pharma/corporate strategists' commitments — your audience"</div>
+        <div class="sc-mech-item">Target: EvaluatePharma, Citeline, GlobalData, Informa Connect, McKinsey/BCG/Bain event arms</div>
+        <div class="sc-mech-item">Offer: logo + 300×250 card + one native text unit — €350/mo flat rate</div>
+      </div>
+      <div class="sc-numbers">
+        <div class="sc-num-item">
+          <div class="sc-num-value">1–2</div>
+          <div class="sc-num-label">Sponsors/mo</div>
+        </div>
+        <div class="sc-num-item">
+          <div class="sc-num-value" id="sd-spon-rev">—</div>
+          <div class="sc-num-label">Mo. 12 revenue</div>
+        </div>
+        <div class="sc-num-item">
+          <div class="sc-num-value">€350</div>
+          <div class="sc-num-label">Per sponsor</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="stream-card m6">
+      <div class="sc-header">
+        <div class="sc-title">Premium Subscriptions</div>
+        <span class="stream-badge badge-m6 sc-when">Month 6+</span>
+      </div>
+      <p class="sc-desc">The highest-value stream per user. Gate: full evidence records (the drawer content), email alerts when an objective status changes, API access, and early access to new companies. Free tier: summary cards only. Use Stripe + a simple paywall.</p>
+      <div class="sc-mechanics">
+        <div class="sc-mech-label">What's behind the gate</div>
+        <div class="sc-mech-item">Full evidence drawer with sourced excerpts and agent reasoning</div>
+        <div class="sc-mech-item">Email alert: "Volkswagen just had an objective move to Graveyard"</div>
+        <div class="sc-mech-item">CSV/JSON export of signal history for any company</div>
+        <div class="sc-mech-item">Graveyard entries for all companies (free: only current company)</div>
+      </div>
+      <div class="sc-numbers">
+        <div class="sc-num-item">
+          <div class="sc-num-value" id="sd-sub-count">—</div>
+          <div class="sc-num-label">Subscribers</div>
+        </div>
+        <div class="sc-num-item">
+          <div class="sc-num-value" id="sd-sub-rev">—</div>
+          <div class="sc-num-label">Mo. 12 revenue</div>
+        </div>
+        <div class="sc-num-item">
+          <div class="sc-num-value" id="sd-sub-price">—</div>
+          <div class="sc-num-label">Per month</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="stream-card m6">
+      <div class="sc-header">
+        <div class="sc-title">Company Research Reports</div>
+        <span class="stream-badge badge-m6 sc-when">Month 6+</span>
+      </div>
+      <p class="sc-desc">Deep-dive PDF reports: the full narrative of a company's strategic evolution — all objectives, all signals, graveyard analysis, editorial verdict. Sold one-time. Your best content, packaged. IR teams, analysts, and consultancies will pay €149–399 for a well-produced report on a company they cover.</p>
+      <div class="sc-mechanics">
+        <div class="sc-mech-label">Production approach</div>
+        <div class="sc-mech-item">Generate from database + Claude — 80% automated, 20% editorial polish</div>
+        <div class="sc-mech-item">Sell via Gumroad or direct Stripe — no storefront needed early on</div>
+        <div class="sc-mech-item">Target: 2–4 reports/month at €199 each = €400–800/mo at low volume</div>
+      </div>
+      <div class="sc-numbers">
+        <div class="sc-num-item">
+          <div class="sc-num-value">2–4</div>
+          <div class="sc-num-label">Sales/month</div>
+        </div>
+        <div class="sc-num-item">
+          <div class="sc-num-value" id="sd-rep-rev">—</div>
+          <div class="sc-num-label">Mo. 12 revenue</div>
+        </div>
+        <div class="sc-num-item">
+          <div class="sc-num-value">€199</div>
+          <div class="sc-num-label">Per report</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- RISKS -->
+  <div class="section-label">
+    <span class="section-label-text">Risks and mitigations</span>
+    <div class="section-label-rule"></div>
+  </div>
+
+  <div class="risk-table">
+    <div class="risk-row header">
+      <span style="font-family:'JetBrains Mono',monospace;font-size:.55rem;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-muted);">Risk</span>
+      <span style="font-family:'JetBrains Mono',monospace;font-size:.55rem;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-muted);">Level</span>
+      <span style="font-family:'JetBrains Mono',monospace;font-size:.55rem;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-muted);">Mitigation</span>
+    </div>
+    <div class="risk-row">
+      <div>
+        <div class="risk-name">Traffic never materialises</div>
+        <div style="font-size:.7rem;color:var(--ink-muted);margin-top:.1rem;">SEO takes 6–12 months; niche audiences are hard to find</div>
+      </div>
+      <span class="risk-level high">High</span>
+      <div class="risk-mitigation">Publish on LinkedIn and Substack from day one. Each graveyard entry is a shareable story. One good viral post can drive 6 months of organic growth.</div>
+    </div>
+    <div class="risk-row">
+      <div>
+        <div class="risk-name">Legal challenge from tracked companies</div>
+        <div style="font-size:.7rem;color:var(--ink-muted);margin-top:.1rem;">Companies may push back on unflattering classifications</div>
+      </div>
+      <span class="risk-level med">Medium</span>
+      <div class="risk-mitigation">Every classification sourced from public documents. Editorial commentary clearly labeled as opinion. "Public sources only" principle is both ethically correct and legally protective.</div>
+    </div>
+    <div class="risk-row">
+      <div>
+        <div class="risk-name">Agent classification quality degrades</div>
+        <div style="font-size:.7rem;color:var(--ink-muted);margin-top:.1rem;">At scale, human review becomes a bottleneck</div>
+      </div>
+      <span class="risk-level med">Medium</span>
+      <div class="risk-mitigation">Human-in-the-loop is non-negotiable. Auto-approve only signals with confidence ≥9. At 50 companies, budget 4–6 hrs/month for review — or hire a part-time researcher.</div>
+    </div>
+    <div class="risk-row">
+      <div>
+        <div class="risk-name">Subscription conversion stays below 0.5%</div>
+        <div style="font-size:.7rem;color:var(--ink-muted);margin-top:.1rem;">Paywall friction kills conversion for casual visitors</div>
+      </div>
+      <span class="risk-level med">Medium</span>
+      <div class="risk-mitigation">Gate only the deepest content (evidence drawers, exports). The public landing page and card grid remain free forever. Free value must be undeniable before asking for payment.</div>
+    </div>
+    <div class="risk-row">
+      <div>
+        <div class="risk-name">Your time cost is underestimated</div>
+        <div style="font-size:.7rem;color:var(--ink-muted);margin-top:.1rem;">At 24 companies this is a side project. At 50 it's a job.</div>
+      </div>
+      <span class="risk-level low">Low now</span>
+      <div class="risk-mitigation">Keep companies tracked below 30 until revenue covers a part-time researcher. The agent does 90% — your job is editorial judgment, not research.</div>
+    </div>
+  </div>
+
+  <!-- ROADMAP -->
+  <div class="section-label">
+    <span class="section-label-text">Path to self-finance</span>
+    <div class="section-label-rule"></div>
+  </div>
+
+  <div class="roadmap">
+    <div class="roadmap-item now">
+      <div class="rm-period">Now — Month 2</div>
+      <div class="rm-title">Launch with what you have. Publish. Share.</div>
+      <div class="rm-desc">The Sandoz page is good enough to go live. Add 3–4 more companies (VW, BP, Roche — high-interest names). Apply for Carbon Ads. Post every graveyard entry on LinkedIn with a one-paragraph editorial take. The content is the distribution engine.</div>
+      <div class="rm-revenue">Revenue target: €50–150/mo (ads only)</div>
+    </div>
+    <div class="roadmap-item m3">
+      <div class="rm-period">Month 3–5</div>
+      <div class="rm-title">Land the first direct sponsor. Reach 3,000 monthly visitors.</div>
+      <div class="rm-desc">One cold email campaign to 20 pharma/finance data providers. Offer a 30-day sponsored slot at €300 to prove the audience. Build an email list — even 200 subscribers who open your monthly signal digest is enough to show traction.</div>
+      <div class="rm-revenue">Revenue target: €300–600/mo</div>
+    </div>
+    <div class="roadmap-item m6">
+      <div class="rm-period">Month 6</div>
+      <div class="rm-title">Launch the paywall. Sell the first report.</div>
+      <div class="rm-desc">Gate the evidence drawers and graveyard full records behind a €29/mo subscription. Sell the first deep-dive report on whichever company has the most graveyard entries (VW or BP — they write themselves). Stripe in an afternoon.</div>
+      <div class="rm-revenue">Revenue target: €800–1,400/mo</div>
+    </div>
+    <div class="roadmap-item m12">
+      <div class="rm-period">Month 12</div>
+      <div class="rm-title">Self-financing. Time-cost covered. Optionally: first hire.</div>
+      <div class="rm-desc">With 8,000 visitors, 2 sponsors, ~96 subscribers, and 2–3 report sales per month: €1,500–2,500/mo in revenue against €50–90/mo in cash costs. Solidly self-financing. The question at this point is whether to grow or stay small and clean.</div>
+      <div class="rm-revenue" id="rm-yr1-target">Revenue target: €1,500–2,500/mo</div>
+    </div>
+  </div>
+
+  <!-- VERDICT -->
+  <div class="verdict">
+    <div class="verdict-label">Honest Assessment</div>
+    <p class="verdict-text">
+      "PromiseTrack can absolutely self-finance — but not in month three, and not by accident."
+    </p>
+    <p class="verdict-subtext">
+      The economics are fundamentally sound: niche B2B editorial commands premium ad rates and converts to subscriptions at reasonable rates. The database and agent costs are negligible. The real cost is your time and the patience required for organic search traffic to compound.<br><br>
+      The worst-case scenario at realistic assumptions: you spend €600–900 in API and hosting costs over 12 months before breaking even, and you get back a research platform that runs itself and generates €1,500–2,500/mo in year two — on a topic you find professionally valuable anyway. The downside is bounded. The upside, if the content lands with the right audience, is not.
+    </p>
+  </div>
+
+</div><!-- /page -->
+
+<script>
+const fmt = (n) => '€' + Math.round(n).toLocaleString();
+
+function setScenario(s) {
+  document.querySelectorAll('.scen-tab').forEach(t => t.classList.remove('active'));
+  event.target.classList.add('active');
+  const presets = {
+    conservative: { visitors:3000, companies:12, price:19, conv:0.5, cpm:8, impr:1.8 },
+    realistic:    { visitors:8000, companies:24, price:29, conv:1.2, cpm:12, impr:2.1 },
+    optimistic:   { visitors:20000, companies:50, price:39, conv:2.5, cpm:18, impr:2.8 },
+  };
+  const p = presets[s];
+  document.getElementById('sl-visitors').value  = p.visitors;
+  document.getElementById('sl-companies').value = p.companies;
+  document.getElementById('sl-price').value     = p.price;
+  document.getElementById('sl-conv').value      = p.conv;
+  document.getElementById('sl-cpm').value       = p.cpm;
+  document.getElementById('sl-impr').value      = p.impr;
+  update();
+}
+
+function update() {
+  const visitors  = +document.getElementById('sl-visitors').value;
+  const companies = +document.getElementById('sl-companies').value;
+  const price     = +document.getElementById('sl-price').value;
+  const convPct   = +document.getElementById('sl-conv').value;
+  const cpm       = +document.getElementById('sl-cpm').value;
+  const impr      = +document.getElementById('sl-impr').value;
+
+  // Update display values
+  document.getElementById('v-visitors').innerHTML  = visitors.toLocaleString() + ' <span>/ mo</span>';
+  document.getElementById('v-companies').innerHTML = companies + ' <span>cos</span>';
+  document.getElementById('v-price').innerHTML     = '€' + price + ' <span>/ mo</span>';
+  document.getElementById('v-conv').innerHTML      = convPct.toFixed(1) + ' <span>%</span>';
+  document.getElementById('v-cpm').innerHTML       = '€' + cpm + ' <span>CPM</span>';
+  document.getElementById('v-impr').innerHTML      = impr.toFixed(1) + ' <span>pages</span>';
+
+  // ── REVENUE CALCS ──────────────────────────────────────────
+  // Ads: visitors × pages_per_visit × CPM / 1000
+  // Traffic ramp: mo1=15%, mo6=55%, mo12=100%
+  const adsM12  = visitors * impr * (cpm / 1000);
+  const adsM6   = adsM12 * 0.55;
+  const adsM1   = adsM12 * 0.15;
+  const adsAnn  = adsM1 + adsM6 * 2 + adsM12 * 9; // rough annual
+
+  // Sponsorship: 1 sponsor @ €350 from mo3, 2 from mo8
+  const sponM6  = 350;
+  const sponM12 = visitors >= 6000 ? 700 : 350;
+  const sponAnn = sponM6 * 4 + sponM12 * 6;
+
+  // Subscriptions: starts mo6, conv% of mo12 visitors by mo12
+  const subCount = Math.round(visitors * (convPct / 100));
+  const subM12   = subCount * price;
+  const subAnn   = subM12 * 7; // 6 months of ramp
+
+  // Reports: 2–4/mo at €199
+  const repM12  = 3 * 199;
+  const repAnn  = repM12 * 7;
+
+  // Totals
+  const totalM1  = adsM1;
+  const totalM6  = adsM6 + sponM6;
+  const totalM12 = adsM12 + sponM12 + subM12 + repM12;
+  const totalAnn = adsAnn + sponAnn + subAnn + repAnn;
+
+  // ── COSTS ──────────────────────────────────────────────────
+  const apiCost    = companies * 1.5;
+  const fixedCosts = 28; // db + hosting + domain
+  const totalCost  = apiCost + fixedCosts;
+
+  // ── UPDATE DOM ──────────────────────────────────────────────
+  document.getElementById('r-ads-m1').textContent   = fmt(adsM1);
+  document.getElementById('r-ads-m6').textContent   = fmt(adsM6);
+  document.getElementById('r-ads-m12').textContent  = fmt(adsM12);
+  document.getElementById('r-ads-ann').textContent  = fmt(adsAnn);
+
+  document.getElementById('r-spon-m6').textContent  = fmt(sponM6);
+  document.getElementById('r-spon-m12').textContent = fmt(sponM12);
+  document.getElementById('r-spon-ann').textContent = fmt(sponAnn);
+
+  document.getElementById('r-sub-m12').textContent  = fmt(subM12);
+  document.getElementById('r-sub-ann').textContent  = fmt(subAnn);
+
+  document.getElementById('r-rep-m12').textContent  = fmt(repM12);
+  document.getElementById('r-rep-ann').textContent  = fmt(repAnn);
+
+  document.getElementById('t-m1').textContent   = fmt(totalM1);
+  document.getElementById('t-m6').textContent   = fmt(totalM6);
+  document.getElementById('t-m12').textContent  = fmt(totalM12);
+  document.getElementById('t-ann').textContent  = fmt(totalAnn);
+
+  document.getElementById('c-api').textContent      = fmt(apiCost);
+  document.getElementById('c-api-ann').textContent  = fmt(apiCost * 12);
+  document.getElementById('c-api-note').textContent = `${companies} companies × ~€1.50 avg`;
+  document.getElementById('c-total').textContent    = fmt(totalCost);
+  document.getElementById('c-total-ann').textContent = fmt(totalCost * 12);
+
+  // ── STREAM DETAIL ──────────────────────────────────────────
+  document.getElementById('sd-ads-impr').textContent = Math.round(visitors * impr / 1000) + 'k';
+  document.getElementById('sd-ads-rev').textContent  = fmt(adsM12);
+  document.getElementById('sd-spon-rev').textContent = fmt(sponM12);
+  document.getElementById('sd-sub-count').textContent = subCount;
+  document.getElementById('sd-sub-rev').textContent  = fmt(subM12);
+  document.getElementById('sd-sub-price').textContent = '€' + price;
+  document.getElementById('sd-rep-rev').textContent  = fmt(repM12);
+
+  // ── P&L CHART ──────────────────────────────────────────────
+  // Build 18-month P&L array
+  const months = 18;
+  const pnl = [];
+  for (let m = 1; m <= months; m++) {
+    const ramp  = Math.min(m / 12, 1);
+    const mAds  = adsM12 * (m <= 1 ? 0.15 : m <= 3 ? 0.25 : m <= 6 ? 0.55 : ramp);
+    const mSpon = m < 3 ? 0 : m < 8 ? sponM6 : sponM12;
+    const mSub  = m < 6 ? 0 : subM12 * ((m - 5) / 7);
+    const mRep  = m < 6 ? 0 : repM12 * ((m - 5) / 7);
+    const rev   = mAds + mSpon + mSub + mRep;
+    const cost  = totalCost;
+    pnl.push(Math.round(rev - cost));
+  }
+
+  // Find breakeven
+  const beMonth = pnl.findIndex(v => v > 0);
+  const deficit = pnl.slice(0, beMonth >= 0 ? beMonth : months)
+    .filter(v => v < 0).reduce((a, b) => a + b, 0);
+  const yr1net  = pnl.slice(0, 12).reduce((a, b) => a + b, 0);
+  const yr2net  = pnl.slice(12).reduce((a, b) => a + b, 0) + totalM12 * 6;
+
+  document.getElementById('be-month').textContent   = beMonth >= 0 ? 'Mo. ' + (beMonth + 1) : 'Mo. 18+';
+  document.getElementById('be-deficit').textContent = fmt(Math.abs(deficit));
+  document.getElementById('be-yr1').textContent     = (yr1net >= 0 ? '+' : '') + fmt(yr1net);
+  document.getElementById('be-yr2').textContent     = '+' + fmt(Math.max(yr2net, 0));
+
+  // Render bars
+  const maxAbs = Math.max(...pnl.map(Math.abs), 100);
+  const chartEl = document.getElementById('pnlChart');
+  chartEl.innerHTML = pnl.map((v, i) => {
+    const pct = Math.abs(v) / maxAbs * 100;
+    const cls = v > 0 ? 'positive' : v < 0 ? 'negative' : 'zero';
+    const label = i < 12 ? 'M' + (i + 1) : '';
+    return `<div class="pnl-bar-wrap">
+      <div class="pnl-bar ${cls}" style="height:${Math.max(pct, 2)}%"></div>
+      <div class="pnl-month">${label}</div>
+    </div>`;
+  }).join('');
+
+  // Update time note
+  const reviewHrs = Math.ceil(companies * 0.25);
+  document.getElementById('c-time-note').textContent =
+    `~${reviewHrs} hrs/mo review + ~2 hrs onboarding new companies`;
+}
+
+// Init
+update();
+</script>
+</body>
+</html>

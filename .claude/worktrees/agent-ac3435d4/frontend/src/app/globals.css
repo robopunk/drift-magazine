@@ -1,0 +1,97 @@
+@import "tailwindcss";
+@config "../../tailwind.config.ts";
+
+@layer base {
+  :root {
+    --background: #f0f8ff;
+    --card: #ffffff;
+    --muted: #f3f4f6;
+    --accent: #d1fae5;
+    --secondary: #e0f2fe;
+    --border: #e5e7eb;
+    --input: #e5e7eb;
+    --primary: #22c55e;
+    --ring: #22c55e;
+    --foreground: #374151;
+    --muted-foreground: #6b7280;
+    --card-foreground: #374151;
+    --primary-foreground: #ffffff;
+    --secondary-foreground: #4b5563;
+    --destructive: #ef4444;
+    --destructive-foreground: #ffffff;
+
+    /* Momentum spectrum */
+    --momentum-orbit: #059669;
+    --momentum-fly: #16a34a;
+    --momentum-run: #65a30d;
+    --momentum-walk: #ca8a04;
+    --momentum-watch: #d97706;
+    --momentum-crawl: #ea580c;
+    --momentum-drag: #dc2626;
+    --momentum-sink: #b91c1c;
+    --momentum-buried: #78716c;
+
+    /* Status semantic */
+    --status-active: #22c55e;
+    --status-watch: #d97706;
+    --status-drifting: #ea580c;
+    --status-dropped: #dc2626;
+    --status-morphed: #3b82f6;
+
+    /* Exit manner */
+    --exit-silent: #ef4444;
+    --exit-morphed: #3b82f6;
+    --exit-phased: #f59e0b;
+    --exit-transparent: #22c55e;
+
+    /* Forced dark surfaces (masthead/footer) */
+    --forced-dark-bg: #0f172a;
+    --forced-dark-card: #1e293b;
+    --forced-dark-text: #d1d5db;
+    --forced-dark-accent: #34d399;
+
+    /* Timeline background zones */
+    --timeline-zone-above: #f8fdf9;
+    --timeline-zone-below: #fefcf8;
+
+    /* Timeline cadence dots */
+    --timeline-cadence-dot: #d1d5db;
+  }
+
+  .dark {
+    --background: #0f172a;
+    --card: #1e293b;
+    --muted: #1e293b;
+    --accent: #374151;
+    --secondary: #2d3748;
+    --border: #4b5563;
+    --input: #4b5563;
+    --primary: #34d399;
+    --ring: #34d399;
+    --foreground: #d1d5db;
+    --muted-foreground: #6b7280;
+    --card-foreground: #d1d5db;
+    --primary-foreground: #0f172a;
+    --secondary-foreground: #a1a1aa;
+    --destructive: #ef4444;
+    --destructive-foreground: #0f172a;
+    --timeline-zone-above: rgba(34, 197, 94, 0.03);
+    --timeline-zone-below: rgba(245, 158, 11, 0.03);
+    --timeline-cadence-dot: #4b5563;
+  }
+
+  * {
+    border-color: var(--border);
+  }
+
+  body {
+    background-color: var(--background);
+    color: var(--foreground);
+  }
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-3px); }
+  75% { transform: translateX(3px); }
+}

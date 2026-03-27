@@ -1,0 +1,2917 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PromiseTrack — Sandoz · The Golden Decade</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Source+Serif+4:ital,opsz,wght@0,8..60,300;0,8..60,400;0,8..60,600;1,8..60,300;1,8..60,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --parchment: #F6F1E7;
+    --parchment-dark: #EDE5D0;
+    --parchment-deeper: #E0D5BC;
+    --ink: #1C1917;
+    --ink-light: #44403C;
+    --ink-muted: #78716C;
+    --ink-faint: #A8A29E;
+    --gold: #A0782A;
+    --gold-light: #C4962E;
+    --gold-pale: #F0E6C8;
+    --status-active: #2D6A4F;
+    --status-active-bg: #D8F3DC;
+    --status-drift: #7B4F12;
+    --status-drift-bg: #FDE8C8;
+    --status-morphed: #1B4F72;
+    --status-morphed-bg: #D6EAF8;
+    --status-dropped: #6B1F1F;
+    --status-dropped-bg: #FADBD8;
+    --status-achieved: #1A3C34;
+    --status-achieved-bg: #A9DFBF;
+    --rule: #D4C9A8;
+    --shadow-sm: 0 1px 3px rgba(28,25,23,0.06), 0 1px 2px rgba(28,25,23,0.08);
+    --shadow-md: 0 4px 12px rgba(28,25,23,0.08), 0 2px 6px rgba(28,25,23,0.06);
+    --shadow-lg: 0 12px 32px rgba(28,25,23,0.12), 0 4px 12px rgba(28,25,23,0.08);
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { font-size: 16px; scroll-behavior: smooth; }
+
+  body {
+    background: var(--parchment);
+    color: var(--ink);
+    font-family: 'Source Serif 4', Georgia, serif;
+    font-weight: 300;
+    line-height: 1.6;
+    min-height: 100vh;
+  }
+
+  /* GRAIN TEXTURE OVERLAY */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 1000;
+    opacity: 0.4;
+  }
+
+  /* ── MASTHEAD ── */
+  .masthead {
+    background: var(--ink);
+    color: var(--parchment);
+    padding: 0 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 52px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    border-bottom: 2px solid var(--gold);
+  }
+
+  .masthead-brand {
+    display: flex;
+    align-items: baseline;
+    gap: 0.5rem;
+  }
+
+  .masthead-name {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.25rem;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    color: var(--parchment);
+  }
+
+  .masthead-name span {
+    color: var(--gold-light);
+  }
+
+  .masthead-tagline {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.6rem;
+    color: var(--ink-faint);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+
+  .masthead-nav {
+    display: flex;
+    gap: 1.5rem;
+    align-items: center;
+  }
+
+  .masthead-nav a {
+    font-family: 'Source Serif 4', serif;
+    font-size: 0.75rem;
+    color: var(--ink-faint);
+    text-decoration: none;
+    letter-spacing: 0.04em;
+    transition: color 0.2s;
+  }
+  .masthead-nav a:hover { color: var(--parchment); }
+
+  .masthead-date {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.65rem;
+    color: var(--ink-faint);
+    letter-spacing: 0.06em;
+  }
+
+  /* ── SIGNAL BAR ── */
+  .signal-bar {
+    background: var(--ink-light);
+    color: var(--parchment);
+    padding: 0.5rem 2rem;
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.06em;
+    border-bottom: 1px solid rgba(212,201,168,0.2);
+    overflow-x: auto;
+    white-space: nowrap;
+  }
+
+  .signal-item {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    opacity: 0.8;
+  }
+
+  .signal-label { color: var(--ink-faint); }
+  .signal-value { color: var(--parchment); font-weight: 500; }
+
+  .signal-dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    animation: pulse 2s infinite;
+  }
+  .signal-dot.live { background: #4ADE80; }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.4; }
+  }
+
+  .signal-divider {
+    width: 1px;
+    height: 14px;
+    background: rgba(212,201,168,0.2);
+  }
+
+  /* ── LAYOUT ── */
+  .layout {
+    display: grid;
+    grid-template-columns: 1fr 280px;
+    gap: 0;
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 0 1.5rem;
+    align-items: start;
+  }
+
+  /* ── MAIN CONTENT ── */
+  .main-content { padding: 2rem 2rem 2rem 0; min-width: 0; }
+
+  /* ── COMPANY HEADER ── */
+  .company-header {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    gap: 1.5rem;
+    align-items: start;
+    padding-bottom: 1.5rem;
+    border-bottom: 2px solid var(--rule);
+    margin-bottom: 2rem;
+    animation: fadeUp 0.6s ease both;
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .company-logo-mark {
+    width: 52px;
+    height: 52px;
+    background: var(--ink);
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Playfair Display', serif;
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--gold-light);
+    letter-spacing: -0.02em;
+    flex-shrink: 0;
+  }
+
+  .company-meta { min-width: 0; }
+
+  .company-name {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.75rem;
+    font-weight: 700;
+    line-height: 1.15;
+    letter-spacing: -0.03em;
+    color: var(--ink);
+  }
+
+  .company-initiative {
+    font-family: 'Playfair Display', serif;
+    font-size: 1rem;
+    font-style: italic;
+    color: var(--gold);
+    margin-top: 0.15rem;
+  }
+
+  .company-desc {
+    font-size: 0.8rem;
+    color: var(--ink-muted);
+    margin-top: 0.35rem;
+    line-height: 1.5;
+    max-width: 520px;
+  }
+
+  .company-stats {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    align-items: flex-end;
+    flex-shrink: 0;
+  }
+
+  .stat-pill {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+  }
+
+  .stat-number {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.4rem;
+    font-weight: 600;
+    color: var(--ink);
+    line-height: 1;
+  }
+
+  .stat-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.58rem;
+    color: var(--ink-faint);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-top: 0.1rem;
+  }
+
+  /* ── SECTION LABEL ── */
+  .section-label {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+  }
+
+  .section-label-text {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.62rem;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--ink-faint);
+  }
+
+  .section-label-rule {
+    flex: 1;
+    height: 1px;
+    background: var(--rule);
+  }
+
+  /* ── OBJECTIVE GRID ── */
+  .objective-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+    margin-bottom: 2rem;
+  }
+
+  /* ── OBJECTIVE CARD ── */
+  .obj-card {
+    background: white;
+    border: 1px solid var(--rule);
+    border-radius: 8px;
+    padding: 1.1rem;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    position: relative;
+    overflow: hidden;
+    animation: fadeUp 0.6s ease both;
+    box-shadow: var(--shadow-sm);
+  }
+
+  .obj-card:nth-child(1) { animation-delay: 0.05s; }
+  .obj-card:nth-child(2) { animation-delay: 0.1s; }
+  .obj-card:nth-child(3) { animation-delay: 0.15s; }
+  .obj-card:nth-child(4) { animation-delay: 0.2s; }
+  .obj-card:nth-child(5) { animation-delay: 0.25s; }
+  .obj-card:nth-child(6) { animation-delay: 0.3s; }
+
+  .obj-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    background: var(--status-color, var(--rule));
+    transition: height 0.25s ease;
+  }
+
+  .obj-card:hover {
+    box-shadow: var(--shadow-md);
+    transform: translateY(-2px);
+    border-color: var(--parchment-deeper);
+  }
+
+  .obj-card:hover::before { height: 4px; }
+
+  .obj-card.active { --status-color: var(--status-active); }
+  .obj-card.drift { --status-color: #C07A30; }
+  .obj-card.morphed { --status-color: #2874A6; }
+  .obj-card.dropped { --status-color: #922B21; }
+  .obj-card.achieved { --status-color: var(--status-active); }
+  .obj-card.watch { --status-color: var(--gold); }
+
+  .obj-card-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 0.6rem;
+  }
+
+  .obj-number {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.58rem;
+    color: var(--ink-faint);
+    letter-spacing: 0.08em;
+  }
+
+  .status-badge {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.55rem;
+    font-weight: 500;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    padding: 0.2rem 0.45rem;
+    border-radius: 3px;
+  }
+
+  .status-badge.active { background: var(--status-active-bg); color: var(--status-active); }
+  .status-badge.drift { background: var(--status-drift-bg); color: var(--status-drift); }
+  .status-badge.morphed { background: var(--status-morphed-bg); color: var(--status-morphed); }
+  .status-badge.dropped { background: var(--status-dropped-bg); color: var(--status-dropped); }
+  .status-badge.achieved { background: var(--status-achieved-bg); color: var(--status-achieved); }
+  .status-badge.watch { background: var(--gold-pale); color: var(--gold); }
+
+  .obj-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 0.95rem;
+    font-weight: 600;
+    line-height: 1.25;
+    color: var(--ink);
+    margin-bottom: 0.4rem;
+  }
+
+  .obj-subtitle {
+    font-size: 0.72rem;
+    color: var(--ink-muted);
+    line-height: 1.45;
+    margin-bottom: 0.75rem;
+  }
+
+  /* Mini timeline in card */
+  .mini-timeline {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    height: 24px;
+    margin-bottom: 0.65rem;
+    position: relative;
+  }
+
+  .mini-track {
+    position: absolute;
+    top: 50%;
+    left: 0; right: 0;
+    height: 2px;
+    background: var(--parchment-dark);
+    transform: translateY(-50%);
+  }
+
+  .mini-event {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    border: 2px solid white;
+    position: relative;
+    z-index: 1;
+    flex-shrink: 0;
+    cursor: default;
+  }
+
+  .mini-event.stated { background: var(--ink-muted); }
+  .mini-event.reinforced { background: var(--status-active); }
+  .mini-event.softened { background: #C07A30; }
+  .mini-event.dropped-ev { background: var(--status-dropped); }
+  .mini-event.morphed-ev { background: var(--status-morphed); }
+  .mini-event.achieved-ev { background: var(--status-active); }
+
+  .mini-spacer { flex: 1; }
+
+  .obj-card-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-top: 0.6rem;
+    border-top: 1px solid var(--parchment-dark);
+  }
+
+  .obj-momentum {
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+  }
+
+  .momentum-bar {
+    display: flex;
+    gap: 2px;
+  }
+
+  .momentum-seg {
+    width: 14px;
+    height: 4px;
+    border-radius: 2px;
+    background: var(--parchment-dark);
+    transition: background 0.3s;
+  }
+
+  .momentum-seg.filled { background: var(--gold); }
+  .momentum-seg.filled.high { background: var(--status-active); }
+  .momentum-seg.filled.low { background: #C07A30; }
+  .momentum-seg.filled.dead { background: var(--status-dropped); }
+
+  .momentum-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.55rem;
+    color: var(--ink-faint);
+    letter-spacing: 0.06em;
+  }
+
+  .obj-updated {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.55rem;
+    color: var(--ink-faint);
+    letter-spacing: 0.04em;
+  }
+
+  .obj-sources {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.55rem;
+    color: var(--ink-faint);
+    letter-spacing: 0.04em;
+  }
+
+  /* Evidence count */
+  .evidence-count {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.2rem;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.55rem;
+    color: var(--gold);
+    padding: 0.1rem 0.3rem;
+    border: 1px solid var(--gold-pale);
+    border-radius: 3px;
+    background: var(--gold-pale);
+  }
+
+  /* ── EVIDENCE DRAWER ── */
+  .evidence-drawer {
+    background: white;
+    border: 1px solid var(--rule);
+    border-radius: 8px;
+    margin-bottom: 1.5rem;
+    overflow: hidden;
+    box-shadow: var(--shadow-md);
+    display: none;
+    animation: slideDown 0.3s ease;
+  }
+
+  .evidence-drawer.open { display: block; }
+
+  @keyframes slideDown {
+    from { opacity: 0; transform: translateY(-8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .drawer-header {
+    background: var(--ink);
+    color: var(--parchment);
+    padding: 0.85rem 1.25rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .drawer-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 0.95rem;
+    font-weight: 600;
+    font-style: italic;
+  }
+
+  .drawer-close {
+    background: none;
+    border: none;
+    color: var(--ink-faint);
+    cursor: pointer;
+    font-size: 1rem;
+    line-height: 1;
+    padding: 0;
+    transition: color 0.2s;
+  }
+  .drawer-close:hover { color: var(--parchment); }
+
+  .drawer-body {
+    padding: 1.25rem;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.25rem;
+  }
+
+  /* Full timeline in drawer */
+  .full-timeline { grid-column: 1 / -1; }
+
+  .timeline-track {
+    position: relative;
+    padding-left: 1.5rem;
+  }
+
+  .timeline-track::before {
+    content: '';
+    position: absolute;
+    left: 6px;
+    top: 8px;
+    bottom: 8px;
+    width: 1px;
+    background: var(--rule);
+  }
+
+  .timeline-event {
+    position: relative;
+    margin-bottom: 1rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--parchment-dark);
+  }
+  .timeline-event:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
+
+  .timeline-event::before {
+    content: '';
+    position: absolute;
+    left: -1.2rem;
+    top: 6px;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    border: 2px solid white;
+    background: var(--ink-faint);
+  }
+
+  .timeline-event.ev-stated::before { background: var(--ink-muted); }
+  .timeline-event.ev-reinforced::before { background: var(--status-active); }
+  .timeline-event.ev-softened::before { background: #C07A30; }
+  .timeline-event.ev-achieved::before { background: var(--status-active); }
+
+  .ev-date {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.6rem;
+    color: var(--ink-faint);
+    letter-spacing: 0.06em;
+    margin-bottom: 0.2rem;
+  }
+
+  .ev-type {
+    display: inline-block;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.55rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    padding: 0.1rem 0.35rem;
+    border-radius: 3px;
+    margin-bottom: 0.3rem;
+  }
+
+  .ev-type.stated { background: var(--parchment-dark); color: var(--ink-muted); }
+  .ev-type.reinforced { background: var(--status-active-bg); color: var(--status-active); }
+  .ev-type.softened { background: var(--status-drift-bg); color: var(--status-drift); }
+  .ev-type.achieved { background: var(--status-achieved-bg); color: var(--status-achieved); }
+
+  .ev-source {
+    font-family: 'Source Serif 4', serif;
+    font-size: 0.72rem;
+    font-weight: 600;
+    color: var(--ink);
+    margin-bottom: 0.15rem;
+  }
+
+  .ev-quote {
+    font-size: 0.78rem;
+    color: var(--ink-light);
+    font-style: italic;
+    line-height: 1.55;
+    border-left: 2px solid var(--gold-pale);
+    padding-left: 0.6rem;
+  }
+
+  /* ── NARRATIVE SUMMARY ── */
+  .narrative-section { margin-bottom: 2rem; }
+
+  .narrative-card {
+    background: white;
+    border: 1px solid var(--rule);
+    border-radius: 8px;
+    padding: 1.25rem 1.5rem;
+    border-left: 4px solid var(--gold);
+    box-shadow: var(--shadow-sm);
+    animation: fadeUp 0.6s ease 0.35s both;
+  }
+
+  .narrative-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.58rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--gold);
+    margin-bottom: 0.5rem;
+  }
+
+  .narrative-text {
+    font-size: 0.85rem;
+    color: var(--ink-light);
+    line-height: 1.7;
+  }
+
+  .narrative-text strong {
+    font-weight: 600;
+    color: var(--ink);
+  }
+
+  /* ── SIDEBAR ── */
+  .sidebar {
+    padding: 2rem 0 2rem 1.5rem;
+    border-left: 1px solid var(--rule);
+    position: sticky;
+    top: 88px;
+    max-height: calc(100vh - 100px);
+    overflow-y: auto;
+  }
+
+  .sidebar-section { margin-bottom: 1.75rem; }
+
+  .sidebar-heading {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.58rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--ink-faint);
+    margin-bottom: 0.75rem;
+    padding-bottom: 0.4rem;
+    border-bottom: 1px solid var(--rule);
+  }
+
+  /* ── SPONSOR CARD ── */
+  .sponsor-card {
+    background: var(--parchment-dark);
+    border: 1px solid var(--parchment-deeper);
+    border-radius: 6px;
+    padding: 0.85rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .sponsor-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.52rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--ink-faint);
+    margin-bottom: 0.5rem;
+  }
+
+  .sponsor-name {
+    font-family: 'Playfair Display', serif;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--ink);
+    margin-bottom: 0.2rem;
+  }
+
+  .sponsor-desc {
+    font-size: 0.68rem;
+    color: var(--ink-muted);
+    line-height: 1.5;
+    margin-bottom: 0.5rem;
+  }
+
+  .sponsor-cta {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.6rem;
+    color: var(--gold);
+    text-decoration: none;
+    letter-spacing: 0.04em;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.2rem;
+  }
+
+  /* ── CONFIDENCE INDEX ── */
+  .confidence-meter {
+    margin-bottom: 1rem;
+  }
+
+  .conf-row {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.4rem;
+  }
+
+  .conf-label {
+    font-size: 0.68rem;
+    color: var(--ink-light);
+    width: 110px;
+    flex-shrink: 0;
+    line-height: 1.3;
+  }
+
+  .conf-track {
+    flex: 1;
+    height: 4px;
+    background: var(--parchment-dark);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+
+  .conf-fill {
+    height: 100%;
+    border-radius: 2px;
+    background: var(--gold);
+    transition: width 1s ease;
+  }
+
+  .conf-fill.high { background: var(--status-active); }
+  .conf-fill.med { background: var(--gold); }
+  .conf-fill.low { background: #C07A30; }
+
+  .conf-pct {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.58rem;
+    color: var(--ink-faint);
+    width: 28px;
+    text-align: right;
+  }
+
+  /* ── RECENT SIGNALS ── */
+  .signal-item-sidebar {
+    padding: 0.6rem 0;
+    border-bottom: 1px solid var(--parchment-dark);
+  }
+  .signal-item-sidebar:last-child { border-bottom: none; }
+
+  .signal-si-date {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.58rem;
+    color: var(--ink-faint);
+    margin-bottom: 0.15rem;
+  }
+
+  .signal-si-text {
+    font-size: 0.72rem;
+    color: var(--ink-light);
+    line-height: 1.45;
+  }
+
+  .signal-si-tag {
+    display: inline-block;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.5rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 0.1rem 0.3rem;
+    border-radius: 2px;
+    margin-top: 0.2rem;
+    background: var(--parchment-dark);
+    color: var(--ink-muted);
+  }
+
+  .signal-si-tag.positive { background: var(--status-active-bg); color: var(--status-active); }
+  .signal-si-tag.caution { background: var(--status-drift-bg); color: var(--status-drift); }
+
+  /* ── NATIVE AD ── */
+  .native-ad {
+    background: var(--parchment-dark);
+    border: 1px solid var(--parchment-deeper);
+    border-radius: 8px;
+    padding: 1rem 1.25rem;
+    margin: 1.5rem 0;
+    position: relative;
+    animation: fadeUp 0.6s ease 0.4s both;
+  }
+
+  .native-ad-label {
+    position: absolute;
+    top: -0.5rem;
+    left: 1rem;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.5rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    background: var(--parchment);
+    padding: 0 0.4rem;
+    color: var(--ink-faint);
+    border: 1px solid var(--rule);
+    border-radius: 2px;
+  }
+
+  .native-ad-content {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+  }
+
+  .native-ad-icon {
+    width: 36px;
+    height: 36px;
+    background: var(--ink);
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.65rem;
+    color: var(--gold-light);
+    font-weight: 500;
+  }
+
+  .native-ad-body {}
+
+  .native-ad-title {
+    font-family: 'Source Serif 4', serif;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--ink);
+    margin-bottom: 0.15rem;
+  }
+
+  .native-ad-text {
+    font-size: 0.7rem;
+    color: var(--ink-muted);
+    line-height: 1.4;
+  }
+
+  .native-ad-link {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.58rem;
+    color: var(--gold);
+    text-decoration: none;
+    margin-top: 0.3rem;
+    display: inline-block;
+    letter-spacing: 0.04em;
+  }
+
+  /* ── FOOTER ── */
+  footer {
+    background: var(--ink);
+    color: var(--ink-faint);
+    padding: 1.25rem 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.6rem;
+    letter-spacing: 0.06em;
+    border-top: 2px solid var(--gold);
+    margin-top: 2rem;
+  }
+
+  footer a { color: var(--ink-faint); text-decoration: none; }
+  footer a:hover { color: var(--parchment); }
+
+  .footer-ad {
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(212,201,168,0.15);
+    border-radius: 4px;
+    padding: 0.4rem 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+  }
+
+  .footer-ad-label {
+    font-size: 0.5rem;
+    color: rgba(212,201,168,0.3);
+  }
+
+  .footer-ad-text {
+    color: rgba(212,201,168,0.6);
+  }
+
+  /* ── STATUS LEGEND ── */
+  .legend {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+    margin-bottom: 1.25rem;
+    animation: fadeUp 0.6s ease 0.1s both;
+  }
+
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+  }
+
+  .legend-dot {
+    width: 8px; height: 8px;
+    border-radius: 2px;
+  }
+
+  .legend-text {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.58rem;
+    color: var(--ink-faint);
+    letter-spacing: 0.04em;
+  }
+
+  /* Tooltip */
+  [data-tip] {
+    position: relative;
+  }
+  [data-tip]:hover::after {
+    content: attr(data-tip);
+    position: absolute;
+    bottom: calc(100% + 4px);
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--ink);
+    color: var(--parchment);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.58rem;
+    padding: 0.2rem 0.5rem;
+    border-radius: 3px;
+    white-space: nowrap;
+    pointer-events: none;
+    z-index: 999;
+    letter-spacing: 0.04em;
+  }
+
+  /* Active card highlight */
+  .obj-card.expanded {
+    border-color: var(--gold);
+    box-shadow: var(--shadow-lg);
+  }
+
+  /* ── HAMBURGER BUTTON ── */
+  .nav-toggle {
+    display: none;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0.25rem;
+    flex-direction: column;
+    gap: 5px;
+    align-items: center;
+    justify-content: center;
+  }
+  .nav-toggle span {
+    display: block;
+    width: 20px;
+    height: 2px;
+    background: var(--ink-faint);
+    border-radius: 2px;
+    transition: all 0.25s ease;
+    transform-origin: center;
+  }
+  .nav-toggle.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+  .nav-toggle.open span:nth-child(2) { opacity: 0; transform: scaleX(0); }
+  .nav-toggle.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+  /* ── MOBILE NAV DRAWER ── */
+  .mobile-nav {
+    display: none;
+    position: fixed;
+    top: 52px;
+    left: 0; right: 0;
+    background: var(--ink);
+    border-bottom: 2px solid var(--gold);
+    z-index: 99;
+    flex-direction: column;
+    padding: 0.75rem 0;
+    animation: slideDown 0.2s ease;
+  }
+  .mobile-nav.open { display: flex; }
+  .mobile-nav a {
+    font-family: 'Source Serif 4', serif;
+    font-size: 0.9rem;
+    color: var(--ink-faint);
+    text-decoration: none;
+    padding: 0.65rem 1.5rem;
+    border-bottom: 1px solid rgba(212,201,168,0.08);
+    letter-spacing: 0.02em;
+    transition: color 0.2s, background 0.2s;
+  }
+  .mobile-nav a:last-child { border-bottom: none; }
+  .mobile-nav a:hover { color: var(--parchment); background: rgba(255,255,255,0.04); }
+
+  /* ── SIGNAL BAR SCROLL FADE ── */
+  .signal-bar-wrap {
+    position: relative;
+    overflow: hidden;
+  }
+  .signal-bar-wrap::after {
+    content: '';
+    position: absolute;
+    right: 0; top: 0; bottom: 0;
+    width: 3rem;
+    background: linear-gradient(to right, transparent, var(--ink-light));
+    pointer-events: none;
+  }
+
+  /* ── MOBILE CONFIDENCE STRIP ── */
+  .mobile-confidence {
+    display: none;
+    overflow-x: auto;
+    gap: 0.5rem;
+    padding: 0.75rem 1rem;
+    background: white;
+    border: 1px solid var(--rule);
+    border-radius: 8px;
+    margin-bottom: 1.25rem;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+  .mobile-confidence::-webkit-scrollbar { display: none; }
+
+  .mob-conf-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.35rem;
+    min-width: 72px;
+    flex-shrink: 0;
+  }
+  .mob-conf-ring {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.65rem;
+    font-weight: 500;
+    border: 3px solid var(--rule);
+    color: var(--ink-muted);
+    transition: border-color 0.3s;
+  }
+  .mob-conf-ring.high { border-color: var(--status-active); color: var(--status-active); }
+  .mob-conf-ring.med  { border-color: var(--gold); color: var(--gold); }
+  .mob-conf-ring.low  { border-color: #C07A30; color: #C07A30; }
+  .mob-conf-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.48rem;
+    color: var(--ink-faint);
+    text-align: center;
+    letter-spacing: 0.04em;
+    line-height: 1.3;
+    max-width: 64px;
+  }
+
+  /* ── BOTTOM SHEET (mobile evidence drawer) ── */
+  .bottom-sheet-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(28,25,23,0.5);
+    z-index: 200;
+    backdrop-filter: blur(2px);
+    -webkit-backdrop-filter: blur(2px);
+    animation: fadeIn 0.2s ease;
+  }
+  .bottom-sheet-overlay.open { display: block; }
+
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+
+  .bottom-sheet {
+    position: fixed;
+    bottom: 0; left: 0; right: 0;
+    background: white;
+    border-radius: 16px 16px 0 0;
+    z-index: 201;
+    max-height: 82vh;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    transform: translateY(100%);
+    transition: transform 0.35s cubic-bezier(0.32, 0.72, 0, 1);
+    overscroll-behavior: contain;
+  }
+  .bottom-sheet.open { transform: translateY(0); }
+
+  .bottom-sheet-handle {
+    display: flex;
+    justify-content: center;
+    padding: 0.75rem 0 0;
+  }
+  .bottom-sheet-handle::before {
+    content: '';
+    width: 36px;
+    height: 4px;
+    background: var(--parchment-deeper);
+    border-radius: 2px;
+  }
+
+  .bottom-sheet-header {
+    background: var(--ink);
+    padding: 0.85rem 1.25rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 0.5rem;
+  }
+  .bottom-sheet-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 0.88rem;
+    font-weight: 600;
+    font-style: italic;
+    color: var(--parchment);
+  }
+  .bottom-sheet-close {
+    background: none;
+    border: none;
+    color: var(--ink-faint);
+    cursor: pointer;
+    font-size: 1.1rem;
+    line-height: 1;
+    padding: 0.25rem;
+    min-width: 44px;
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .bottom-sheet-body {
+    padding: 1.25rem;
+  }
+
+  /* ── TOUCH TARGETS ── */
+  .obj-card { min-height: 44px; }
+  .drawer-close { min-width: 44px; min-height: 44px; display: flex; align-items: center; justify-content: center; }
+
+  /* ══════════════════════════════
+     RESPONSIVE BREAKPOINTS
+  ══════════════════════════════ */
+
+  /* ── TABLET: 1100px and below ── */
+  @media (max-width: 1100px) {
+    .layout {
+      grid-template-columns: 1fr;
+      padding: 0 1.25rem;
+    }
+    .main-content {
+      padding: 1.5rem 0;
+    }
+    .sidebar { display: none; }
+    .objective-grid { grid-template-columns: repeat(2, 1fr); }
+    .mobile-confidence { display: flex; }
+
+    /* Drawer stays inline on tablet — just full width */
+    .drawer-body {
+      grid-template-columns: 1fr;
+    }
+    .full-timeline { grid-column: 1; }
+  }
+
+  /* ── LARGE MOBILE: 768px and below ── */
+  @media (max-width: 768px) {
+    .masthead {
+      padding: 0 1rem;
+      height: 52px;
+    }
+    .masthead-tagline { display: none; }
+    .masthead-nav { display: none; }
+    .masthead-date { display: none; }
+    .nav-toggle { display: flex; }
+
+    .signal-bar {
+      padding: 0.45rem 1rem;
+      font-size: 0.6rem;
+      gap: 1rem;
+    }
+
+    .layout { padding: 0 1rem; }
+    .main-content { padding: 1.25rem 0; }
+
+    .company-header {
+      grid-template-columns: auto 1fr;
+      gap: 0.75rem;
+    }
+    .company-stats { display: none; }
+    .company-name { font-size: 1.4rem; }
+    .company-initiative { font-size: 0.88rem; }
+    .company-desc { font-size: 0.75rem; }
+
+    .narrative-card { padding: 1rem; }
+    .narrative-text { font-size: 0.82rem; }
+
+    .legend { gap: 0.6rem; }
+    .legend-text { font-size: 0.55rem; }
+
+    .objective-grid { grid-template-columns: repeat(2, 1fr); gap: 0.75rem; }
+
+    /* Evidence drawer becomes bottom sheet on mobile */
+    .evidence-drawer { display: none !important; }
+  }
+
+  /* ── SMALL MOBILE: 480px and below ── */
+  @media (max-width: 480px) {
+    .masthead-name { font-size: 1.1rem; }
+
+    .company-logo-mark { width: 44px; height: 44px; font-size: 0.95rem; }
+    .company-name { font-size: 1.25rem; }
+    .company-initiative { font-size: 0.82rem; }
+
+    .objective-grid { grid-template-columns: 1fr; gap: 0.65rem; }
+
+    .obj-card { padding: 0.9rem; }
+    .obj-title { font-size: 0.88rem; }
+    .obj-subtitle { font-size: 0.7rem; }
+
+    .legend {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0.4rem;
+    }
+
+    .native-ad-content { flex-direction: column; gap: 0.65rem; }
+    .native-ad-icon { width: 28px; height: 28px; font-size: 0.58rem; }
+
+    footer {
+      flex-direction: column;
+      gap: 0.75rem;
+      text-align: center;
+      padding: 1rem;
+    }
+    .footer-ad { width: 100%; justify-content: center; }
+  }
+
+  /* ── VERY SMALL: 360px and below ── */
+  @media (max-width: 360px) {
+    .masthead { padding: 0 0.75rem; }
+    .layout { padding: 0 0.75rem; }
+    .signal-bar { padding: 0.4rem 0.75rem; }
+    .obj-card { padding: 0.75rem; }
+    .company-name { font-size: 1.1rem; }
+  }
+
+  /* ── SAFE AREA (notched phones) ── */
+  @supports (padding-bottom: env(safe-area-inset-bottom)) {
+    .bottom-sheet {
+      padding-bottom: env(safe-area-inset-bottom);
+    }
+    footer {
+      padding-bottom: calc(1rem + env(safe-area-inset-bottom));
+    }
+  }
+
+  /* ══════════════════════════════════════
+     GRAVEYARD SECTION
+  ══════════════════════════════════════ */
+
+  .graveyard-section {
+    margin-top: 2.5rem;
+  }
+
+  .graveyard-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .graveyard-icon {
+    font-size: 1rem;
+    line-height: 1;
+    opacity: 0.5;
+  }
+
+  .graveyard-section-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.62rem;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--ink-faint);
+  }
+
+  .graveyard-rule { flex: 1; height: 1px; background: var(--rule); }
+
+  .graveyard-editorial {
+    font-size: 0.75rem;
+    color: var(--ink-muted);
+    font-style: italic;
+    margin-bottom: 1.5rem;
+    padding-left: 0.1rem;
+    line-height: 1.6;
+  }
+
+  /* The graveyard container — dark parchment field */
+  .graveyard-field {
+    background: #1C1917;
+    border-radius: 10px;
+    padding: 2rem 1.75rem;
+    position: relative;
+    overflow: hidden;
+  }
+
+  /* Subtle cross-hatch texture */
+  .graveyard-field::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image:
+      repeating-linear-gradient(
+        0deg,
+        transparent,
+        transparent 28px,
+        rgba(255,255,255,0.018) 28px,
+        rgba(255,255,255,0.018) 29px
+      ),
+      repeating-linear-gradient(
+        90deg,
+        transparent,
+        transparent 28px,
+        rgba(255,255,255,0.018) 28px,
+        rgba(255,255,255,0.018) 29px
+      );
+    pointer-events: none;
+  }
+
+  /* Atmospheric fog at bottom */
+  .graveyard-field::after {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 80px;
+    background: linear-gradient(to top, rgba(28,25,23,0.6), transparent);
+    pointer-events: none;
+  }
+
+  .graveyard-stones {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.25rem;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* ── GRAVESTONE CARD ── */
+  .gravestone {
+    display: flex;
+    flex-direction: column;
+    cursor: pointer;
+    position: relative;
+  }
+
+  /* The stone shape */
+  .stone-shape {
+    background: linear-gradient(160deg, #2C2825 0%, #211E1B 60%, #1A1714 100%);
+    border: 1px solid rgba(255,255,255,0.07);
+    border-radius: 50% 50% 4px 4px / 28px 28px 4px 4px;
+    padding: 1.1rem 0.9rem 0.9rem;
+    text-align: center;
+    position: relative;
+    transition: all 0.3s ease;
+    box-shadow:
+      0 4px 0 rgba(0,0,0,0.5),
+      0 6px 16px rgba(0,0,0,0.4),
+      inset 0 1px 0 rgba(255,255,255,0.05);
+  }
+
+  .gravestone:hover .stone-shape {
+    border-color: rgba(160,120,42,0.35);
+    box-shadow:
+      0 4px 0 rgba(0,0,0,0.5),
+      0 8px 24px rgba(0,0,0,0.5),
+      0 0 20px rgba(160,120,42,0.08),
+      inset 0 1px 0 rgba(255,255,255,0.06);
+    transform: translateY(-2px);
+  }
+
+  /* Chiselled cross/symbol at top */
+  .stone-symbol {
+    font-size: 0.9rem;
+    opacity: 0.25;
+    margin-bottom: 0.5rem;
+    line-height: 1;
+    color: var(--parchment);
+  }
+
+  .stone-obj-num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.5rem;
+    letter-spacing: 0.12em;
+    color: rgba(212,201,168,0.25);
+    text-transform: uppercase;
+    margin-bottom: 0.4rem;
+  }
+
+  .stone-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: rgba(246,241,231,0.75);
+    line-height: 1.25;
+    margin-bottom: 0.5rem;
+    letter-spacing: -0.01em;
+  }
+
+  /* Dates: birth–death */
+  .stone-dates {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.58rem;
+    color: rgba(212,201,168,0.4);
+    letter-spacing: 0.06em;
+    margin-bottom: 0.6rem;
+  }
+
+  .stone-epitaph {
+    font-size: 0.65rem;
+    font-style: italic;
+    color: rgba(212,201,168,0.35);
+    line-height: 1.5;
+    margin-bottom: 0.7rem;
+  }
+
+  /* How it was dropped — the key editorial signal */
+  .stone-manner {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    padding: 0.22rem 0.5rem;
+    border-radius: 3px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.52rem;
+    font-weight: 500;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    margin-bottom: 0;
+  }
+
+  .stone-manner.silent {
+    background: rgba(107,31,31,0.35);
+    color: #F4A0A0;
+    border: 1px solid rgba(107,31,31,0.5);
+  }
+  .stone-manner.morphed {
+    background: rgba(27,79,114,0.35);
+    color: #93C8F0;
+    border: 1px solid rgba(27,79,114,0.5);
+  }
+  .stone-manner.transparent {
+    background: rgba(45,106,79,0.3);
+    color: #7ED9A8;
+    border: 1px solid rgba(45,106,79,0.45);
+  }
+  .stone-manner.phased {
+    background: rgba(120,113,108,0.3);
+    color: #C8BDB5;
+    border: 1px solid rgba(120,113,108,0.4);
+  }
+
+  /* Grass base */
+  .stone-base {
+    height: 6px;
+    background: linear-gradient(to bottom, #2A3525, #1E2819);
+    border-radius: 0 0 3px 3px;
+    margin-top: 0;
+    position: relative;
+    overflow: visible;
+  }
+
+  /* Grass blades */
+  .stone-base::before,
+  .stone-base::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    width: 3px;
+    height: 8px;
+    background: #2A3525;
+    border-radius: 50% 50% 0 0;
+  }
+  .stone-base::before { left: 20%; transform: rotate(-8deg); }
+  .stone-base::after { right: 25%; transform: rotate(6deg); }
+
+  /* Expand indicator */
+  .stone-expand {
+    text-align: center;
+    margin-top: 0.5rem;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.52rem;
+    color: rgba(212,201,168,0.2);
+    letter-spacing: 0.06em;
+    transition: color 0.2s;
+  }
+  .gravestone:hover .stone-expand { color: rgba(212,201,168,0.5); }
+
+  /* ── GRAVEYARD RECORD PANEL ── */
+  .graveyard-record {
+    display: none;
+    margin-top: 1.25rem;
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.07);
+    border-radius: 8px;
+    overflow: hidden;
+    animation: slideDown 0.3s ease;
+    position: relative;
+    z-index: 1;
+    grid-column: 1 / -1;
+  }
+  .graveyard-record.open { display: block; }
+
+  .gr-header {
+    padding: 0.85rem 1.25rem;
+    background: rgba(255,255,255,0.03);
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .gr-header-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 0.88rem;
+    font-style: italic;
+    color: rgba(246,241,231,0.7);
+  }
+
+  .gr-close {
+    background: none;
+    border: none;
+    color: rgba(212,201,168,0.3);
+    cursor: pointer;
+    font-size: 1rem;
+    line-height: 1;
+    padding: 0.25rem;
+    min-width: 36px; min-height: 36px;
+    display: flex; align-items: center; justify-content: center;
+    transition: color 0.2s;
+  }
+  .gr-close:hover { color: rgba(246,241,231,0.7); }
+
+  .gr-body {
+    padding: 1.25rem;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+  }
+
+  .gr-col-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.56rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: rgba(212,201,168,0.3);
+    margin-bottom: 0.6rem;
+    padding-bottom: 0.35rem;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+  }
+
+  /* Death timeline in graveyard */
+  .gr-timeline { }
+
+  .gr-event {
+    padding: 0.6rem 0;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+    padding-left: 1rem;
+    position: relative;
+  }
+  .gr-event:last-child { border-bottom: none; }
+
+  .gr-event::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 10px;
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: rgba(212,201,168,0.2);
+  }
+
+  .gr-event.ev-active::before { background: rgba(125,211,152,0.5); }
+  .gr-event.ev-softening::before { background: rgba(251,191,36,0.5); }
+  .gr-event.ev-dropped::before { background: rgba(244,114,114,0.4); }
+  .gr-event.ev-morphed::before { background: rgba(96,165,250,0.5); }
+
+  .gr-event-date {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.55rem;
+    color: rgba(212,201,168,0.3);
+    margin-bottom: 0.15rem;
+  }
+
+  .gr-event-text {
+    font-size: 0.72rem;
+    color: rgba(246,241,231,0.55);
+    line-height: 1.5;
+  }
+
+  .gr-event-source {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.52rem;
+    color: rgba(212,201,168,0.2);
+    margin-top: 0.15rem;
+  }
+
+  /* Verdict panel */
+  .gr-verdict {
+    background: rgba(0,0,0,0.2);
+    border-radius: 6px;
+    padding: 0.9rem;
+    border: 1px solid rgba(255,255,255,0.04);
+  }
+
+  .gr-verdict-rating {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .gr-verdict-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.55rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: rgba(212,201,168,0.3);
+  }
+
+  .gr-transparency-score {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem;
+    font-weight: 500;
+    padding: 0.2rem 0.5rem;
+    border-radius: 3px;
+  }
+
+  .gr-transparency-score.very-low { background: rgba(107,31,31,0.4); color: #F4A0A0; }
+  .gr-transparency-score.low { background: rgba(146,67,31,0.4); color: #FDBA74; }
+  .gr-transparency-score.medium { background: rgba(113,88,18,0.4); color: #FDE68A; }
+  .gr-transparency-score.high { background: rgba(31,78,55,0.4); color: #6EE7B7; }
+
+  .gr-verdict-text {
+    font-size: 0.73rem;
+    color: rgba(246,241,231,0.5);
+    line-height: 1.65;
+    font-style: italic;
+  }
+
+  .gr-successor {
+    margin-top: 0.75rem;
+    padding-top: 0.75rem;
+    border-top: 1px solid rgba(255,255,255,0.05);
+  }
+
+  .gr-successor-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.52rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: rgba(96,165,250,0.5);
+    margin-bottom: 0.3rem;
+  }
+
+  .gr-successor-link {
+    font-size: 0.72rem;
+    color: rgba(147,200,240,0.7);
+    font-style: italic;
+  }
+
+  /* Graveyard footer note */
+  .graveyard-footnote {
+    text-align: center;
+    margin-top: 1.25rem;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.55rem;
+    color: rgba(212,201,168,0.18);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* Graveyard responsive */
+  @media (max-width: 1100px) {
+    .graveyard-stones { grid-template-columns: repeat(2, 1fr); }
+    .gr-body { grid-template-columns: 1fr; }
+  }
+  @media (max-width: 480px) {
+    .graveyard-stones { grid-template-columns: 1fr; }
+    .graveyard-field { padding: 1.25rem 1rem; }
+    .stone-title { font-size: 0.78rem; }
+  }
+</style>
+</head>
+<body>
+
+<!-- MASTHEAD -->
+<header class="masthead">
+  <div class="masthead-brand">
+    <span class="masthead-name">Promise<span>Track</span></span>
+    <span class="masthead-tagline">Strategic Accountability Research</span>
+  </div>
+  <nav class="masthead-nav">
+    <a href="#">Companies</a>
+    <a href="#">Sectors</a>
+    <a href="#">Methodology</a>
+    <a href="#">About</a>
+  </nav>
+  <span class="masthead-date">15 MARCH 2026</span>
+  <button class="nav-toggle" id="navToggle" aria-label="Open menu" aria-expanded="false">
+    <span></span><span></span><span></span>
+  </button>
+</header>
+
+<!-- MOBILE NAV DRAWER -->
+<nav class="mobile-nav" id="mobileNav" aria-hidden="true">
+  <a href="#">Companies</a>
+  <a href="#">Sectors</a>
+  <a href="#">Methodology</a>
+  <a href="#">About</a>
+  <a href="#" style="color:var(--gold-light);border-top:1px solid rgba(212,201,168,0.15);margin-top:0.25rem;">Advertise</a>
+</nav>
+
+<!-- SIGNAL BAR -->
+<div class="signal-bar">
+  <div class="signal-item">
+    <div class="signal-dot live"></div>
+    <span class="signal-label">TRACKING</span>
+    <span class="signal-value">Sandoz AG</span>
+  </div>
+  <div class="signal-divider"></div>
+  <div class="signal-item">
+    <span class="signal-label">INITIATIVE</span>
+    <span class="signal-value">The Golden Decade</span>
+  </div>
+  <div class="signal-divider"></div>
+  <div class="signal-item">
+    <span class="signal-label">HORIZON</span>
+    <span class="signal-value">2024–2033</span>
+  </div>
+  <div class="signal-divider"></div>
+  <div class="signal-item">
+    <span class="signal-label">OBJECTIVES TRACKED</span>
+    <span class="signal-value">6</span>
+  </div>
+  <div class="signal-divider"></div>
+  <div class="signal-item">
+    <span class="signal-label">LAST SIGNAL</span>
+    <span class="signal-value">FY2025 Annual Report · Mar 2026</span>
+  </div>
+  <div class="signal-divider"></div>
+  <div class="signal-item">
+    <span class="signal-label">OVERALL COMMITMENT</span>
+    <span class="signal-value" style="color: #4ADE80;">HIGH · CONSISTENT</span>
+  </div>
+</div>
+
+<!-- LAYOUT -->
+<div class="layout">
+  <main class="main-content">
+
+    <!-- COMPANY HEADER -->
+    <div class="company-header">
+      <div class="company-logo-mark">SDZ</div>
+      <div class="company-meta">
+        <h1 class="company-name">Sandoz AG</h1>
+        <div class="company-initiative">"The Golden Decade of Biosimilars &amp; Generics"</div>
+        <p class="company-desc">Spun off from Novartis in 2023. Self-declared strategic window 2024–2033 to capitalise on expiring originator patents. Publicly committed to becoming the global leader in off-patent medicines.</p>
+      </div>
+      <div class="company-stats">
+        <div class="stat-pill">
+          <span class="stat-number">~$7.7B</span>
+          <span class="stat-label">Net Sales 2024</span>
+        </div>
+        <div class="stat-pill">
+          <span class="stat-number">35+</span>
+          <span class="stat-label">Biosimilar Programmes</span>
+        </div>
+        <div class="stat-pill">
+          <span class="stat-number">37mo</span>
+          <span class="stat-label">Since Spin-off</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- NARRATIVE -->
+    <div class="narrative-section">
+      <div class="narrative-card">
+        <div class="narrative-label">Editorial Assessment · March 2026</div>
+        <p class="narrative-text">
+          Sandoz enters 2026 with its <strong>Golden Decade narrative largely intact</strong> — all six tracked strategic objectives remain publicly active and referenced in investor communications. The most material development is the <strong>Hyrimoz biosimilar launch trajectory in the US market</strong>, which has emerged as the central proof-of-concept for the whole thesis. Two objectives show early signs of language softening: the <strong>manufacturing network simplification</strong> target has shifted from specific headcount language toward broader efficiency framing, and the <strong>emerging markets penetration</strong> goal has been reframed around profitability rather than volume. Neither constitutes a drop — both read as <strong>legitimate strategic refinement</strong>. Monitoring cadence: quarterly.
+        </p>
+      </div>
+    </div>
+
+    <!-- LEGEND -->
+    <div class="legend">
+      <div class="legend-item"><div class="legend-dot" style="background:var(--status-active)"></div><span class="legend-text">Active</span></div>
+      <div class="legend-item"><div class="legend-dot" style="background:#C07A30"></div><span class="legend-text">Language Drifting</span></div>
+      <div class="legend-item"><div class="legend-dot" style="background:#2874A6"></div><span class="legend-text">Morphed</span></div>
+      <div class="legend-item"><div class="legend-dot" style="background:var(--status-dropped)"></div><span class="legend-text">Dropped</span></div>
+      <div class="legend-item"><div class="legend-dot" style="background:var(--status-achieved)"></div><span class="legend-text">Achieved</span></div>
+      <div class="legend-item"><div class="legend-dot" style="background:var(--gold)"></div><span class="legend-text">Under Watch</span></div>
+    </div>
+
+    <!-- MOBILE CONFIDENCE STRIP (tablet & below) -->
+    <div class="mobile-confidence" id="mobileConfidence">
+      <div class="mob-conf-item">
+        <div class="mob-conf-ring high">94%</div>
+        <div class="mob-conf-label">Biosimilar Leadership</div>
+      </div>
+      <div class="mob-conf-item">
+        <div class="mob-conf-ring high">88%</div>
+        <div class="mob-conf-label">US Penetration</div>
+      </div>
+      <div class="mob-conf-item">
+        <div class="mob-conf-ring low">52%</div>
+        <div class="mob-conf-label">EM Volume Growth</div>
+      </div>
+      <div class="mob-conf-item">
+        <div class="mob-conf-ring high">91%</div>
+        <div class="mob-conf-label">Next-Wave Pipeline</div>
+      </div>
+      <div class="mob-conf-item">
+        <div class="mob-conf-ring low">41%</div>
+        <div class="mob-conf-label">Mfg Network</div>
+      </div>
+      <div class="mob-conf-item">
+        <div class="mob-conf-ring high">97%</div>
+        <div class="mob-conf-label">Margin 24–26%</div>
+      </div>
+    </div>
+
+    <!-- SECTION LABEL -->
+    <div class="section-label">
+      <span class="section-label-text">Strategic Objectives · 6 tracked</span>
+      <div class="section-label-rule"></div>
+      <span class="section-label-text">Click any card for evidence</span>
+    </div>
+
+    <!-- OBJECTIVE GRID -->
+    <div class="objective-grid" id="objGrid">
+
+      <!-- CARD 1 -->
+      <div class="obj-card active" onclick="toggleDrawer('d1', this)">
+        <div class="obj-card-top">
+          <span class="obj-number">OBJ 01</span>
+          <span class="status-badge active">Active</span>
+        </div>
+        <div class="obj-title">Global Biosimilar Leadership</div>
+        <div class="obj-subtitle">Become the world's leading biosimilar company by revenue and pipeline breadth by 2030.</div>
+        <div class="mini-timeline">
+          <div class="mini-track"></div>
+          <div class="mini-event stated" data-tip="Oct 2023 · Spin-off IPO"></div>
+          <div class="mini-spacer"></div>
+          <div class="mini-event reinforced" data-tip="Mar 2024 · Capital Markets Day"></div>
+          <div class="mini-spacer"></div>
+          <div class="mini-event reinforced" data-tip="Feb 2025 · FY2024 Results"></div>
+          <div class="mini-spacer"></div>
+          <div class="mini-event reinforced" data-tip="Mar 2026 · FY2025 Report"></div>
+        </div>
+        <div class="obj-card-footer">
+          <div class="obj-momentum">
+            <div class="momentum-bar">
+              <div class="momentum-seg filled high"></div>
+              <div class="momentum-seg filled high"></div>
+              <div class="momentum-seg filled high"></div>
+              <div class="momentum-seg filled high"></div>
+              <div class="momentum-seg filled high"></div>
+            </div>
+            <span class="momentum-label">STRONG</span>
+          </div>
+          <span class="evidence-count">↑ 12 signals</span>
+        </div>
+      </div>
+
+      <!-- CARD 2 -->
+      <div class="obj-card active" onclick="toggleDrawer('d2', this)">
+        <div class="obj-card-top">
+          <span class="obj-number">OBJ 02</span>
+          <span class="status-badge active">Active</span>
+        </div>
+        <div class="obj-title">US Market Biosimilar Penetration</div>
+        <div class="obj-subtitle">Capture double-digit share in US biosimilar markets; Hyrimoz as flagship proof of concept.</div>
+        <div class="mini-timeline">
+          <div class="mini-track"></div>
+          <div class="mini-event stated" data-tip="Nov 2023 · US Launch Strategy Stated"></div>
+          <div class="mini-spacer"></div>
+          <div class="mini-event reinforced" data-tip="Q1 2024 · Hyrimoz Interchangeability Win"></div>
+          <div class="mini-spacer"></div>
+          <div class="mini-event reinforced" data-tip="Q3 2025 · Share data disclosed"></div>
+          <div class="mini-spacer"></div>
+          <div class="mini-event reinforced" data-tip="Mar 2026 · Expanding portfolio"></div>
+        </div>
+        <div class="obj-card-footer">
+          <div class="obj-momentum">
+            <div class="momentum-bar">
+              <div class="momentum-seg filled high"></div>
+              <div class="momentum-seg filled high"></div>
+              <div class="momentum-seg filled high"></div>
+              <div class="momentum-seg filled high"></div>
+              <div class="momentum-seg"></div>
+            </div>
+            <span class="momentum-label">HIGH</span>
+          </div>
+          <span class="evidence-count">↑ 9 signals</span>
+        </div>
+      </div>
+
+      <!-- CARD 3 -->
+      <div class="obj-card watch" onclick="toggleDrawer('d3', this)">
+        <div class="obj-card-top">
+          <span class="obj-number">OBJ 03</span>
+          <span class="status-badge watch">Watch</span>
+        </div>
+        <div class="obj-title">Emerging Markets Volume Growth</div>
+        <div class="obj-subtitle">Originally: expand volume leadership in EM generics. Reframed toward profitability & selective markets.</div>
+        <div class="mini-timeline">
+          <div class="mini-track"></div>
+          <div class="mini-event stated" data-tip="Oct 2023 · Volume leadership stated"></div>
+          <div class="mini-spacer"></div>
+          <div class="mini-event reinforced" data-tip="Mar 2024 · Reaffirmed with caveats"></div>
+          <div class="mini-spacer"></div>
+          <div class="mini-event softened" data-tip="H2 2024 · Language shift to 'profitability-led'"></div>
+          <div class="mini-spacer"></div>
+          <div class="mini-event softened" data-tip="Mar 2026 · Selective markets language"></div>
+        </div>
+        <div class="obj-card-footer">
+          <div class="obj-momentum">
+            <div class="momentum-bar">
+              <div class="momentum-seg filled med"></div>
+              <div class="momentum-seg filled med"></div>
+              <div class="momentum-seg filled med"></div>
+              <div class="momentum-seg"></div>
+              <div class="momentum-seg"></div>
+            </div>
+            <span class="momentum-label">DRIFTING</span>
+          </div>
+          <span class="evidence-count">→ 7 signals</span>
+        </div>
+      </div>
+
+      <!-- CARD 4 -->
+      <div class="obj-card active" onclick="toggleDrawer('d4', this)">
+        <div class="obj-card-top">
+          <span class="obj-number">OBJ 04</span>
+          <span class="status-badge active">Active</span>
+        </div>
+        <div class="obj-title">Pipeline: Next-Wave Biosimilars</div>
+        <div class="obj-subtitle">Build and advance the post-2027 biosimilar pipeline; target immunology, oncology, ophthalmology.</div>
+        <div class="mini-timeline">
+          <div class="mini-track"></div>
+          <div class="mini-event stated" data-tip="Nov 2023 · Pipeline depth stated"></div>
+          <div class="mini-spacer"></div>
+          <div class="mini-event reinforced" data-tip="H1 2024 · Multiple IND filings"></div>
+          <div class="mini-spacer"></div>
+          <div class="mini-event reinforced" data-tip="2025 · Ophthalmology entry confirmed"></div>
+          <div class="mini-spacer"></div>
+          <div class="mini-event reinforced" data-tip="Mar 2026 · 35+ programmes disclosed"></div>
+        </div>
+        <div class="obj-card-footer">
+          <div class="obj-momentum">
+            <div class="momentum-bar">
+              <div class="momentum-seg filled high"></div>
+              <div class="momentum-seg filled high"></div>
+              <div class="momentum-seg filled high"></div>
+              <div class="momentum-seg filled high"></div>
+              <div class="momentum-seg filled high"></div>
+            </div>
+            <span class="momentum-label">STRONG</span>
+          </div>
+          <span class="evidence-count">↑ 11 signals</span>
+        </div>
+      </div>
+
+      <!-- CARD 5 -->
+      <div class="obj-card drift" onclick="toggleDrawer('d5', this)">
+        <div class="obj-card-top">
+          <span class="obj-number">OBJ 05</span>
+          <span class="status-badge drift">Drifting</span>
+        </div>
+        <div class="obj-title">Manufacturing Network Simplification</div>
+        <div class="obj-subtitle">Originally stated with specific site reduction targets. Language has softened to "efficiency" framing.</div>
+        <div class="mini-timeline">
+          <div class="mini-track"></div>
+          <div class="mini-event stated" data-tip="Oct 2023 · Specific site targets stated"></div>
+          <div class="mini-spacer"></div>
+          <div class="mini-event reinforced" data-tip="Q1 2024 · Targets reaffirmed"></div>
+          <div class="mini-spacer"></div>
+          <div class="mini-event softened" data-tip="Q4 2024 · Headcount language removed"></div>
+          <div class="mini-spacer"></div>
+          <div class="mini-event softened" data-tip="Mar 2026 · 'Efficiency-led network' framing"></div>
+        </div>
+        <div class="obj-card-footer">
+          <div class="obj-momentum">
+            <div class="momentum-bar">
+              <div class="momentum-seg filled low"></div>
+              <div class="momentum-seg filled low"></div>
+              <div class="momentum-seg"></div>
+              <div class="momentum-seg"></div>
+              <div class="momentum-seg"></div>
+            </div>
+            <span class="momentum-label">SOFTENING</span>
+          </div>
+          <span class="evidence-count">⚠ 5 signals</span>
+        </div>
+      </div>
+
+      <!-- CARD 6 -->
+      <div class="obj-card active" onclick="toggleDrawer('d6', this)">
+        <div class="obj-card-top">
+          <span class="obj-number">OBJ 06</span>
+          <span class="status-badge active">Active</span>
+        </div>
+        <div class="obj-title">Margin Expansion to 24–26%</div>
+        <div class="obj-subtitle">Core EBITDA margin target stated at spin-off; specific numeric target retained in all subsequent communications.</div>
+        <div class="mini-timeline">
+          <div class="mini-track"></div>
+          <div class="mini-event stated" data-tip="Oct 2023 · 24–26% target announced"></div>
+          <div class="mini-spacer"></div>
+          <div class="mini-event reinforced" data-tip="Mar 2024 · Reaffirmed at CMD"></div>
+          <div class="mini-spacer"></div>
+          <div class="mini-event reinforced" data-tip="Feb 2025 · On-track disclosed"></div>
+          <div class="mini-spacer"></div>
+          <div class="mini-event reinforced" data-tip="Mar 2026 · FY2025 confirms trajectory"></div>
+        </div>
+        <div class="obj-card-footer">
+          <div class="obj-momentum">
+            <div class="momentum-bar">
+              <div class="momentum-seg filled high"></div>
+              <div class="momentum-seg filled high"></div>
+              <div class="momentum-seg filled high"></div>
+              <div class="momentum-seg filled high"></div>
+              <div class="momentum-seg filled high"></div>
+            </div>
+            <span class="momentum-label">CONSISTENT</span>
+          </div>
+          <span class="evidence-count">↑ 8 signals</span>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- EVIDENCE DRAWERS -->
+    <div id="d1" class="evidence-drawer">
+      <div class="drawer-header">
+        <span class="drawer-title">OBJ 01 — Global Biosimilar Leadership · Evidence Record</span>
+        <button class="drawer-close" onclick="closeDrawer('d1')">✕</button>
+      </div>
+      <div class="drawer-body">
+        <div class="full-timeline">
+          <div class="timeline-track">
+            <div class="timeline-event ev-stated">
+              <div class="ev-date">OCTOBER 2023</div>
+              <span class="ev-type stated">Initially Stated</span>
+              <div class="ev-source">Sandoz Spin-off Prospectus · SIX Swiss Exchange</div>
+              <p class="ev-quote">"Sandoz aims to be the world's leading company in off-patent medicines, with a biosimilar portfolio unmatched in breadth and depth."</p>
+            </div>
+            <div class="timeline-event ev-reinforced">
+              <div class="ev-date">MARCH 2024</div>
+              <span class="ev-type reinforced">Explicitly Reinforced</span>
+              <div class="ev-source">Capital Markets Day · Zurich</div>
+              <p class="ev-quote">CEO Richard Saynor reiterated biosimilar leadership as the 'defining ambition' of the decade, with specific reference to pipeline depth vs. all named competitors.</p>
+            </div>
+            <div class="timeline-event ev-reinforced">
+              <div class="ev-date">FEBRUARY 2025</div>
+              <span class="ev-type reinforced">Explicitly Reinforced</span>
+              <div class="ev-source">FY2024 Full Year Results · Earnings Call</div>
+              <p class="ev-quote">Leadership referenced number-one global biosimilar market position in Europe; stated intention to replicate in North America and Asia Pacific by 2027.</p>
+            </div>
+            <div class="timeline-event ev-reinforced">
+              <div class="ev-date">MARCH 2026</div>
+              <span class="ev-type reinforced">Explicitly Reinforced</span>
+              <div class="ev-source">FY2025 Annual Report</div>
+              <p class="ev-quote">Annual report leads with biosimilar leadership as the headline strategic ambition. 35+ active programs cited. Language unchanged in ambition; new specificity on therapeutic areas.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="d2" class="evidence-drawer">
+      <div class="drawer-header">
+        <span class="drawer-title">OBJ 02 — US Biosimilar Penetration · Evidence Record</span>
+        <button class="drawer-close" onclick="closeDrawer('d2')">✕</button>
+      </div>
+      <div class="drawer-body">
+        <div class="full-timeline">
+          <div class="timeline-track">
+            <div class="timeline-event ev-stated">
+              <div class="ev-date">NOVEMBER 2023</div>
+              <span class="ev-type stated">Initially Stated</span>
+              <div class="ev-source">US Market Entry Strategy Disclosure</div>
+              <p class="ev-quote">Hyrimoz (adalimumab biosimilar) named as anchor for US strategy. Double-digit share target stated across first-wave biosimilar launches.</p>
+            </div>
+            <div class="timeline-event ev-reinforced">
+              <div class="ev-date">Q1 2024</div>
+              <span class="ev-type reinforced">Key Milestone Reached</span>
+              <div class="ev-source">FDA Interchangeability Designation · Hyrimoz</div>
+              <p class="ev-quote">Hyrimoz became one of the first adalimumab biosimilars to receive FDA interchangeability status — a structural enabler for pharmacy-level substitution at scale.</p>
+            </div>
+            <div class="timeline-event ev-reinforced">
+              <div class="ev-date">Q3 2025</div>
+              <span class="ev-type reinforced">Quantitative Progress Disclosed</span>
+              <div class="ev-source">H1 2025 Interim Results</div>
+              <p class="ev-quote">US biosimilar revenues disclosed as fastest-growing segment. Share data consistent with leadership positioning in the adalimumab market.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="d3" class="evidence-drawer">
+      <div class="drawer-header">
+        <span class="drawer-title">OBJ 03 — Emerging Markets · Evidence Record (Language Watch)</span>
+        <button class="drawer-close" onclick="closeDrawer('d3')">✕</button>
+      </div>
+      <div class="drawer-body">
+        <div class="full-timeline">
+          <div class="timeline-track">
+            <div class="timeline-event ev-stated">
+              <div class="ev-date">OCTOBER 2023</div>
+              <span class="ev-type stated">Initially Stated</span>
+              <div class="ev-source">Spin-off Prospectus</div>
+              <p class="ev-quote">Volume leadership in emerging markets identified as a structural pillar, with named countries: India, China, Brazil, Middle East.</p>
+            </div>
+            <div class="timeline-event ev-reinforced">
+              <div class="ev-date">MARCH 2024</div>
+              <span class="ev-type reinforced">Reinforced (With Caveats)</span>
+              <div class="ev-source">Capital Markets Day</div>
+              <p class="ev-quote">Emerging markets retained as a strategic pillar, though China separated into its own workstream with more cautious framing. Volume leadership language retained.</p>
+            </div>
+            <div class="timeline-event" style="--status-color: #C07A30">
+              <div class="ev-date">H2 2024</div>
+              <span class="ev-type softened">Language Shift Detected</span>
+              <div class="ev-source">H1 2024 Results Transcript (Analyst Q&amp;A)</div>
+              <p class="ev-quote">In response to analyst question on EM volume targets, CFO response shifted to "profitability-led growth" framing — departing from original volume-first language without explicit acknowledgment of the change.</p>
+            </div>
+            <div class="timeline-event" style="--status-color: #C07A30">
+              <div class="ev-date">MARCH 2026</div>
+              <span class="ev-type softened">Language Shift Confirmed</span>
+              <div class="ev-source">FY2025 Annual Report</div>
+              <p class="ev-quote">Emerging markets section now reads "selective profitable growth in prioritised geographies" — volume leadership language from 2023 prospectus has been silently removed. No announcement of strategic change.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="d4" class="evidence-drawer">
+      <div class="drawer-header">
+        <span class="drawer-title">OBJ 04 — Next-Wave Pipeline · Evidence Record</span>
+        <button class="drawer-close" onclick="closeDrawer('d4')">✕</button>
+      </div>
+      <div class="drawer-body">
+        <div class="full-timeline">
+          <div class="timeline-track">
+            <div class="timeline-event ev-stated">
+              <div class="ev-date">NOVEMBER 2023</div>
+              <span class="ev-type stated">Initially Stated</span>
+              <div class="ev-source">Investor Day · Post Spin-off</div>
+              <p class="ev-quote">Pipeline depth across immunology, oncology, and ophthalmology stated as key differentiator. 30+ programmes referenced.</p>
+            </div>
+            <div class="timeline-event ev-reinforced">
+              <div class="ev-date">H1 2024</div>
+              <span class="ev-type reinforced">Pipeline Execution Visible</span>
+              <div class="ev-source">Multiple IND / EMA Submissions</div>
+              <p class="ev-quote">Multiple IND filings and European clinical submissions in biosimilar oncology (bevacizumab, pertuzumab biosimilars) provided observable pipeline execution signal.</p>
+            </div>
+            <div class="timeline-event ev-reinforced">
+              <div class="ev-date">2025</div>
+              <span class="ev-type reinforced">New Therapeutic Area Confirmed</span>
+              <div class="ev-source">FY2024 Pipeline Disclosure</div>
+              <p class="ev-quote">Ophthalmology biosimilar (ranibizumab biosimilar) confirmed as active programme — consistent with originally stated ambition and extending beyond initial focus areas.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="d5" class="evidence-drawer">
+      <div class="drawer-header">
+        <span class="drawer-title">OBJ 05 — Manufacturing Network · Evidence Record (⚠ Language Drift)</span>
+        <button class="drawer-close" onclick="closeDrawer('d5')">✕</button>
+      </div>
+      <div class="drawer-body">
+        <div class="full-timeline">
+          <div class="timeline-track">
+            <div class="timeline-event ev-stated">
+              <div class="ev-date">OCTOBER 2023</div>
+              <span class="ev-type stated">Initially Stated</span>
+              <div class="ev-source">Spin-off Prospectus · Operations Section</div>
+              <p class="ev-quote">Specific manufacturing site reduction stated as an operational objective. Implied reduction from 26 to 18–20 sites over the decade. Headcount efficiency mentioned explicitly.</p>
+            </div>
+            <div class="timeline-event ev-reinforced">
+              <div class="ev-date">Q1 2024</div>
+              <span class="ev-type reinforced">Target Reaffirmed</span>
+              <div class="ev-source">Capital Markets Day Operations Track</div>
+              <p class="ev-quote">COO reiterated network rationalization as a cost-efficiency driver. Site targets discussed in broad terms but not updated numerically.</p>
+            </div>
+            <div class="timeline-event" style="--status-color: #C07A30">
+              <div class="ev-date">Q4 2024</div>
+              <span class="ev-type softened">Headcount Language Removed</span>
+              <div class="ev-source">H2 2024 Results · Analyst Transcript</div>
+              <p class="ev-quote">Headcount efficiency language absent from manufacturing discussion for first time. Q&A probing on site count did not produce a specific answer — management deflected to "network optimisation".</p>
+            </div>
+            <div class="timeline-event" style="--status-color: #C07A30">
+              <div class="ev-date">MARCH 2026</div>
+              <span class="ev-type softened">Framing Shift Confirmed</span>
+              <div class="ev-source">FY2025 Annual Report</div>
+              <p class="ev-quote">"Efficiency-led manufacturing network" language used. No numeric site targets. No reference to original prospectus commitment. Assessment: quietly deprioritised, not abandoned.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="d6" class="evidence-drawer">
+      <div class="drawer-header">
+        <span class="drawer-title">OBJ 06 — Margin Expansion 24–26% · Evidence Record</span>
+        <button class="drawer-close" onclick="closeDrawer('d6')">✕</button>
+      </div>
+      <div class="drawer-body">
+        <div class="full-timeline">
+          <div class="timeline-track">
+            <div class="timeline-event ev-stated">
+              <div class="ev-date">OCTOBER 2023</div>
+              <span class="ev-type stated">Initially Stated</span>
+              <div class="ev-source">Spin-off Prospectus / Listing Day</div>
+              <p class="ev-quote">Core EBITDA margin of 24–26% stated as mid-term financial target. One of the most specific and numeric public commitments made at listing.</p>
+            </div>
+            <div class="timeline-event ev-reinforced">
+              <div class="ev-date">MARCH 2024</div>
+              <span class="ev-type reinforced">Reaffirmed at CMD</span>
+              <div class="ev-source">Capital Markets Day</div>
+              <p class="ev-quote">Target explicitly reaffirmed with same numeric range. CFO provided bridging analysis from ~20% entry level to target range, increasing investor confidence.</p>
+            </div>
+            <div class="timeline-event ev-reinforced">
+              <div class="ev-date">FEBRUARY 2025</div>
+              <span class="ev-type reinforced">Progress Confirmed</span>
+              <div class="ev-source">FY2024 Full Year Results</div>
+              <p class="ev-quote">Margin progress reported as on-track. Specific intermediate progress toward target disclosed, with guidance for continued improvement.</p>
+            </div>
+            <div class="timeline-event ev-reinforced">
+              <div class="ev-date">MARCH 2026</div>
+              <span class="ev-type reinforced">FY2025 Confirms Trajectory</span>
+              <div class="ev-source">FY2025 Annual Report</div>
+              <p class="ev-quote">FY2025 results demonstrate continued margin expansion. 24–26% target range explicitly retained as medium-term guidance. No change to numeric target — highest commitment consistency score of any tracked objective.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- NATIVE AD (mid-page) -->
+    <div class="native-ad">
+      <span class="native-ad-label">Sponsored</span>
+      <div class="native-ad-content">
+        <div class="native-ad-icon">Lx</div>
+        <div class="native-ad-body">
+          <div class="native-ad-title">Lux Pharma Intelligence</div>
+          <p class="native-ad-text">Deep-dive biosimilar pipeline reports and patent expiry modelling for institutional investors and strategic planners.</p>
+          <a href="#" class="native-ad-link">Access Research Library →</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════
+         GRAVEYARD
+    ══════════════════════════════ -->
+    <section class="graveyard-section" id="graveyard">
+
+      <div class="graveyard-header">
+        <span class="graveyard-icon">✦</span>
+        <span class="graveyard-section-label">Objective Graveyard · 3 entries</span>
+        <div class="graveyard-rule"></div>
+        <span class="graveyard-section-label">Sandoz AG · 2023–present</span>
+      </div>
+
+      <p class="graveyard-editorial">
+        Objectives that were publicly committed to and subsequently dropped, abandoned, or so thoroughly reframed they no longer resemble the original promise. Each entry is assessed on how the exit was handled — silently, transparently, by gradual phase-out, or morphed into a successor objective that obscures the original commitment.
+      </p>
+
+      <div class="graveyard-field">
+        <div class="graveyard-stones" id="graveyardGrid">
+
+          <!-- ── STONE 1: China Growth Platform ── -->
+          <div class="gravestone" onclick="toggleGraveRecord('gr1', this)">
+            <div class="stone-shape">
+              <div class="stone-symbol">✛</div>
+              <div class="stone-obj-num">OBJ-X · 2023</div>
+              <div class="stone-title">China as Strategic Growth Platform</div>
+              <div class="stone-dates">Oct 2023 — Q2 2024</div>
+              <div class="stone-epitaph">"China will be a cornerstone of our emerging market ambition."</div>
+              <span class="stone-manner silent">⬛ Silently Dropped</span>
+            </div>
+            <div class="stone-base"></div>
+            <div class="stone-expand">↓ open record</div>
+          </div>
+
+          <!-- ── STONE 2: 2025 Revenue Target ── -->
+          <div class="gravestone" onclick="toggleGraveRecord('gr2', this)">
+            <div class="stone-shape">
+              <div class="stone-symbol">✛</div>
+              <div class="stone-obj-num">OBJ-X · 2023</div>
+              <div class="stone-title">Explicit 2025 Revenue Target Band</div>
+              <div class="stone-dates">Oct 2023 — Mar 2024</div>
+              <div class="stone-epitaph">"$8.0–8.5B net sales by end of 2025."</div>
+              <span class="stone-manner morphed">↝ Morphed</span>
+            </div>
+            <div class="stone-base"></div>
+            <div class="stone-expand">↓ open record</div>
+          </div>
+
+          <!-- ── STONE 3: Branded Generics Push ── -->
+          <div class="gravestone" onclick="toggleGraveRecord('gr3', this)">
+            <div class="stone-shape">
+              <div class="stone-symbol">✛</div>
+              <div class="stone-obj-num">OBJ-X · 2023</div>
+              <div class="stone-title">Branded Generics Expansion (MENA)</div>
+              <div class="stone-dates">Oct 2023 — H1 2025</div>
+              <div class="stone-epitaph">"Build a differentiated branded generics presence in MENA markets."</div>
+              <span class="stone-manner phased">⇣ Quietly Phased Out</span>
+            </div>
+            <div class="stone-base"></div>
+            <div class="stone-expand">↓ open record</div>
+          </div>
+
+          <!-- RECORD: China -->
+          <div class="graveyard-record" id="gr1">
+            <div class="gr-header">
+              <span class="gr-header-title">China as Strategic Growth Platform — Full Record</span>
+              <button class="gr-close" onclick="closeGraveRecord('gr1')">✕</button>
+            </div>
+            <div class="gr-body">
+              <div>
+                <div class="gr-col-label">Decline Timeline</div>
+                <div class="gr-timeline">
+                  <div class="gr-event ev-active">
+                    <div class="gr-event-date">OCT 2023</div>
+                    <div class="gr-event-text">China explicitly named as a strategic cornerstone in the spin-off prospectus. Leadership cited volume scale and biosimilar regulatory tailwinds as the rationale.</div>
+                    <div class="gr-event-source">Sandoz Spin-off Prospectus, pp. 38–41</div>
+                  </div>
+                  <div class="gr-event ev-active">
+                    <div class="gr-event-date">NOV 2023</div>
+                    <div class="gr-event-text">CEO cited China biosimilar approval pathway reforms as a "timing opportunity." Commitment reinforced in investor Q&amp;A with specific reference to pipeline filings.</div>
+                    <div class="gr-event-source">Post-listing investor briefing, SIX roadshow transcript</div>
+                  </div>
+                  <div class="gr-event ev-softening">
+                    <div class="gr-event-date">Q1 2024</div>
+                    <div class="gr-event-text">China absent from the top-five market priority list presented at Capital Markets Day. No explicit reference to prospectus language. When pressed, CFO described China as "long-term optionality."</div>
+                    <div class="gr-event-source">CMD 2024 · Strategy presentation deck</div>
+                  </div>
+                  <div class="gr-event ev-dropped">
+                    <div class="gr-event-date">Q2 2024 — PRESENT</div>
+                    <div class="gr-event-text">China not mentioned in any subsequent investor materials, earnings call prepared remarks, or annual report market strategy section. No announcement of exit or strategic change.</div>
+                    <div class="gr-event-source">FY2024 Annual Report; H1 2024 & H1 2025 Results</div>
+                  </div>
+                </div>
+              </div>
+              <div>
+                <div class="gr-col-label">Editorial Verdict</div>
+                <div class="gr-verdict">
+                  <div class="gr-verdict-rating">
+                    <span class="gr-verdict-label">Transparency Score</span>
+                    <span class="gr-transparency-score very-low">Very Low</span>
+                  </div>
+                  <p class="gr-verdict-text">
+                    China moved from "cornerstone" language in October 2023 to complete absence by mid-2024 — a span of roughly six months — with no investor communication acknowledging the change. The shift coincided with broader macroeconomic deterioration in China-related pharma sentiment and increased regulatory friction. Possible legitimate strategic reasons exist, but the silence is notable. Investors who weighted the China commitment in their thesis received no correction signal. This is the clearest case of a silent drop in the tracked portfolio.
+                  </p>
+                  <div class="gr-successor">
+                    <div class="gr-successor-label">No identified successor objective</div>
+                    <div class="gr-successor-link">China optionality language not linked to any active objective</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- RECORD: Revenue Target -->
+          <div class="graveyard-record" id="gr2">
+            <div class="gr-header">
+              <span class="gr-header-title">Explicit 2025 Revenue Target — Full Record</span>
+              <button class="gr-close" onclick="closeGraveRecord('gr2')">✕</button>
+            </div>
+            <div class="gr-body">
+              <div>
+                <div class="gr-col-label">Decline Timeline</div>
+                <div class="gr-timeline">
+                  <div class="gr-event ev-active">
+                    <div class="gr-event-date">OCT 2023</div>
+                    <div class="gr-event-text">Net sales target of $8.0–8.5B by end of 2025 disclosed in prospectus financial outlook section. Presented as a medium-term financial anchor for investor modelling.</div>
+                    <div class="gr-event-source">Spin-off Prospectus · Financial Outlook, p. 112</div>
+                  </div>
+                  <div class="gr-event ev-softening">
+                    <div class="gr-event-date">MAR 2024</div>
+                    <div class="gr-event-text">Capital Markets Day does not restate the $8.0–8.5B figure. Instead, management references "mid- to high-single-digit growth" as the trajectory. Numeric target quietly retired without explicit acknowledgment.</div>
+                    <div class="gr-event-source">CMD 2024 · CFO presentation</div>
+                  </div>
+                  <div class="gr-event ev-morphed">
+                    <div class="gr-event-date">H2 2024 ONWARD</div>
+                    <div class="gr-event-text">Revenue guidance framed exclusively as growth-rate ranges (+5–8% CAGR) rather than absolute values. FY2024 net sales of ~$7.7B implies the original $8.0–8.5B target for 2025 was unlikely to be met on original trajectory.</div>
+                    <div class="gr-event-source">FY2024 Results · FY2025 Annual Report</div>
+                  </div>
+                </div>
+              </div>
+              <div>
+                <div class="gr-col-label">Editorial Verdict</div>
+                <div class="gr-verdict">
+                  <div class="gr-verdict-rating">
+                    <span class="gr-verdict-label">Transparency Score</span>
+                    <span class="gr-transparency-score low">Low</span>
+                  </div>
+                  <p class="gr-verdict-text">
+                    The absolute revenue target morphed into a growth-rate framing — a technically different disclosure mode that obscures whether the original numeric ambition is still operative. The shift was not announced; the original figure simply ceased to appear. This is a textbook example of an objective being "morphed" rather than dropped: the spirit of growth ambition is retained, but the accountability of a specific number is quietly retired. Analysts noted the implied shortfall; management did not address it directly.
+                  </p>
+                  <div class="gr-successor">
+                    <div class="gr-successor-label">↝ Successor Objective</div>
+                    <div class="gr-successor-link">Replaced by: "Mid- to high-single-digit organic sales CAGR" — active in all subsequent guidance</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- RECORD: MENA Branded Generics -->
+          <div class="graveyard-record" id="gr3">
+            <div class="gr-header">
+              <span class="gr-header-title">Branded Generics Expansion (MENA) — Full Record</span>
+              <button class="gr-close" onclick="closeGraveRecord('gr3')">✕</button>
+            </div>
+            <div class="gr-body">
+              <div>
+                <div class="gr-col-label">Decline Timeline</div>
+                <div class="gr-timeline">
+                  <div class="gr-event ev-active">
+                    <div class="gr-event-date">OCT 2023</div>
+                    <div class="gr-event-text">Branded generics in MENA positioned as a growth platform distinct from the standard generics business. Specific reference to Gulf markets and Egypt as priority geographies.</div>
+                    <div class="gr-event-source">Spin-off Prospectus · Emerging Markets section</div>
+                  </div>
+                  <div class="gr-event ev-active">
+                    <div class="gr-event-date">Q1 2024</div>
+                    <div class="gr-event-text">Reiterated at CMD as part of broader emerging markets pillar. No specific KPI attached but framed as a "distinctive positioning" for the region.</div>
+                    <div class="gr-event-source">CMD 2024 · Emerging Markets track</div>
+                  </div>
+                  <div class="gr-event ev-softening">
+                    <div class="gr-event-date">H2 2024</div>
+                    <div class="gr-event-text">MENA branded generics language reduced to a single line in regional overview. No dedicated strategic framing. Profitability language begins to replace differentiation language.</div>
+                    <div class="gr-event-source">H1 2024 Results · Regional review</div>
+                  </div>
+                  <div class="gr-event ev-dropped">
+                    <div class="gr-event-date">H1 2025 — PRESENT</div>
+                    <div class="gr-event-text">Branded generics as a distinct MENA strategic objective no longer identifiable in investor materials. MENA absorbed into a consolidated "Rest of World" category without separate strategic framing.</div>
+                    <div class="gr-event-source">FY2024 Annual Report; FY2025 Annual Report</div>
+                  </div>
+                </div>
+              </div>
+              <div>
+                <div class="gr-col-label">Editorial Verdict</div>
+                <div class="gr-verdict">
+                  <div class="gr-verdict-rating">
+                    <span class="gr-verdict-label">Transparency Score</span>
+                    <span class="gr-transparency-score medium">Medium</span>
+                  </div>
+                  <p class="gr-verdict-text">
+                    This is the most defensible exit in the graveyard: the MENA branded generics objective was never given a numeric KPI, was always positioned as a secondary pillar, and its disappearance roughly coincides with the broader EM reprioritisation toward profitability. There is still no formal acknowledgment of its retirement. However, the transition was gradual — visible in reducing language weight over four reporting periods — which makes it a phased-out rather than silently-dropped objective. A mid-transparency result: not invisible, but not clean either.
+                  </p>
+                  <div class="gr-successor">
+                    <div class="gr-successor-label">⇣ Partial Successor</div>
+                    <div class="gr-successor-link">Absorbed into: OBJ 03 "Selective Profitable Growth in EM" — now under Watch status</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div><!-- /graveyard-stones -->
+
+        <div class="graveyard-footnote">Here lie commitments that did not survive contact with reality · PromiseTrack research · public sources only</div>
+
+      </div><!-- /graveyard-field -->
+    </section>
+
+  </main>
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+
+    <!-- Sponsor Card -->
+    <div class="sidebar-section">
+      <div class="sidebar-heading">Partner</div>
+      <div class="sponsor-card">
+        <div class="sponsor-label">Sponsored</div>
+        <div class="sponsor-name">BioPharma Tracker Pro</div>
+        <p class="sponsor-desc">Real-time biosimilar approval monitoring across FDA, EMA and PMDA. Used by 600+ strategy teams globally.</p>
+        <a href="#" class="sponsor-cta">Start free trial →</a>
+      </div>
+    </div>
+
+    <!-- Commitment Confidence -->
+    <div class="sidebar-section">
+      <div class="sidebar-heading">Commitment Confidence Index</div>
+      <div class="confidence-meter">
+        <div class="conf-row">
+          <span class="conf-label">Biosimilar Leadership</span>
+          <div class="conf-track"><div class="conf-fill high" style="width:94%"></div></div>
+          <span class="conf-pct">94%</span>
+        </div>
+        <div class="conf-row">
+          <span class="conf-label">US Penetration</span>
+          <div class="conf-track"><div class="conf-fill high" style="width:88%"></div></div>
+          <span class="conf-pct">88%</span>
+        </div>
+        <div class="conf-row">
+          <span class="conf-label">EM Volume Growth</span>
+          <div class="conf-track"><div class="conf-fill low" style="width:52%"></div></div>
+          <span class="conf-pct">52%</span>
+        </div>
+        <div class="conf-row">
+          <span class="conf-label">Next-Wave Pipeline</span>
+          <div class="conf-track"><div class="conf-fill high" style="width:91%"></div></div>
+          <span class="conf-pct">91%</span>
+        </div>
+        <div class="conf-row">
+          <span class="conf-label">Mfg Simplification</span>
+          <div class="conf-track"><div class="conf-fill low" style="width:41%"></div></div>
+          <span class="conf-pct">41%</span>
+        </div>
+        <div class="conf-row">
+          <span class="conf-label">Margin 24–26%</span>
+          <div class="conf-track"><div class="conf-fill high" style="width:97%"></div></div>
+          <span class="conf-pct">97%</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Recent Signals -->
+    <div class="sidebar-section">
+      <div class="sidebar-heading">Recent Signals</div>
+      <div class="signal-item-sidebar">
+        <div class="signal-si-date">MAR 2026</div>
+        <p class="signal-si-text">FY2025 Annual Report — biosimilar leadership narrative leads for third consecutive year</p>
+        <span class="signal-si-tag positive">Strong Reaffirmation</span>
+      </div>
+      <div class="signal-item-sidebar">
+        <div class="signal-si-date">MAR 2026</div>
+        <p class="signal-si-text">Emerging markets: volume targets absent from FY2025 operational review section</p>
+        <span class="signal-si-tag caution">Silent Shift</span>
+      </div>
+      <div class="signal-item-sidebar">
+        <div class="signal-si-date">FEB 2026</div>
+        <p class="signal-si-text">US biosimilar segment confirmed as fastest-growing revenue contributor</p>
+        <span class="signal-si-tag positive">Milestone</span>
+      </div>
+      <div class="signal-item-sidebar">
+        <div class="signal-si-date">JAN 2026</div>
+        <p class="signal-si-text">Manufacturing site count not disclosed in operations update — third quarter without numeric reference</p>
+        <span class="signal-si-tag caution">Monitoring</span>
+      </div>
+    </div>
+
+    <!-- Tracking Methodology -->
+    <div class="sidebar-section">
+      <div class="sidebar-heading">Methodology Note</div>
+      <p style="font-size:0.68rem;color:var(--ink-muted);line-height:1.6;">
+        All signals sourced from public disclosures: annual reports, earnings call transcripts, regulatory filings, investor day materials. Language classification uses a four-tier rubric: <em>Stated → Reinforced → Softened → Dropped</em>. No proprietary data or inside sources.
+      </p>
+    </div>
+
+  </aside>
+</div>
+
+<!-- BOTTOM SHEET OVERLAY (mobile evidence drawer) -->
+<div class="bottom-sheet-overlay" id="bsOverlay" onclick="closeBottomSheet()"></div>
+<div class="bottom-sheet" id="bottomSheet" role="dialog" aria-modal="true" aria-labelledby="bsTitle">
+  <div class="bottom-sheet-handle"></div>
+  <div class="bottom-sheet-header">
+    <span class="bottom-sheet-title" id="bsTitle">Evidence Record</span>
+    <button class="bottom-sheet-close" onclick="closeBottomSheet()" aria-label="Close">✕</button>
+  </div>
+  <div class="bottom-sheet-body" id="bsBody"></div>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div>
+    <span>© 2026 PromiseTrack</span>
+    <span style="margin: 0 0.75rem; opacity:0.3">|</span>
+    <a href="#">Methodology</a>
+    <span style="margin: 0 0.75rem; opacity:0.3">|</span>
+    <a href="#">Advertise</a>
+    <span style="margin: 0 0.75rem; opacity:0.3">|</span>
+    <a href="#">Data Sources</a>
+  </div>
+  <div class="footer-ad">
+    <span class="footer-ad-label">AD</span>
+    <span class="footer-ad-text">EvaluatePharma · The industry standard for pharma forecasting · evaluatepharma.com</span>
+  </div>
+  <span>All data from public disclosures only</span>
+</footer>
+
+<script>
+  /* ── BREAKPOINT DETECTION ── */
+  const isMobile = () => window.innerWidth <= 768;
+
+  /* ── COLUMNS PER ROW (responsive) ── */
+  function colsPerRow() {
+    const w = window.innerWidth;
+    if (w <= 480) return 1;
+    if (w <= 1100) return 2;
+    return 3;
+  }
+
+  /* ══════════════════
+     HAMBURGER NAV
+  ══════════════════ */
+  const navToggle = document.getElementById('navToggle');
+  const mobileNav = document.getElementById('mobileNav');
+
+  navToggle.addEventListener('click', () => {
+    const isOpen = mobileNav.classList.toggle('open');
+    navToggle.classList.toggle('open', isOpen);
+    navToggle.setAttribute('aria-expanded', isOpen);
+    mobileNav.setAttribute('aria-hidden', !isOpen);
+  });
+
+  // Close nav on outside click
+  document.addEventListener('click', (e) => {
+    if (!navToggle.contains(e.target) && !mobileNav.contains(e.target)) {
+      mobileNav.classList.remove('open');
+      navToggle.classList.remove('open');
+      navToggle.setAttribute('aria-expanded', false);
+      mobileNav.setAttribute('aria-hidden', true);
+    }
+  });
+
+  /* ══════════════════
+     INLINE DRAWER (tablet / desktop)
+  ══════════════════ */
+  let openDrawerId = null;
+  let openCard = null;
+
+  function toggleDrawer(id, card) {
+    // On mobile, route to bottom sheet instead
+    if (isMobile()) {
+      openBottomSheet(id, card);
+      return;
+    }
+
+    const drawer = document.getElementById(id);
+
+    if (openDrawerId === id) {
+      closeDrawer(id);
+      return;
+    }
+
+    if (openDrawerId) {
+      document.getElementById(openDrawerId).classList.remove('open');
+      if (openCard) openCard.classList.remove('expanded');
+    }
+
+    const grid = document.getElementById('objGrid');
+    const cards = Array.from(grid.children).filter(el => el.classList.contains('obj-card'));
+    const cardIndex = cards.indexOf(card);
+    const cols = colsPerRow();
+    const rowEnd = Math.min(Math.ceil((cardIndex + 1) / cols) * cols - 1, cards.length - 1);
+
+    // Find actual DOM position of the row-end card
+    const anchorCard = cards[rowEnd];
+    anchorCard.parentNode.insertBefore(drawer, anchorCard.nextSibling);
+
+    drawer.classList.add('open');
+    card.classList.add('expanded');
+    openDrawerId = id;
+    openCard = card;
+
+    setTimeout(() => {
+      drawer.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }, 80);
+  }
+
+  function closeDrawer(id) {
+    const drawer = document.getElementById(id);
+    drawer.classList.remove('open');
+    if (openCard) openCard.classList.remove('expanded');
+    openDrawerId = null;
+    openCard = null;
+  }
+
+  /* ══════════════════
+     BOTTOM SHEET (mobile)
+  ══════════════════ */
+  const bsOverlay = document.getElementById('bsOverlay');
+  const bottomSheet = document.getElementById('bottomSheet');
+  const bsTitle = document.getElementById('bsTitle');
+  const bsBody = document.getElementById('bsBody');
+
+  // Map of drawer IDs to their title + body content
+  const drawerContent = {};
+
+  // Populate map from existing drawers on load
+  document.querySelectorAll('.evidence-drawer').forEach(drawer => {
+    drawerContent[drawer.id] = {
+      title: drawer.querySelector('.drawer-title')?.textContent || 'Evidence Record',
+      body: drawer.querySelector('.drawer-body')?.innerHTML || ''
+    };
+  });
+
+  function openBottomSheet(id, card) {
+    const content = drawerContent[id];
+    if (!content) return;
+
+    // Deselect any open card
+    if (openCard) openCard.classList.remove('expanded');
+
+    bsTitle.textContent = content.title;
+    bsBody.innerHTML = content.body;
+
+    bsOverlay.classList.add('open');
+    bottomSheet.classList.add('open');
+    document.body.style.overflow = 'hidden';
+
+    card.classList.add('expanded');
+    openCard = card;
+
+    // Announce to screen readers
+    bottomSheet.setAttribute('aria-hidden', false);
+  }
+
+  function closeBottomSheet() {
+    bsOverlay.classList.remove('open');
+    bottomSheet.classList.remove('open');
+    document.body.style.overflow = '';
+    if (openCard) openCard.classList.remove('expanded');
+    openCard = null;
+    bottomSheet.setAttribute('aria-hidden', true);
+  }
+
+  /* ── SWIPE DOWN TO DISMISS ── */
+  let touchStartY = 0;
+  let isDragging = false;
+  let startTranslate = 0;
+
+  bottomSheet.addEventListener('touchstart', (e) => {
+    touchStartY = e.touches[0].clientY;
+    isDragging = true;
+    startTranslate = 0;
+    bottomSheet.style.transition = 'none';
+  }, { passive: true });
+
+  bottomSheet.addEventListener('touchmove', (e) => {
+    if (!isDragging) return;
+    const delta = e.touches[0].clientY - touchStartY;
+    if (delta > 0) {
+      bottomSheet.style.transform = `translateY(${delta}px)`;
+    }
+  }, { passive: true });
+
+  bottomSheet.addEventListener('touchend', (e) => {
+    if (!isDragging) return;
+    isDragging = false;
+    bottomSheet.style.transition = '';
+    const delta = e.changedTouches[0].clientY - touchStartY;
+    if (delta > 120) {
+      closeBottomSheet();
+      bottomSheet.style.transform = '';
+    } else {
+      bottomSheet.style.transform = '';
+    }
+  }, { passive: true });
+
+  /* ── CLOSE BOTTOM SHEET ON RESIZE TO DESKTOP ── */
+  window.addEventListener('resize', () => {
+    if (!isMobile() && bottomSheet.classList.contains('open')) {
+      closeBottomSheet();
+    }
+    // Recalculate open inline drawer row placement on resize
+    if (openDrawerId && !isMobile()) {
+      const drawer = document.getElementById(openDrawerId);
+      const grid = document.getElementById('objGrid');
+      const cards = Array.from(grid.children).filter(el => el.classList.contains('obj-card'));
+      const cardIndex = cards.indexOf(openCard);
+      const cols = colsPerRow();
+      const rowEnd = Math.min(Math.ceil((cardIndex + 1) / cols) * cols - 1, cards.length - 1);
+      const anchorCard = cards[rowEnd];
+      anchorCard.parentNode.insertBefore(drawer, anchorCard.nextSibling);
+    }
+  });
+
+  /* ══════════════════
+     GRAVEYARD RECORDS
+  ══════════════════ */
+  let openGraveId = null;
+  let openGraveStone = null;
+
+  function toggleGraveRecord(id, stone) {
+    const record = document.getElementById(id);
+
+    if (openGraveId === id) {
+      closeGraveRecord(id);
+      return;
+    }
+
+    // Close any open record
+    if (openGraveId) {
+      document.getElementById(openGraveId).classList.remove('open');
+      if (openGraveStone) {
+        openGraveStone.querySelector('.stone-expand').textContent = '↓ open record';
+        openGraveStone.querySelector('.stone-shape').style.borderColor = '';
+      }
+    }
+
+    // Insert record after the stone's row in the grid
+    const grid = document.getElementById('graveyardGrid');
+    const stones = Array.from(grid.children).filter(el => el.classList.contains('gravestone'));
+    const stoneIndex = stones.indexOf(stone);
+    const gCols = window.innerWidth <= 480 ? 1 : window.innerWidth <= 1100 ? 2 : 3;
+    const rowEnd = Math.min(Math.ceil((stoneIndex + 1) / gCols) * gCols - 1, stones.length - 1);
+    const anchorStone = stones[rowEnd];
+    anchorStone.parentNode.insertBefore(record, anchorStone.nextSibling);
+
+    record.classList.add('open');
+    stone.querySelector('.stone-expand').textContent = '↑ close record';
+    stone.querySelector('.stone-shape').style.borderColor = 'rgba(160,120,42,0.4)';
+
+    openGraveId = id;
+    openGraveStone = stone;
+
+    setTimeout(() => {
+      record.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }, 80);
+  }
+
+  function closeGraveRecord(id) {
+    const record = document.getElementById(id);
+    record.classList.remove('open');
+    if (openGraveStone) {
+      openGraveStone.querySelector('.stone-expand').textContent = '↓ open record';
+      openGraveStone.querySelector('.stone-shape').style.borderColor = '';
+    }
+    openGraveId = null;
+    openGraveStone = null;
+  }
+
+  // Recalculate graveyard record placement on resize
+  window.addEventListener('resize', () => {
+    if (openGraveId && openGraveStone) {
+      const record = document.getElementById(openGraveId);
+      const grid = document.getElementById('graveyardGrid');
+      const stones = Array.from(grid.children).filter(el => el.classList.contains('gravestone'));
+      const stoneIndex = stones.indexOf(openGraveStone);
+      const gCols = window.innerWidth <= 480 ? 1 : window.innerWidth <= 1100 ? 2 : 3;
+      const rowEnd = Math.min(Math.ceil((stoneIndex + 1) / gCols) * gCols - 1, stones.length - 1);
+      const anchorStone = stones[rowEnd];
+      anchorStone.parentNode.insertBefore(record, anchorStone.nextSibling);
+    }
+  });
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      if (bottomSheet.classList.contains('open')) closeBottomSheet();
+      if (openDrawerId) closeDrawer(openDrawerId);
+      if (openGraveId) closeGraveRecord(openGraveId);
+      if (mobileNav.classList.contains('open')) {
+        mobileNav.classList.remove('open');
+        navToggle.classList.remove('open');
+      }
+    }
+  });
+</script>
+
+</body>
+</html>

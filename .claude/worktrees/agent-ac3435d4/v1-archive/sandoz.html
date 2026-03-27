@@ -1,0 +1,2263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="color-scheme" content="dark">
+<title>Drift — Sandoz AG · The Golden Decade</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;0,900;1,400;1,700&family=Source+Serif+4:ital,opsz,wght@0,8..60,300;0,8..60,400;0,8..60,600;1,8..60,300;1,8..60,400&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* ─────────────────────────────────────────────
+   TOKENS
+───────────────────────────────────────────── */
+:root {
+  /* Backgrounds */
+  --bg:           #111111;
+  --bg-deep:      #0d0d0d;
+  --surface:      #191919;
+  --surface2:     #222222;
+  --surface3:     #2a2a2a;
+  --surface-soil: #1a1510;
+  --surface-sky:  #111a11;
+
+  /* Text — inverted for dark theme */
+  --ink:          #eeeeee;
+  --ink-light:    #cccccc;
+  --ink-muted:    #999999;
+  --ink-faint:    #666666;
+  --ink-ghost:    #444444;
+
+  /* Backward-compat aliases */
+  --parchment:    #eeeeee;
+  --parchment-dark: #cccccc;
+  --parchment-deeper: #aaaaaa;
+
+  /* Brand Crema */
+  --gold:         #ffe0c2;
+  --gold-light:   #ffe0c2;
+  --gold-pale:    #393028;
+  --rule:         #2a2520;
+  --border:       rgba(255,224,194,.12);
+  --border2:      rgba(255,224,194,.22);
+
+  /* Status — dark variants */
+  --status-active:    #4ade80;
+  --status-active-bg: #0f2b1f;
+  --status-drift:     #f59e0b;
+  --status-drift-bg:  #2a1a05;
+  --status-morphed:   #60a5fa;
+  --status-morphed-bg:#0a1e2e;
+  --status-dropped:   #f87171;
+  --status-dropped-bg:#1e0a0a;
+  --status-achieved:  #4ade80;
+  --status-achieved-bg:#0a2018;
+
+  /* Stage palette (semantic) — preserved */
+  --c-orbit:  #6EE7B7;
+  --c-fly:    #86EFAC;
+  --c-run:    #BBF7D0;
+  --c-walk:   #FDE68A;
+  --c-watch:  #FCD34D;
+  --c-crawl:  #FCA5A5;
+  --c-drag:   #F87171;
+  --c-sink:   #EF4444;
+  --c-buried: #991B1B;
+
+  /* Elevation — darker */
+  --shadow-sm: 0 2px 6px rgba(0,0,0,.35), 0 1px 2px rgba(0,0,0,.25);
+  --shadow-md: 0 6px 20px rgba(0,0,0,.4), 0 2px 6px rgba(0,0,0,.3);
+  --shadow-lg: 0 12px 40px rgba(0,0,0,.5), 0 4px 12px rgba(0,0,0,.35);
+  --shadow-gold: 0 0 24px rgba(255,224,194,.08);
+
+  /* Layout */
+  --ground-y: 300px;
+  --stage-px: 55px;
+  --t-left:   90px;
+  --t-right:  1340px;
+}
+
+/* ─────────────────────────────────────────────
+   BASE
+───────────────────────────────────────────── */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+::selection { background: rgba(255,224,194,.25); color: #eeeeee; }
+html{font-size:16px;scroll-behavior:smooth;}
+body{
+  background:var(--bg);
+  color:var(--ink);
+  font-family:'Source Serif 4',Georgia,serif;
+  font-weight:300;
+  line-height:1.65;
+  overflow-x:hidden;
+}
+
+
+/* ─────────────────────────────────────────────
+   MASTHEAD
+───────────────────────────────────────────── */
+.mast{
+  position:fixed;top:0;left:0;right:0;z-index:300;
+  height:52px;
+  background:var(--bg-deep);
+  border-bottom:2px solid var(--gold);
+  display:flex;align-items:center;
+  padding:0 1.75rem;
+  gap:1.5rem;
+  transition:box-shadow .3s;
+}
+.mast.scrolled{
+  box-shadow:0 2px 12px rgba(255,224,194,.06);
+}
+.drift-logo{
+  font-family:'Playfair Display',serif;
+  font-size:1.8rem;font-weight:700;font-style:italic;
+  color:var(--parchment);letter-spacing:-.02em;
+  text-decoration:none;flex-shrink:0;
+}
+.drift-logo .logo-dot{color:var(--gold-light);}
+.mast-sep{width:1px;height:18px;background:rgba(255,224,194,.15);flex-shrink:0;}
+.mast-company{
+  font-family:'JetBrains Mono',monospace;
+  font-size:.65rem;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--ink-faint);
+}
+.mast-right{
+  margin-left:auto;
+  display:flex;align-items:center;gap:1.25rem;
+}
+.mast-nav a{
+  font-family:'JetBrains Mono',monospace;
+  font-size:.65rem;letter-spacing:.08em;text-transform:uppercase;
+  color:var(--ink-faint);text-decoration:none;transition:color .2s;
+}
+.mast-nav a:hover{color:var(--parchment);}
+.mast-date{
+  font-family:'JetBrains Mono',monospace;
+  font-size:.65rem;letter-spacing:.06em;
+  color:var(--ink-faint);
+}
+
+/* Mobile nav toggle */
+.mast-toggle{
+  display:none;background:none;border:none;cursor:pointer;
+  padding:.25rem;flex-direction:column;gap:4px;
+}
+.mast-toggle span{
+  display:block;width:18px;height:1.5px;
+  background:rgba(255,224,194,.5);border-radius:1px;
+  transition:all .25s ease;transform-origin:center;
+}
+.mast-toggle.open span:nth-child(1){transform:translateY(5.5px) rotate(45deg);}
+.mast-toggle.open span:nth-child(2){opacity:0;}
+.mast-toggle.open span:nth-child(3){transform:translateY(-5.5px) rotate(-45deg);}
+
+.mobile-drawer{
+  display:none;position:fixed;
+  top:52px;left:0;right:0;
+  background:var(--bg-deep);
+  border-bottom:2px solid var(--gold);
+  z-index:299;flex-direction:column;
+  padding:.5rem 0;
+}
+.mobile-drawer.open{display:flex;}
+.mobile-drawer a{
+  font-family:'JetBrains Mono',monospace;font-size:.85rem;
+  letter-spacing:.06em;text-transform:uppercase;
+  color:var(--ink-faint);text-decoration:none;
+  padding:.7rem 1.75rem;
+  border-bottom:1px solid rgba(255,224,194,.08);
+  transition:color .15s,background .15s;
+}
+.mobile-drawer a:hover{color:var(--parchment);background:rgba(255,255,255,.04);}
+
+/* ─────────────────────────────────────────────
+   COMPANY HEADER
+───────────────────────────────────────────── */
+.co-header{
+  padding:5.5rem 1.75rem 0;
+  max-width:1200px;margin:0 auto;
+  display:grid;
+  grid-template-columns:auto 1fr auto;
+  gap:1.5rem;
+  align-items:start;
+}
+
+.co-mark{
+  width:56px;height:56px;
+  background:var(--bg-deep);
+  border-radius:6px;
+  display:flex;align-items:center;justify-content:center;
+  font-family:'Playfair Display',serif;
+  font-size:1.1rem;font-weight:700;
+  color:var(--gold-light);
+  letter-spacing:-.02em;
+  flex-shrink:0;
+}
+
+.co-meta{}
+.co-name{
+  font-family:'Playfair Display',serif;
+  font-size:clamp(1.6rem,4vw,2.4rem);
+  font-weight:900;letter-spacing:-.05em;
+  color:var(--ink);line-height:1.05;
+}
+.co-initiative{
+  font-family:'Playfair Display',serif;
+  font-size:clamp(.9rem,2vw,1.1rem);
+  font-style:italic;
+  color:var(--gold);margin-top:.2rem;
+}
+.co-desc{
+  font-size:.85rem;color:var(--ink-faint);
+  margin-top:.4rem;line-height:1.6;
+  max-width:580px;
+}
+
+.co-stats{
+  display:flex;flex-direction:column;
+  align-items:flex-end;gap:.6rem;
+  flex-shrink:0;
+}
+.co-stat-num{
+  font-family:'Playfair Display',serif;
+  font-size:1.5rem;font-weight:700;
+  color:var(--ink);line-height:1;text-align:right;
+}
+.co-stat-num em{color:var(--gold);font-style:normal;}
+.co-stat-lbl{
+  font-family:'JetBrains Mono',monospace;
+  font-size:.65rem;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--ink-ghost);margin-top:.1rem;text-align:right;
+}
+
+/* Overall commitment bar */
+.co-commitment{
+  max-width:1200px;margin:.75rem auto 0;
+  padding:0 1.75rem;
+  display:flex;align-items:center;gap:1rem;
+}
+.commit-label{
+  font-family:'JetBrains Mono',monospace;
+  font-size:.65rem;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--ink-ghost);white-space:nowrap;
+}
+.commit-track{
+  flex:1;height:3px;background:var(--surface3);
+  border-radius:2px;overflow:hidden;
+}
+.commit-fill{
+  height:100%;border-radius:2px;
+  background:linear-gradient(to right,var(--gold-d),var(--gold));
+  transition:width 1.2s ease;
+}
+.commit-score{
+  font-family:'JetBrains Mono',monospace;
+  font-size:.6rem;letter-spacing:.06em;
+  color:var(--gold);
+}
+
+/* ─────────────────────────────────────────────
+   SECTION CHROME
+───────────────────────────────────────────── */
+.section-rule{
+  max-width:1200px;margin:0 auto;
+  padding:0 1.75rem;
+}
+.rule-inner{
+  display:flex;align-items:center;gap:.75rem;
+  border-top:2px solid var(--rule);
+  padding-top:1.5rem;margin-top:1.75rem;
+}
+.rule-text{
+  font-family:'JetBrains Mono',monospace;
+  font-size:.65rem;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--ink-faint);white-space:nowrap;
+}
+.rule-line{flex:1;height:1px;background:var(--rule);}
+
+/* ─────────────────────────────────────────────
+   NARRATIVE EDITORIAL CARD
+───────────────────────────────────────────── */
+.narrative{
+  max-width:1200px;margin:1.25rem auto 0;
+  padding:0 1.75rem;
+}
+.narrative-inner{
+  background:var(--surface);
+  border:1px solid var(--rule);
+  border-left:4px solid var(--gold);
+  border-radius:6px;
+  padding:1.1rem 1.4rem;
+  box-shadow:var(--shadow-sm);
+}
+.narrative-kicker{
+  font-family:'JetBrains Mono',monospace;
+  font-size:.65rem;letter-spacing:.12em;text-transform:uppercase;
+  color:var(--gold);margin-bottom:.4rem;
+}
+.narrative-text{
+  font-size:.85rem;color:var(--ink-muted);line-height:1.75;
+}
+.narrative-text strong{color:var(--ink);font-weight:600;}
+
+/* ─────────────────────────────────────────────
+   TIMELINE
+───────────────────────────────────────────── */
+.tl-section{
+  margin-top:1.5rem;
+  position:relative;
+}
+
+/* Atmospheric background gradient matching above/below metaphor */
+.tl-atmosphere{
+  position:absolute;inset:0;
+  background:linear-gradient(to bottom,
+    rgba(17,26,17,0.0) 0%,
+    rgba(17,26,17,0.08) 20%,
+    rgba(255,224,194,0.03) calc(var(--ground-y) - 20px),
+    rgba(255,224,194,0.05) calc(var(--ground-y) + 20px),
+    rgba(26,21,16,0.10) 70%,
+    rgba(17,17,17,0.0) 100%
+  );
+  pointer-events:none;
+}
+
+.tl-header{
+  max-width:1200px;margin:0 auto;
+  padding:0 1.75rem .75rem;
+  display:flex;justify-content:space-between;align-items:flex-end;
+  flex-wrap:wrap;gap:.5rem;
+}
+.tl-title{
+  font-family:'Playfair Display',serif;
+  font-size:1rem;font-weight:700;font-style:italic;
+  color:var(--ink-muted);
+}
+.tl-hint{
+  font-family:'JetBrains Mono',monospace;
+  font-size:.7rem;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--ink-faint);
+  animation:fadeSlide 2.5s ease infinite;
+}
+@keyframes fadeSlide{0%,100%{opacity:.4}50%{opacity:.9}}
+
+.tl-scroll-wrap{
+  overflow-x:auto;
+  overflow-y:visible;
+  -webkit-overflow-scrolling:touch;
+  scrollbar-width:thin;
+  scrollbar-color:rgba(255,224,194,.2) transparent;
+  padding-bottom:.5rem;
+}
+.tl-scroll-wrap::-webkit-scrollbar{height:3px;}
+.tl-scroll-wrap::-webkit-scrollbar-thumb{
+  background:rgba(255,224,194,.2);border-radius:2px;
+}
+
+.tl-canvas{
+  position:relative;
+  width:1400px;
+  height:660px;
+}
+
+/* Ground line */
+.tl-ground{
+  position:absolute;
+  left:0;right:0;
+  top:var(--ground-y);
+  pointer-events:none;
+}
+.tl-ground-bar{
+  position:absolute;
+  left:40px;right:40px;top:0;
+  height:2px;
+  background:linear-gradient(to right,
+    transparent,
+    rgba(255,224,194,.6) 8%,
+    rgba(255,224,194,.35) 50%,
+    rgba(255,224,194,.6) 92%,
+    transparent
+  );
+}
+/* Soil texture strip */
+.tl-ground-soil{
+  position:absolute;
+  left:40px;right:40px;top:2px;
+  height:28px;
+  background:linear-gradient(to bottom,
+    rgba(255,224,194,.06),
+    transparent
+  );
+}
+/* Ground label */
+.tl-ground-lbl{
+  position:absolute;
+  left:48px;top:-9px;
+  font-family:'JetBrains Mono',monospace;
+  font-size:.7rem;letter-spacing:.12em;text-transform:uppercase;
+  color:rgba(255,224,194,.55);
+  background:var(--bg);
+  padding:.1rem .45rem;
+  border:1px solid rgba(255,224,194,.25);
+  border-radius:10px;
+}
+
+/* Time axis */
+.tl-time-axis{
+  position:absolute;
+  bottom:32px;
+  left:90px;right:40px;
+  height:1px;
+  background:rgba(255,255,255,.04);
+}
+.tl-tick{
+  position:absolute;
+  top:-3px;
+  width:1px;height:7px;
+  background:rgba(255,255,255,.05);
+  transform:translateX(-50%);
+}
+.tl-month{
+  position:absolute;
+  top:10px;
+  font-family:'JetBrains Mono',monospace;
+  font-size:.7rem;letter-spacing:.06em;
+  color:var(--ink-faint);
+  transform:translateX(-50%);
+  white-space:nowrap;
+}
+
+/* SVG connector layer */
+#tl-svg{
+  position:absolute;inset:0;
+  width:100%;height:100%;
+  pointer-events:none;overflow:visible;
+}
+
+/* ── OBJECTIVE NODE ── */
+.tl-node{
+  position:absolute;
+  transform:translate(-50%,-50%);
+  cursor:pointer;
+  z-index:20;
+}
+
+.tl-node-body{
+  width:44px;height:44px;
+  border-radius:50%;
+  background:var(--surface);
+  border:1.5px solid var(--node-clr, rgba(255,255,255,.1));
+  display:flex;align-items:center;justify-content:center;
+  transition:transform .25s cubic-bezier(.23,1,.32,1), box-shadow .25s cubic-bezier(.23,1,.32,1), border-color .25s cubic-bezier(.23,1,.32,1);
+  position:relative;
+  box-shadow:var(--shadow-sm);
+}
+.tl-node:hover .tl-node-body{
+  transform:scale(1.2);
+  box-shadow:0 0 0 5px rgba(var(--node-rgb),0.12), var(--shadow-md);
+  border-color:var(--node-clr);
+}
+
+/* Outer pulse ring for latest node */
+.tl-node.latest .tl-node-body::after{
+  content:'';
+  position:absolute;inset:-5px;
+  border-radius:50%;
+  border:1px solid var(--node-clr, rgba(255,255,255,.06));
+  opacity:.4;
+  animation:ringPulse 2.5s ease infinite;
+}
+@keyframes ringPulse{
+  0%{transform:scale(1);opacity:.4}
+  70%{transform:scale(1.4);opacity:0}
+  100%{transform:scale(1.4);opacity:0}
+}
+
+.tl-node-icon{
+  width:26px;height:26px;
+  display:flex;align-items:center;justify-content:center;
+}
+
+/* Stage label below node */
+.tl-node-lbl{
+  position:absolute;
+  top:50px;left:50%;transform:translateX(-50%);
+  text-align:center;
+  pointer-events:none;
+  white-space:nowrap;
+}
+.tl-node-stage{
+  font-family:'JetBrains Mono',monospace;
+  font-size:.7rem;letter-spacing:.08em;text-transform:uppercase;
+  font-weight:500;
+  color:var(--node-clr, var(--ink-ghost));
+  display:block;
+}
+
+/* ── TOOLTIP ── */
+.tl-tooltip{
+  position:absolute;
+  bottom:calc(100% + 14px);
+  left:50%;transform:translateX(-50%);
+  width:210px;
+  background:rgba(25,25,25,.97);
+  border:1px solid var(--border2);
+  border-radius:7px;
+  padding:.75rem .9rem;
+  pointer-events:none;
+  opacity:0;
+  transition:opacity .18s ease;
+  z-index:100;
+  box-shadow:var(--shadow-lg);
+}
+.tl-node:hover .tl-tooltip{opacity:1;}
+.tl-tooltip.flip{bottom:auto;top:calc(100% + 14px);}
+
+.tt-stage{
+  font-family:'JetBrains Mono',monospace;
+  font-size:.7rem;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--node-clr, var(--gold));
+  margin-bottom:.3rem;
+  display:flex;align-items:center;gap:.35rem;
+}
+.tt-obj{
+  font-family:'Source Serif 4',serif;
+  font-size:.88rem;font-weight:600;
+  color:var(--ink);line-height:1.3;
+  margin-bottom:.3rem;
+}
+.tt-signal{
+  font-size:.8rem;color:var(--ink-muted);
+  line-height:1.55;font-style:italic;
+}
+.tt-source{
+  font-family:'JetBrains Mono',monospace;
+  font-size:.7rem;color:var(--ink-faint);
+  margin-top:.4rem;letter-spacing:.04em;
+}
+/* Tooltip arrow */
+.tl-tooltip::before{
+  content:'';
+  position:absolute;bottom:-5px;left:50%;transform:translateX(-50%) rotate(45deg);
+  width:8px;height:8px;
+  background:rgba(25,25,25,.97);
+  border-right:1px solid var(--border2);
+  border-bottom:1px solid var(--border2);
+}
+.tl-tooltip.flip::before{
+  bottom:auto;top:-5px;
+  border-right:none;border-bottom:none;
+  border-left:1px solid var(--border2);
+  border-top:1px solid var(--border2);
+}
+
+/* Ground crossing marker */
+.tl-cross{
+  position:absolute;
+  transform:translate(-50%,-50%);
+  z-index:15;pointer-events:none;
+}
+.tl-cross-ring{
+  width:18px;height:18px;border-radius:50%;
+  border:2px solid #EF4444;
+  position:relative;
+}
+.tl-cross-ring::before{
+  content:'';position:absolute;inset:4px;
+  border-radius:50%;background:#EF4444;opacity:.5;
+}
+.tl-cross-ring::after{
+  content:'';position:absolute;inset:-8px;
+  border-radius:50%;
+  border:1px solid rgba(239,68,68,.3);
+  animation:crossPulse 2s ease infinite;
+}
+@keyframes crossPulse{
+  0%{transform:scale(1);opacity:.4}
+  70%{transform:scale(1.8);opacity:0}
+  100%{transform:scale(1.8);opacity:0}
+}
+.tl-cross-lbl{
+  position:absolute;
+  top:22px;left:50%;transform:translateX(-50%);
+  font-family:'JetBrains Mono',monospace;
+  font-size:.6rem;letter-spacing:.08em;text-transform:uppercase;
+  color:#EF4444;white-space:nowrap;
+  background:rgba(17,17,17,.88);
+  padding:.1rem .35rem;border-radius:2px;
+}
+
+/* ─────────────────────────────────────────────
+   OBJECTIVE CARDS
+───────────────────────────────────────────── */
+.cards-section{
+  max-width:1200px;margin:0 auto;
+  padding:0 1.75rem 1rem;
+}
+.cards-grid{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:.9rem;
+}
+
+.obj-card{
+  background:var(--surface);
+  border:1px solid var(--rule);
+  border-radius:8px;
+  padding:1rem 1.1rem;
+  cursor:pointer;
+  transition:all .25s cubic-bezier(.23,1,.32,1);
+  position:relative;
+  overflow:hidden;
+  box-shadow:var(--shadow-sm);
+}
+.obj-card::before{
+  content:'';
+  position:absolute;top:0;left:0;right:0;
+  height:3px;
+  background:var(--card-accent, var(--rule));
+  transition:height .25s cubic-bezier(.23,1,.32,1);
+}
+.obj-card:hover{
+  box-shadow:var(--shadow-md);
+  transform:translateY(-3px);
+  border-color:var(--border2);
+}
+.obj-card:hover::before{height:4px;}
+.obj-card.expanded{
+  border-color:var(--gold);
+  box-shadow:var(--shadow-lg);
+}
+
+.obj-card.s-active{--card-accent:var(--status-active);}
+.obj-card.s-watch {--card-accent:var(--status-drift);}
+.obj-card.s-drift {--card-accent:var(--status-drift);}
+.obj-card.s-buried{--card-accent:var(--status-dropped);}
+
+.card-top{
+  display:flex;justify-content:space-between;align-items:flex-start;
+  margin-bottom:.6rem;
+}
+.card-num{
+  font-family:'JetBrains Mono',monospace;
+  font-size:.65rem;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--ink-ghost);
+}
+
+.status-badge{
+  font-family:'JetBrains Mono',monospace;
+  font-size:.65rem;letter-spacing:.07em;text-transform:uppercase;
+  padding:.18rem .45rem;border-radius:3px;
+}
+.sb-active  {background:var(--status-active-bg);color:var(--status-active);}
+.sb-watch   {background:var(--status-drift-bg);color:var(--status-drift);}
+.sb-drift   {background:var(--status-drift-bg);color:var(--status-drift);}
+.sb-buried  {background:var(--status-dropped-bg);color:var(--status-dropped);}
+
+/* Momentum icon + stage name row */
+.card-momentum{
+  display:flex;align-items:center;gap:.6rem;
+  margin-bottom:.55rem;
+}
+.card-stage-icon{
+  width:36px;height:36px;flex-shrink:0;
+}
+.card-stage-name{
+  font-family:'Playfair Display',serif;
+  font-size:.88rem;font-weight:700;font-style:italic;
+  line-height:1;
+}
+.card-stage-score{
+  font-family:'JetBrains Mono',monospace;
+  font-size:.65rem;letter-spacing:.08em;text-transform:uppercase;
+  color:var(--ink-ghost);margin-top:.1rem;
+}
+
+.card-title{
+  font-family:'Playfair Display',serif;
+  font-size:.95rem;font-weight:700;
+  color:var(--ink);line-height:1.25;
+  margin-bottom:.3rem;
+}
+.card-subtitle{
+  font-size:.75rem;color:var(--ink-faint);
+  line-height:1.5;margin-bottom:.65rem;
+}
+
+/* Mini timeline dots */
+.card-mini-tl{
+  display:flex;align-items:center;
+  height:20px;margin-bottom:.6rem;
+  position:relative;
+}
+.card-mini-tl::before{
+  content:'';
+  position:absolute;left:0;right:0;top:50%;
+  height:1px;background:var(--surface3);
+  transform:translateY(-50%);
+}
+.mini-dot{
+  width:10px;height:10px;
+  border-radius:50%;
+  border:1.5px solid var(--bg);
+  position:relative;z-index:1;
+  flex-shrink:0;
+}
+.mini-spacer{flex:1;}
+
+.card-footer{
+  display:flex;justify-content:space-between;align-items:center;
+  padding-top:.55rem;
+  border-top:1px solid var(--parchment-dark);
+}
+.card-signals{
+  font-family:'JetBrains Mono',monospace;
+  font-size:.65rem;letter-spacing:.05em;
+  color:var(--ink-ghost);
+}
+.card-updated{
+  font-family:'JetBrains Mono',monospace;
+  font-size:.65rem;color:var(--ink-ghost);letter-spacing:.04em;
+}
+
+/* ── EVIDENCE DRAWER ── */
+.ev-drawer{
+  display:none;
+  margin-top:.75rem;
+  background:var(--surface);
+  border:1px solid var(--rule);
+  border-radius:8px;
+  overflow:hidden;
+  animation:drawerOpen .25s ease;
+  grid-column:1/-1;
+  box-shadow:var(--shadow-md);
+}
+.ev-drawer.open{display:block;}
+@keyframes drawerOpen{
+  from{opacity:0;transform:translateY(-6px)}
+  to{opacity:1;transform:translateY(0)}
+}
+.ev-drawer-head{
+  background:var(--bg-deep);
+  padding:.85rem 1.25rem;
+  display:flex;justify-content:space-between;align-items:center;
+}
+.ev-drawer-title{
+  font-family:'Playfair Display',serif;
+  font-size:.95rem;font-weight:600;font-style:italic;
+  color:var(--parchment);
+}
+.ev-close{
+  background:none;border:none;color:var(--ink-faint);
+  cursor:pointer;font-size:1rem;line-height:1;
+  padding:.25rem;min-width:32px;min-height:32px;
+  display:flex;align-items:center;justify-content:center;
+  border-radius:4px;transition:color .15s;
+}
+.ev-close:hover{color:var(--parchment);}
+.ev-drawer-body{
+  padding:1.1rem;
+  display:flex;flex-direction:column;gap:.75rem;
+}
+.ev-event{
+  padding:.65rem .75rem;
+  border-radius:5px;
+  background:var(--surface2);
+  border-left:2px solid var(--ev-clr, var(--border));
+  position:relative;
+}
+.ev-event-head{
+  display:flex;align-items:center;gap:.75rem;
+  margin-bottom:.3rem;flex-wrap:wrap;
+}
+.ev-date{
+  font-family:'JetBrains Mono',monospace;
+  font-size:.65rem;letter-spacing:.08em;text-transform:uppercase;
+  color:var(--ink-ghost);
+}
+.ev-type{
+  font-family:'JetBrains Mono',monospace;
+  font-size:.65rem;letter-spacing:.07em;text-transform:uppercase;
+  padding:.12rem .38rem;border-radius:3px;
+}
+.ev-t-stated     {background:var(--parchment-dark);color:var(--ink-muted);}
+.ev-t-reinforced {background:var(--status-active-bg);color:var(--status-active);}
+.ev-t-softened   {background:var(--status-drift-bg);color:var(--status-drift);}
+.ev-t-silent     {background:var(--status-dropped-bg);color:var(--status-dropped);}
+.ev-source{
+  font-family:'JetBrains Mono',monospace;
+  font-size:.65rem;color:var(--ink-ghost);
+  margin-left:auto;letter-spacing:.04em;
+}
+.ev-text{
+  font-size:.75rem;color:var(--ink-muted);
+  line-height:1.65;font-style:italic;
+  border-left:2px solid var(--ev-clr, var(--surface3));
+  padding-left:.6rem;margin-top:.25rem;
+}
+.ev-reasoning{
+  font-family:'JetBrains Mono',monospace;
+  font-size:.65rem;color:var(--ink-ghost);
+  line-height:1.55;margin-top:.35rem;
+  padding-top:.35rem;
+  border-top:1px solid var(--surface3);
+}
+
+/* ─────────────────────────────────────────────
+   GRAVEYARD
+───────────────────────────────────────────── */
+.graveyard{
+  margin-top:1rem;
+  position:relative;
+}
+
+.gy-field{
+  background:linear-gradient(to bottom, #1a1510, #151008, #1a1510);
+  border-top:1px solid rgba(255,224,194,.08);
+  border-bottom:1px solid rgba(255,224,194,.05);
+  padding:2rem 1.75rem 2.5rem;
+  position:relative;overflow:hidden;
+}
+/* soil grid lines */
+.gy-field::before{
+  content:'';position:absolute;inset:0;
+  background-image:
+    repeating-linear-gradient(0deg,transparent,transparent 36px,rgba(255,255,255,.02) 36px,rgba(255,255,255,.02) 37px),
+    repeating-linear-gradient(90deg,transparent,transparent 36px,rgba(255,255,255,.02) 36px,rgba(255,255,255,.02) 37px);
+  pointer-events:none;
+}
+/* fog at bottom */
+.gy-field::after{
+  content:'';position:absolute;
+  bottom:0;left:0;right:0;height:80px;
+  background:linear-gradient(to top,rgba(26,21,16,.5),transparent);
+  pointer-events:none;
+}
+
+.gy-header{
+  max-width:1200px;margin:0 auto 1.75rem;
+  display:flex;align-items:center;gap:1rem;
+  position:relative;z-index:1;
+}
+.gy-icon{font-size:.9rem;opacity:.4;}
+.gy-title{
+  font-family:'JetBrains Mono',monospace;
+  font-size:.65rem;letter-spacing:.14em;text-transform:uppercase;
+  color:rgba(255,224,194,.4);
+}
+.gy-rule{flex:1;height:1px;background:rgba(255,224,194,.1);}
+.gy-count{
+  font-family:'JetBrains Mono',monospace;
+  font-size:.65rem;letter-spacing:.1em;
+  color:var(--ink-ghost);
+}
+
+.gy-stones{
+  max-width:1200px;margin:0 auto;
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:1rem;
+  position:relative;z-index:1;
+}
+
+/* ── GRAVESTONE ── */
+.gravestone{
+  cursor:pointer;
+  display:flex;flex-direction:column;
+}
+.stone-shape{
+  background:linear-gradient(160deg, #2a2520, #222018);
+  border:1px solid rgba(255,224,194,.12);
+  border-radius:46% 46% 4px 4px / 24px 24px 4px 4px;
+  padding:1.25rem .9rem 1rem;
+  text-align:center;
+  transition:all .3s cubic-bezier(.23,1,.32,1);
+  box-shadow:0 4px 0 rgba(0,0,0,.3),0 6px 20px rgba(0,0,0,.25);
+  position:relative;
+}
+.gravestone:hover .stone-shape{
+  border-color:rgba(255,224,194,.2);
+  box-shadow:0 4px 0 rgba(0,0,0,.3),0 8px 28px rgba(0,0,0,.3),0 0 18px rgba(255,224,194,.04);
+  transform:translateY(-3px);
+}
+.gravestone.open .stone-shape{
+  border-color:rgba(255,224,194,.3);
+}
+
+/* Worn cross engraving */
+.stone-cross{
+  font-size:.95rem;opacity:.18;
+  margin-bottom:.55rem;color:var(--ink);
+  letter-spacing:.05em;
+}
+.stone-num{
+  font-family:'JetBrains Mono',monospace;
+  font-size:.6rem;letter-spacing:.12em;text-transform:uppercase;
+  color:var(--ink-ghost);margin-bottom:.4rem;
+}
+.stone-title{
+  font-family:'Playfair Display',serif;
+  font-size:.85rem;font-weight:600;
+  color:var(--ink-light);
+  line-height:1.25;margin-bottom:.45rem;
+}
+.stone-dates{
+  font-family:'JetBrains Mono',monospace;
+  font-size:.65rem;letter-spacing:.07em;
+  color:var(--ink-faint);
+  margin-bottom:.55rem;
+}
+.stone-epitaph{
+  font-size:.65rem;font-style:italic;
+  color:var(--ink-muted);
+  line-height:1.55;margin-bottom:.65rem;
+  padding:0 .25rem;
+}
+.stone-manner{
+  display:inline-flex;align-items:center;gap:.25rem;
+  font-family:'JetBrains Mono',monospace;
+  font-size:.65rem;letter-spacing:.07em;text-transform:uppercase;
+  padding:.2rem .5rem;border-radius:3px;
+}
+.sm-silent  {background:#2a1010;color:#f87171;border:1px solid #4a2020;}
+.sm-morphed {background:#0a1e2e;color:#60a5fa;border:1px solid #1a3a5a;}
+.sm-phased  {background:#2a1a05;color:#fbbf24;border:1px solid #4a3010;}
+.sm-transparent{background:#0a2018;color:#4ade80;border:1px solid #1a4030;}
+
+/* grass base */
+.stone-base{
+  height:5px;
+  background:linear-gradient(to bottom,rgba(255,255,255,.03),transparent);
+  border-radius:0 0 2px 2px;
+}
+.stone-expand{
+  text-align:center;margin-top:.45rem;
+  font-family:'JetBrains Mono',monospace;
+  font-size:.6rem;letter-spacing:.08em;text-transform:uppercase;
+  color:var(--ink-ghost);
+  transition:color .2s;
+}
+.gravestone:hover .stone-expand{color:rgba(255,224,194,.4);}
+
+/* ── GRAVE RECORD ── */
+.grave-record{
+  display:none;
+  background:rgba(255,255,255,.02);
+  border:1px solid rgba(255,255,255,.04);
+  border-radius:7px;
+  margin-top:.75rem;
+  overflow:hidden;
+  animation:drawerOpen .25s ease;
+  grid-column:1/-1;
+  position:relative;z-index:1;
+}
+.grave-record.open{display:block;}
+.gr-head{
+  padding:.75rem 1.1rem;
+  background:rgba(255,255,255,.02);
+  border-bottom:1px solid rgba(255,255,255,.04);
+  display:flex;justify-content:space-between;align-items:center;
+}
+.gr-head-title{
+  font-family:'Playfair Display',serif;
+  font-size:.88rem;font-style:italic;
+  color:var(--ink-muted);
+}
+.gr-close{
+  background:none;border:none;
+  color:var(--ink-ghost);cursor:pointer;
+  font-size:.95rem;padding:.25rem;
+  min-width:32px;min-height:32px;
+  display:flex;align-items:center;justify-content:center;
+  transition:color .2s;border-radius:4px;
+}
+.gr-close:hover{color:var(--ink);background:rgba(255,255,255,.05);}
+.gr-body{
+  padding:1.1rem;
+  display:grid;grid-template-columns:1fr 1fr;gap:1.25rem;
+}
+.gr-section-lbl{
+  font-family:'JetBrains Mono',monospace;
+  font-size:.65rem;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--ink-ghost);
+  margin-bottom:.6rem;padding-bottom:.4rem;
+  border-bottom:1px solid rgba(255,255,255,.04);
+}
+.gr-ev{
+  padding:.5rem 0;
+  border-bottom:1px solid rgba(255,255,255,.04);
+  padding-left:.9rem;position:relative;
+}
+.gr-ev:last-child{border-bottom:none;}
+.gr-ev::before{
+  content:'';position:absolute;left:0;top:10px;
+  width:5px;height:5px;border-radius:50%;
+  background:var(--ink-ghost);
+}
+.gr-ev.ev-alive::before{background:rgba(110,231,183,.5);}
+.gr-ev.ev-soft::before {background:rgba(252,165,165,.5);}
+.gr-ev.ev-gone::before {background:rgba(239,68,68,.4);}
+.gr-ev-date{
+  font-family:'JetBrains Mono',monospace;
+  font-size:.65rem;letter-spacing:.07em;text-transform:uppercase;
+  color:var(--ink-ghost);margin-bottom:.15rem;
+}
+.gr-ev-text{font-size:.75rem;color:var(--ink-muted);line-height:1.55;}
+.gr-ev-src{
+  font-family:'JetBrains Mono',monospace;
+  font-size:.6rem;color:var(--ink-ghost);margin-top:.15rem;
+  letter-spacing:.04em;
+}
+
+/* Verdict */
+.gr-verdict{
+  background:rgba(255,255,255,.02);
+  border-radius:5px;
+  padding:.85rem .9rem;
+  border:1px solid rgba(255,255,255,.04);
+}
+.gr-verdict-row{
+  display:flex;align-items:center;gap:.6rem;
+  margin-bottom:.55rem;
+}
+.gr-transparency-lbl{
+  font-family:'JetBrains Mono',monospace;
+  font-size:.65rem;letter-spacing:.09em;text-transform:uppercase;
+  color:var(--ink-ghost);
+}
+.gr-transparency-val{
+  font-family:'JetBrains Mono',monospace;
+  font-size:.65rem;font-weight:600;letter-spacing:.06em;text-transform:uppercase;
+  padding:.18rem .45rem;border-radius:3px;
+}
+.tv-very-low{background:#2a1010;color:#f87171;}
+.tv-low     {background:#2a1505;color:#fb923c;}
+.tv-medium  {background:#2a1a05;color:#fbbf24;}
+.tv-high    {background:#0a2018;color:#4ade80;}
+.gr-verdict-text{
+  font-size:.75rem;color:var(--ink-muted);
+  line-height:1.7;font-style:italic;
+}
+.gr-successor{
+  margin-top:.65rem;padding-top:.65rem;
+  border-top:1px solid rgba(255,255,255,.04);
+}
+.gr-succ-lbl{
+  font-family:'JetBrains Mono',monospace;
+  font-size:.65rem;letter-spacing:.09em;text-transform:uppercase;
+  color:var(--ink-faint);margin-bottom:.2rem;
+}
+.gr-succ-text{font-size:.75rem;color:#60a5fa;font-style:italic;}
+
+/* Graveyard footnote */
+.gy-footnote{
+  text-align:center;margin-top:1.75rem;
+  font-family:'JetBrains Mono',monospace;
+  font-size:.65rem;letter-spacing:.08em;text-transform:uppercase;
+  color:var(--ink-ghost);
+  position:relative;z-index:1;
+}
+
+/* ─────────────────────────────────────────────
+   FOOTER
+───────────────────────────────────────────── */
+.site-footer{
+  background:var(--bg-deep);
+  border-top:2px solid var(--gold);
+  padding:1.25rem 1.75rem;
+  display:flex;justify-content:space-between;align-items:center;
+  flex-wrap:wrap;gap:.75rem;
+  margin-top:2rem;
+}
+.footer-links{
+  display:flex;gap:1.25rem;flex-wrap:wrap;
+}
+.footer-links a{
+  font-family:'JetBrains Mono',monospace;
+  font-size:.65rem;letter-spacing:.08em;text-transform:uppercase;
+  color:var(--ink-faint);text-decoration:none;transition:color .2s;
+}
+.footer-links a:hover{color:var(--parchment);}
+.footer-copy{
+  font-family:'JetBrains Mono',monospace;
+  font-size:.65rem;letter-spacing:.06em;
+  color:var(--ink-faint);
+}
+
+/* ─────────────────────────────────────────────
+   RESPONSIVE
+───────────────────────────────────────────── */
+@media(max-width:1100px){
+  .cards-grid{grid-template-columns:repeat(2,1fr);}
+  .gy-stones{grid-template-columns:repeat(2,1fr);}
+  .co-header{grid-template-columns:auto 1fr;}
+  .co-stats{display:none;}
+  .gr-body{grid-template-columns:1fr;}
+}
+@media(max-width:768px){
+  .mast-nav,.mast-date{display:none;}
+  .mast-toggle{display:flex;}
+  .co-header{padding-top:4.75rem;gap:1rem;}
+  .co-name{font-size:1.5rem;}
+  .co-initiative{font-size:.88rem;}
+  .cards-grid{grid-template-columns:1fr;}
+  .gy-stones{grid-template-columns:1fr;}
+  .gr-body{grid-template-columns:1fr;}
+  .site-footer{flex-direction:column;align-items:flex-start;}
+}
+@media(max-width:480px){
+  .co-mark{width:44px;height:44px;font-size:.85rem;}
+  .co-name{font-size:1.3rem;}
+  .cards-section{padding:0 1rem 1rem;}
+  .gy-field{padding:1.5rem 1rem 2rem;}
+  .gy-stones{gap:.75rem;}
+}
+@supports(padding-bottom:env(safe-area-inset-bottom)){
+  .site-footer{padding-bottom:calc(1.25rem + env(safe-area-inset-bottom));}
+}
+
+/* ─────────────────────────────────────────────
+   SCROLL REVEALS & ENTRANCE ANIMATIONS
+───────────────────────────────────────────── */
+@keyframes revealUp {
+  from { opacity: 0; transform: translateY(18px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.reveal {
+  opacity: 0;
+  transform: translateY(16px);
+  transition: opacity .5s cubic-bezier(.23,1,.32,1), transform .5s cubic-bezier(.23,1,.32,1);
+}
+.reveal.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Staggered children inside a reveal container */
+.reveal-children > * {
+  opacity: 0;
+  transform: translateY(12px);
+  transition: opacity .45s cubic-bezier(.23,1,.32,1), transform .45s cubic-bezier(.23,1,.32,1);
+}
+.reveal-children.visible > * {
+  opacity: 1;
+  transform: translateY(0);
+}
+.reveal-children.visible > :nth-child(1) { transition-delay: .05s; }
+.reveal-children.visible > :nth-child(2) { transition-delay: .1s; }
+.reveal-children.visible > :nth-child(3) { transition-delay: .15s; }
+.reveal-children.visible > :nth-child(4) { transition-delay: .2s; }
+.reveal-children.visible > :nth-child(5) { transition-delay: .25s; }
+.reveal-children.visible > :nth-child(6) { transition-delay: .3s; }
+
+/* Company header entrance stagger */
+.co-header > * {
+  opacity: 0;
+  animation: revealUp .6s cubic-bezier(.23,1,.32,1) both;
+}
+.co-header > :nth-child(1) { animation-delay: .15s; }
+.co-header > :nth-child(2) { animation-delay: .25s; }
+.co-header > :nth-child(3) { animation-delay: .35s; }
+
+/* Evidence drawer entry stagger */
+.ev-drawer-body .ev-event {
+  opacity: 0;
+  animation: revealUp .4s cubic-bezier(.23,1,.32,1) both;
+}
+.ev-drawer-body .ev-event:nth-child(1) { animation-delay: .1s; }
+.ev-drawer-body .ev-event:nth-child(2) { animation-delay: .18s; }
+.ev-drawer-body .ev-event:nth-child(3) { animation-delay: .26s; }
+.ev-drawer-body .ev-event:nth-child(4) { animation-delay: .34s; }
+</style>
+</head>
+<body>
+
+<!-- ══ MASTHEAD ══ -->
+<header class="mast">
+  <a href="/" class="drift-logo">Drift<span class="logo-dot">.</span></a>
+  <div class="mast-sep"></div>
+  <div class="mast-company">Sandoz AG · The Golden Decade</div>
+  <div class="mast-right">
+    <nav class="mast-nav" style="display:flex;gap:1.25rem;">
+      <a href="#timeline">Timeline</a>
+      <a href="#objectives">Objectives</a>
+      <a href="#graveyard">Graveyard</a>
+    </nav>
+    <div class="mast-date">15 Mar 2026</div>
+  </div>
+  <button class="mast-toggle" id="mastToggle" aria-label="Menu"><span></span><span></span><span></span></button>
+</header>
+
+<nav class="mobile-drawer" id="mobileDrawer">
+  <a href="#timeline" onclick="closeMobileNav()">Timeline</a>
+  <a href="#objectives" onclick="closeMobileNav()">Objectives</a>
+  <a href="#graveyard" onclick="closeMobileNav()">Graveyard</a>
+</nav>
+
+<!-- ══ COMPANY HEADER ══ -->
+<div class="co-header">
+  <div class="co-mark">SDZ</div>
+  <div class="co-meta">
+    <h1 class="co-name">Sandoz AG</h1>
+    <div class="co-initiative">"The Golden Decade of Biosimilars &amp; Generics"</div>
+    <p class="co-desc">Spun off from Novartis, October 2023. Self-declared strategic window 2024–2033 to capitalise on expiring originator patents and become the world's leading company in off-patent medicines.</p>
+  </div>
+  <div class="co-stats">
+    <div>
+      <div class="co-stat-num">~$7.7<em>B</em></div>
+      <div class="co-stat-lbl">Net Sales 2024</div>
+    </div>
+    <div>
+      <div class="co-stat-num">35<em>+</em></div>
+      <div class="co-stat-lbl">Biosimilar Programmes</div>
+    </div>
+    <div>
+      <div class="co-stat-num">88<em>/100</em></div>
+      <div class="co-stat-lbl">Commitment Index</div>
+    </div>
+  </div>
+</div>
+
+<!-- Commitment bar -->
+<div class="co-commitment">
+  <span class="commit-label">Overall Commitment Index</span>
+  <div class="commit-track"><div class="commit-fill" id="commitFill" style="width:0%"></div></div>
+  <span class="commit-score">88 / 100</span>
+</div>
+
+<!-- ══ NARRATIVE ══ -->
+<div class="narrative reveal">
+  <div class="narrative-inner">
+    <div class="narrative-kicker">Editorial Assessment · March 2026</div>
+    <p class="narrative-text">
+      Sandoz enters 2026 with its <strong>Golden Decade narrative largely intact</strong> — all six active objectives remain publicly referenced. The biosimilar leadership commitment is the strongest in the tracked portfolio: language has not softened once across nine reporting events. Two objectives show measurable drift: <strong>Emerging Markets</strong> has migrated from volume leadership to profitability framing without announcement, and <strong>Manufacturing Simplification</strong> has lost its specific numeric targets. Three objectives have entered the <strong>graveyard</strong> — one by silent drop, one by morphing, one by phased retirement.
+    </p>
+  </div>
+</div>
+
+<!-- ══ TIMELINE ══ -->
+<div class="section-rule"><div class="rule-inner"><span class="rule-text">Commitment Timeline · 2023–2026</span><div class="rule-line"></div><span class="rule-text" id="timeline">6 objectives · 4 above ground · 2 drifting · scroll →</span></div></div>
+
+<div class="tl-section" id="timeline">
+  <div class="tl-atmosphere"></div>
+  <div class="tl-header">
+    <div class="tl-title">Above the line — alive. Below it — buried.</div>
+    <div class="tl-hint">← scroll · hover nodes for detail →</div>
+  </div>
+  <div class="tl-scroll-wrap">
+    <div class="tl-canvas" id="tlCanvas">
+      <svg id="tl-svg" xmlns="http://www.w3.org/2000/svg"></svg>
+      <div id="tl-nodes"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ OBJECTIVES ══ -->
+<div class="section-rule"><div class="rule-inner"><span class="rule-text" id="objectives">Active Objectives · 6 tracked</span><div class="rule-line"></div><span class="rule-text">Click any card for evidence record</span></div></div>
+
+<div class="cards-section">
+  <div class="cards-grid reveal reveal-children" id="cardsGrid">
+    <!-- Injected by JS -->
+  </div>
+</div>
+
+<!-- ══ GRAVEYARD ══ -->
+<div class="section-rule"><div class="rule-inner"><span class="rule-text" id="graveyard">Objective Graveyard · 3 entries</span><div class="rule-line"></div><span class="rule-text">Commitments that did not survive</span></div></div>
+
+<div class="graveyard reveal">
+  <div class="gy-field">
+    <div class="gy-header">
+      <span class="gy-icon">✦</span>
+      <span class="gy-title">Graveyard · Sandoz AG</span>
+      <div class="gy-rule"></div>
+      <span class="gy-count">3 entries · 2023–present</span>
+    </div>
+    <div class="gy-stones" id="gyGrid">
+      <!-- Injected by JS -->
+    </div>
+    <div class="gy-footnote">Here lie commitments that did not survive contact with reality · Drift · public sources only</div>
+  </div>
+</div>
+
+<!-- ══ FOOTER ══ -->
+<footer class="site-footer">
+  <a href="/" class="drift-logo">Drift<span class="logo-dot">.</span></a>
+  <div class="footer-links">
+    <a href="#">Companies</a>
+    <a href="#">Methodology</a>
+    <a href="#">Advertise</a>
+    <a href="#">About</a>
+  </div>
+  <div class="footer-copy">© 2026 Drift · All data from public disclosures only</div>
+</footer>
+
+<script>
+/* ═══════════════════════════════════════════════════════
+   STAGE DEFINITIONS
+═══════════════════════════════════════════════════════ */
+const STAGES = {
+  orbit:  { score:+4, color:'#6EE7B7', rgb:'110,231,183', label:'Orbit' },
+  fly:    { score:+3, color:'#86EFAC', rgb:'134,239,172', label:'Fly'   },
+  run:    { score:+2, color:'#BBF7D0', rgb:'187,247,208', label:'Run'   },
+  walk:   { score:+1, color:'#FDE68A', rgb:'253,230,138', label:'Walk'  },
+  watch:  { score: 0, color:'#FCD34D', rgb:'252,211,77',  label:'Watch' },
+  crawl:  { score:-1, color:'#FCA5A5', rgb:'252,165,165', label:'Crawl' },
+  drag:   { score:-2, color:'#F87171', rgb:'248,113,113', label:'Drag'  },
+  sink:   { score:-3, color:'#EF4444', rgb:'239,68,68',   label:'Sink'  },
+  buried: { score:-4, color:'#991B1B', rgb:'153,27,27',   label:'Buried'},
+};
+
+/* Score → stage key lookup */
+const SCORE_TO_KEY = {};
+Object.entries(STAGES).forEach(([k,v]) => SCORE_TO_KEY[v.score] = k);
+
+/* ═══════════════════════════════════════════════════════
+   SUPABASE DATA LAYER
+   Reads credentials from localStorage (shared with admin.html).
+   Falls back to hardcoded data if Supabase is unavailable.
+═══════════════════════════════════════════════════════ */
+const SB_URL  = localStorage.getItem('pt_supabase_url') || '';
+const SB_KEY  = localStorage.getItem('pt_anon_key') || '';
+
+async function sbFetch(table, params = '') {
+  if (!SB_URL || !SB_KEY) throw new Error('Supabase not configured');
+  const url = `${SB_URL}/rest/v1/${table}${params ? '?' + params : ''}`;
+  const res = await fetch(url, {
+    headers: {
+      'apikey': SB_KEY,
+      'Authorization': `Bearer ${SB_KEY}`,
+      'Content-Type': 'application/json',
+    },
+  });
+  if (!res.ok) throw new Error(`Supabase ${res.status}: ${await res.text()}`);
+  return res.json();
+}
+
+/* Map signal classification → approximate momentum stage for timeline nodes.
+   The DB stores current momentum on the objective, not per-signal.
+   This heuristic gives a reasonable trajectory shape. */
+function classificationToStage(cls) {
+  const map = {
+    stated: 2, reinforced: 3, achieved: 4,
+    softened: -1, reframed: 0, absent: -3,
+    retired_transparent: -2, retired_silent: -4,
+  };
+  return map[cls] ?? 0;
+}
+
+/* Map objective status → card CSS class + badge */
+function statusToCard(status, isGraveyard) {
+  if (isGraveyard) return { cardClass: 's-buried', badgeClass: 'sb-buried', label: 'Off Record' };
+  const m = {
+    active:   { cardClass: 's-active', badgeClass: 'sb-active', label: 'Active' },
+    watch:    { cardClass: 's-watch',  badgeClass: 'sb-watch',  label: 'Watch' },
+    drifting: { cardClass: 's-drift',  badgeClass: 'sb-drift',  label: 'Drifting' },
+    achieved: { cardClass: 's-active', badgeClass: 'sb-active', label: 'Achieved' },
+    dropped:  { cardClass: 's-buried', badgeClass: 'sb-buried', label: 'Off Record' },
+    morphed:  { cardClass: 's-buried', badgeClass: 'sb-buried', label: 'Morphed' },
+  };
+  return m[status] || m.active;
+}
+
+/* Map exit_manner enum → graveyard badge */
+function mannerToBadge(manner) {
+  const m = {
+    silent:      { label: '⬛ Silently Dropped',     cls: 'sm-silent' },
+    phased:      { label: '⇣ Quietly Phased Out',    cls: 'sm-phased' },
+    morphed:     { label: '↝ Morphed',               cls: 'sm-morphed' },
+    transparent: { label: '✓ Transparent Exit',       cls: 'sm-transparent' },
+    achieved:    { label: '✓ Achieved',               cls: 'sm-transparent' },
+  };
+  return m[manner] || m.silent;
+}
+
+/* Map transparency_score enum → CSS class */
+function transparencyClass(ts) {
+  const m = { very_low: 'tv-very-low', low: 'tv-low', medium: 'tv-medium', high: 'tv-high' };
+  return m[ts] || 'tv-low';
+}
+
+/* Build mini-dot colours from signal history */
+function buildMiniDots(signals, currentStage) {
+  if (!signals.length) return [{ c: '#444' }];
+  const dots = signals.slice(-4).map(s => {
+    const stage = classificationToStage(s.classification);
+    const key = SCORE_TO_KEY[stage] || 'watch';
+    return { c: STAGES[key].color };
+  });
+  return dots;
+}
+
+/* Format date for display */
+function fmtDate(d) {
+  if (!d) return '';
+  const dt = new Date(d);
+  return dt.toLocaleDateString('en-GB', { month: 'short', year: 'numeric' });
+}
+
+/* Signal classification → evidence type class */
+function classificationToEvType(cls) {
+  const m = {
+    stated: 'ev-t-stated', reinforced: 'ev-t-reinforced',
+    softened: 'ev-t-softened', reframed: 'ev-t-softened',
+    absent: 'ev-t-silent', retired_silent: 'ev-t-silent',
+    retired_transparent: 'ev-t-stated', achieved: 'ev-t-reinforced',
+  };
+  return m[cls] || 'ev-t-stated';
+}
+
+/* ── Fetch & map from Supabase ── */
+async function fetchCompanyData(ticker) {
+  // 1. Company
+  const companies = await sbFetch('companies', `ticker=eq.${ticker}&limit=1`);
+  if (!companies.length) throw new Error(`Company ${ticker} not found`);
+  const company = companies[0];
+
+  // 2. All objectives for this company (active + graveyard)
+  const objs = await sbFetch('objectives', `company_id=eq.${company.id}&order=display_order`);
+
+  // 3. All approved signals for this company
+  const sigs = await sbFetch('signals', `company_id=eq.${company.id}&is_draft=eq.false&order=signal_date`);
+
+  // Group signals by objective_id
+  const sigsByObj = {};
+  sigs.forEach(s => {
+    if (!sigsByObj[s.objective_id]) sigsByObj[s.objective_id] = [];
+    sigsByObj[s.objective_id].push(s);
+  });
+
+  // 4. Map active objectives
+  const activeObjs = objs.filter(o => !o.is_in_graveyard);
+  const mappedObjectives = activeObjs.map(o => {
+    const objSigs = sigsByObj[o.id] || [];
+    const currentStage = o.momentum_score ?? 0;
+    const stageKey = SCORE_TO_KEY[currentStage] || 'watch';
+    const card = statusToCard(o.status, false);
+
+    // Build evidence from signals
+    const evidence = objSigs.map(s => ({
+      date: fmtDate(s.signal_date),
+      type: s.classification.replace('_', ' '),
+      typeClass: classificationToEvType(s.classification),
+      src: s.source_name,
+      text: s.excerpt || '',
+      note: s.agent_reasoning || '',
+    }));
+
+    // Build timeline nodes from signals
+    const nodes = objSigs.map((s, i) => ({
+      date: s.signal_date,
+      stage: classificationToStage(s.classification),
+      key: SCORE_TO_KEY[classificationToStage(s.classification)] || 'watch',
+      obj: o.title,
+      signal: s.excerpt ? (s.excerpt.length > 80 ? s.excerpt.slice(0, 77) + '...' : s.excerpt) : s.classification,
+      src: s.source_name,
+      latest: i === objSigs.length - 1,
+    }));
+
+    // Override the last node's stage with the objective's current momentum
+    if (nodes.length) {
+      nodes[nodes.length - 1].stage = currentStage;
+      nodes[nodes.length - 1].key = stageKey;
+    }
+
+    return {
+      id: o.id,
+      num: o.display_number || `OBJ ${String(activeObjs.indexOf(o) + 1).padStart(2, '0')}`,
+      cardClass: card.cardClass,
+      title: o.title,
+      subtitle: o.subtitle || '',
+      status: o.status,
+      statusBadge: card.badgeClass,
+      statusLabel: card.label,
+      miniDots: buildMiniDots(objSigs, currentStage),
+      signals: objSigs.length,
+      updated: objSigs.length ? fmtDate(objSigs[objSigs.length - 1].signal_date) : '',
+      evidence,
+      nodes,
+    };
+  });
+
+  // 5. Map graveyard objectives
+  const gyObjs = objs.filter(o => o.is_in_graveyard);
+  const mappedGraveyard = gyObjs.map(o => {
+    const objSigs = sigsByObj[o.id] || [];
+    const manner = mannerToBadge(o.exit_manner);
+    const tvCls = transparencyClass(o.transparency_score);
+    const tvLabel = (o.transparency_score || '').replace('_', ' ').replace(/\b\w/g, c => c.toUpperCase());
+
+    // Build decline timeline from signals
+    const timeline = objSigs.map(s => {
+      let cls = 'ev-alive';
+      if (['softened', 'reframed'].includes(s.classification)) cls = 'ev-soft';
+      if (['absent', 'retired_silent', 'retired_transparent'].includes(s.classification)) cls = 'ev-gone';
+      return {
+        cls,
+        date: fmtDate(s.signal_date),
+        text: s.excerpt || '',
+        src: s.source_name,
+      };
+    });
+
+    // Find successor title if linked
+    let successor = null;
+    if (o.successor_objective_id) {
+      const succ = objs.find(x => x.id === o.successor_objective_id);
+      if (succ) successor = `Replaced by "${succ.title}"`;
+    }
+
+    return {
+      id: o.id,
+      num: o.display_number || 'OBJ-G',
+      title: o.title,
+      dates: `${fmtDate(o.first_stated_date)} — ${fmtDate(o.exit_date) || 'present'}`,
+      epitaph: o.original_quote ? `"${o.original_quote}"` : '',
+      manner: o.exit_manner || 'silent',
+      mannerLabel: manner.label,
+      mannerClass: manner.cls,
+      transparency: tvLabel,
+      tvClass: tvCls,
+      verdict: o.verdict_text || '',
+      successor,
+      timeline,
+    };
+  });
+
+  return { company, objectives: mappedObjectives, graveyard: mappedGraveyard };
+}
+
+/* SVG icons per stage — refined single-colour silhouettes */
+function stageIcon(key, color, size=26){
+  const c = color;
+  const s = size;
+  const icons = {
+    orbit:`<svg width="${s}" height="${s}" viewBox="0 0 32 32" fill="none">
+      <path d="M16 2 L13 10 Q16 7 19 10 Z" fill="${c}"/>
+      <rect x="13" y="10" width="6" height="13" rx="3" fill="${c}" opacity=".9"/>
+      <path d="M13 18 L9 23 L13 22Z" fill="${c}" opacity=".65"/>
+      <path d="M19 18 L23 23 L19 22Z" fill="${c}" opacity=".65"/>
+      <ellipse cx="16" cy="25" rx="3" ry="4" fill="${c}" opacity=".4">
+        <animate attributeName="ry" values="4;5.5;3.5;4" dur=".9s" repeatCount="indefinite"/>
+        <animate attributeName="opacity" values=".4;.25;.5;.4" dur=".9s" repeatCount="indefinite"/>
+      </ellipse>
+    </svg>`,
+    fly:`<svg width="${s}" height="${s}" viewBox="0 0 32 32" fill="none">
+      <path d="M16 18 Q10 13 4 15 Q8 16 10 18 Q13 15 16 18Z" fill="${c}">
+        <animateTransform attributeName="transform" type="rotate" values="0 16 18;-4 16 18;0 16 18;3 16 18;0 16 18" dur="1.5s" repeatCount="indefinite"/>
+      </path>
+      <path d="M16 18 Q22 13 28 15 Q24 16 22 18 Q19 15 16 18Z" fill="${c}">
+        <animateTransform attributeName="transform" type="rotate" values="0 16 18;4 16 18;0 16 18;-3 16 18;0 16 18" dur="1.5s" repeatCount="indefinite"/>
+      </path>
+      <ellipse cx="16" cy="19" rx="3" ry="2" fill="${c}"/>
+      <circle cx="20" cy="17" r="2.5" fill="${c}"/>
+      <circle cx="21" cy="16.5" r=".7" fill="#333333"/>
+      <path d="M22.5 17.5 L25 17 L22.5 18.5Z" fill="#ffe0c2" opacity=".8"/>
+    </svg>`,
+    run:`<svg width="${s}" height="${s}" viewBox="0 0 32 32" fill="none">
+      <circle cx="20" cy="7" r="3.5" fill="${c}"/>
+      <path d="M19 10.5 L16 19" stroke="${c}" stroke-width="2" stroke-linecap="round"/>
+      <path d="M18 13 L12 11" stroke="${c}" stroke-width="1.8" stroke-linecap="round">
+        <animateTransform attributeName="transform" type="rotate" values="0 18 13;10 18 13;0 18 13;-10 18 13;0 18 13" dur=".65s" repeatCount="indefinite"/>
+      </path>
+      <path d="M17.5 14 L23 17" stroke="${c}" stroke-width="1.8" stroke-linecap="round">
+        <animateTransform attributeName="transform" type="rotate" values="0 17.5 14;-10 17.5 14;0 17.5 14;10 17.5 14;0 17.5 14" dur=".65s" repeatCount="indefinite"/>
+      </path>
+      <path d="M16 19 L11 27 L14 27" stroke="${c}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <animateTransform attributeName="transform" type="rotate" values="0 16 19;12 16 19;0 16 19;-6 16 19;0 16 19" dur=".65s" repeatCount="indefinite"/>
+      </path>
+      <path d="M16 19 L21 26 L24 24" stroke="${c}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <animateTransform attributeName="transform" type="rotate" values="0 16 19;-12 16 19;0 16 19;6 16 19;0 16 19" dur=".65s" repeatCount="indefinite"/>
+      </path>
+    </svg>`,
+    walk:`<svg width="${s}" height="${s}" viewBox="0 0 32 32" fill="none">
+      <circle cx="17" cy="7" r="3.5" fill="${c}"/>
+      <path d="M16 10.5 L14.5 21" stroke="${c}" stroke-width="2" stroke-linecap="round"/>
+      <path d="M15.5 14 L9 17" stroke="${c}" stroke-width="1.8" stroke-linecap="round">
+        <animateTransform attributeName="transform" type="rotate" values="0 15.5 14;12 15.5 14;0 15.5 14;-12 15.5 14;0 15.5 14" dur="1.3s" repeatCount="indefinite"/>
+      </path>
+      <path d="M15.5 14 L21 16" stroke="${c}" stroke-width="1.8" stroke-linecap="round">
+        <animateTransform attributeName="transform" type="rotate" values="0 15.5 14;-12 15.5 14;0 15.5 14;12 15.5 14;0 15.5 14" dur="1.3s" repeatCount="indefinite"/>
+      </path>
+      <path d="M14.5 21 L10 29" stroke="${c}" stroke-width="2" stroke-linecap="round">
+        <animateTransform attributeName="transform" type="rotate" values="0 14.5 21;-14 14.5 21;0 14.5 21;14 14.5 21;0 14.5 21" dur="1.3s" repeatCount="indefinite"/>
+      </path>
+      <path d="M14.5 21 L20 28" stroke="${c}" stroke-width="2" stroke-linecap="round">
+        <animateTransform attributeName="transform" type="rotate" values="0 14.5 21;14 14.5 21;0 14.5 21;-14 14.5 21;0 14.5 21" dur="1.3s" repeatCount="indefinite"/>
+      </path>
+    </svg>`,
+    watch:`<svg width="${s}" height="${s}" viewBox="0 0 32 32" fill="none">
+      <circle cx="16" cy="7" r="3.5" fill="${c}"/>
+      <path d="M15 10.5 L15 22" stroke="${c}" stroke-width="2" stroke-linecap="round"/>
+      <path d="M15 14 L9 11.5" stroke="${c}" stroke-width="1.8" stroke-linecap="round"/>
+      <path d="M9 11.5 L12 10" stroke="${c}" stroke-width="1.5" stroke-linecap="round"/>
+      <path d="M15 14 L21 16" stroke="${c}" stroke-width="1.8" stroke-linecap="round"/>
+      <path d="M15 22 L11 29" stroke="${c}" stroke-width="2" stroke-linecap="round"/>
+      <path d="M15 22 L19 29" stroke="${c}" stroke-width="2" stroke-linecap="round"/>
+      <text x="22" y="10" font-family="serif" font-size="7" fill="${c}" opacity=".5">
+        ?<animate attributeName="opacity" values=".5;.9;.5" dur="2.2s" repeatCount="indefinite"/>
+      </text>
+    </svg>`,
+    crawl:`<svg width="${s}" height="${s}" viewBox="0 0 32 32" fill="none">
+      <circle cx="24" cy="14" r="3.5" fill="${c}"/>
+      <path d="M22 17 L11 21" stroke="${c}" stroke-width="2" stroke-linecap="round"/>
+      <path d="M22 17 L27 22" stroke="${c}" stroke-width="1.8" stroke-linecap="round"/>
+      <path d="M27 22 L29 25" stroke="${c}" stroke-width="1.5" stroke-linecap="round"/>
+      <path d="M11 21 L6 25 L4 29" stroke="${c}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M11 21 L7 27" stroke="${c}" stroke-width="1.8" stroke-linecap="round"/>
+      <circle cx="28" cy="12" r="1" fill="${c}" opacity=".4"><animate attributeName="opacity" values=".4;.8;.2;.4" dur="1.2s" repeatCount="indefinite"/></circle>
+      <circle cx="30" cy="16" r=".7" fill="${c}" opacity=".3"/>
+    </svg>`,
+    drag:`<svg width="${s}" height="${s}" viewBox="0 0 32 32" fill="none">
+      <circle cx="24" cy="11" r="3.5" fill="${c}"/>
+      <path d="M22 14.5 L10 19" stroke="${c}" stroke-width="2" stroke-linecap="round"/>
+      <path d="M17 15.5 L14 11" stroke="${c}" stroke-width="1.5" stroke-linecap="round" opacity=".55"/>
+      <path d="M17 16.5 L20 22" stroke="${c}" stroke-width="1.5" stroke-linecap="round" opacity=".55"/>
+      <path d="M10 19 L3 22" stroke="${c}" stroke-width="2" stroke-linecap="round"/>
+      <path d="M10 20 L4 27" stroke="${c}" stroke-width="2" stroke-linecap="round"/>
+      <path d="M3 26 L1 27 M5 28 L3 29 M7 27 L5 28" stroke="${c}" stroke-width="1" stroke-linecap="round" opacity=".3"/>
+    </svg>`,
+    sink:`<svg width="${s}" height="${s}" viewBox="0 0 32 32" fill="none">
+      <rect x="4" y="21" width="24" height="9" rx="1.5" fill="#3a3020" opacity=".5"/>
+      <circle cx="16" cy="10" r="3.5" fill="${c}"/>
+      <path d="M15 13.5 L14 21" stroke="${c}" stroke-width="2" stroke-linecap="round"/>
+      <path d="M14.5 16 L8 12.5" stroke="${c}" stroke-width="1.8" stroke-linecap="round">
+        <animateTransform attributeName="transform" type="rotate" values="0 14.5 16;18 14.5 16;0 14.5 16;-10 14.5 16;0 14.5 16" dur="2s" repeatCount="indefinite"/>
+      </path>
+      <path d="M14.5 16 L22 12.5" stroke="${c}" stroke-width="1.8" stroke-linecap="round">
+        <animateTransform attributeName="transform" type="rotate" values="0 14.5 16;-18 14.5 16;0 14.5 16;10 14.5 16;0 14.5 16" dur="2s" repeatCount="indefinite"/>
+      </path>
+      <circle cx="11" cy="20" r="1" fill="#4a3a20" opacity=".5"/>
+      <circle cx="20" cy="21" r=".8" fill="#4a3a20" opacity=".4"/>
+    </svg>`,
+    buried:`<svg width="${s}" height="${s}" viewBox="0 0 32 32" fill="none">
+      <rect x="4" y="17" width="24" height="13" rx="1.5" fill="#3a3020" opacity=".6"/>
+      <path d="M16 17 L16 7" stroke="${c}" stroke-width="2.5" stroke-linecap="round"/>
+      <path d="M16 7 L13 3.5" stroke="${c}" stroke-width="1.8" stroke-linecap="round"/>
+      <path d="M16 7 L14 2.5" stroke="${c}" stroke-width="1.8" stroke-linecap="round"/>
+      <path d="M16 7 L16 2" stroke="${c}" stroke-width="1.8" stroke-linecap="round"/>
+      <path d="M16 7 L18 2.5" stroke="${c}" stroke-width="1.8" stroke-linecap="round"/>
+      <path d="M16 7 L19 3.5" stroke="${c}" stroke-width="1.8" stroke-linecap="round"/>
+      <path d="M7 23 Q9 21 11 23 Q13 25 15 23" stroke="#4a3a20" stroke-width="1.2" stroke-linecap="round" fill="none" opacity=".4"/>
+      <rect x="12" y="15" width="8" height="2.5" rx=".8" fill="#3a2a18" opacity=".5"/>
+      <path d="M13 15 Q16 12 19 15" fill="#3a2a18" opacity=".35"/>
+    </svg>`,
+  };
+  return icons[key] || '';
+}
+
+/* ═══════════════════════════════════════════════════════
+   SANDOZ DATA
+═══════════════════════════════════════════════════════ */
+const GROUND_PX = 300;
+const STAGE_PX  = 55;
+const T_LEFT    = 90;
+const T_RIGHT   = 1340;
+let D_START   = new Date('2023-10-01');
+let D_END     = new Date('2026-07-01');
+
+function dateToX(ds){ return T_LEFT + ((new Date(ds)-D_START)/(D_END-D_START))*(T_RIGHT-T_LEFT); }
+
+/* Compute timeline date range from objectives data — adds 3-month padding each side */
+function computeDateRange() {
+  const allDates = objectives.flatMap(o => (o.nodes || []).map(n => new Date(n.date)));
+  if (!allDates.length) return;
+  const min = Math.min(...allDates);
+  const max = Math.max(...allDates);
+  D_START = new Date(min);
+  D_START.setMonth(D_START.getMonth() - 1);
+  D_START.setDate(1);
+  D_END = new Date(max);
+  D_END.setMonth(D_END.getMonth() + 4);
+  D_END.setDate(1);
+}
+function stageToY(s){ return GROUND_PX - s*STAGE_PX; }
+
+let objectives = [
+  {
+    id:'bio', num:'OBJ 01', cardClass:'s-active',
+    title:'Global Biosimilar Leadership',
+    subtitle:'Become the world\'s leading biosimilar company by revenue and pipeline breadth by 2030.',
+    status:'active', statusBadge:'sb-active', statusLabel:'Active',
+    miniDots:[{c:'#444'},{c:'#6EE7B7'},{c:'#6EE7B7'},{c:'#6EE7B7'}],
+    signals:11, updated:'Mar 2026',
+    evidence:[
+      {date:'Oct 2023',type:'stated',    typeClass:'ev-t-stated',    src:'Spin-off Prospectus', text:'Sandoz aims to be the world\'s leading company in off-patent medicines, with a biosimilar portfolio unmatched in breadth.', note:'First public statement at SIX listing.'},
+      {date:'Mar 2024',type:'reinforced',typeClass:'ev-t-reinforced',src:'CMD 2024',             text:'CEO Richard Saynor: biosimilar leadership described as "the defining ambition of the decade" with pipeline comparison vs. all named competitors.', note:'Language strengthened — superlative framing added.'},
+      {date:'Feb 2025',type:'reinforced',typeClass:'ev-t-reinforced',src:'FY2024 Results',       text:'Number-one global biosimilar market position in Europe cited. Explicit target to replicate in North America and Asia Pacific by 2027.', note:'First time geographic targets specified.'},
+      {date:'Mar 2026',type:'reinforced',typeClass:'ev-t-reinforced',src:'FY2025 Annual Report', text:'Biosimilar leadership leads the Annual Report narrative for the third consecutive year. 35+ active programmes cited. No language softening detected.', note:'Strongest commitment consistency of any tracked objective.'},
+    ],
+    nodes:[
+      {date:'2023-10-15',stage:2,key:'run',  obj:'Biosimilar Leadership', signal:'Stated at IPO: "world leading biosimilar company"',        src:'Spin-off Prospectus'},
+      {date:'2024-03-10',stage:3,key:'fly',  obj:'Biosimilar Leadership', signal:'CMD reaffirmation — pipeline specifics added, competitors named', src:'CMD 2024'},
+      {date:'2025-02-14',stage:3,key:'fly',  obj:'Biosimilar Leadership', signal:'FY2024: objective leads investor narrative for 2nd year',   src:'FY2024 Results'},
+      {date:'2026-03-15',stage:3,key:'fly',  obj:'Biosimilar Leadership', signal:'FY2025: 3rd consecutive year. Language unchanged.',         src:'FY2025 Annual Report', latest:true},
+    ]
+  },
+  {
+    id:'us', num:'OBJ 02', cardClass:'s-active',
+    title:'US Biosimilar Penetration',
+    subtitle:'Capture meaningful US biosimilar share; Hyrimoz as flagship proof of concept.',
+    status:'active', statusBadge:'sb-active', statusLabel:'Active',
+    miniDots:[{c:'#444'},{c:'#BBF7D0'},{c:'#6EE7B7'},{c:'#6EE7B7'}],
+    signals:9, updated:'Mar 2026',
+    evidence:[
+      {date:'Nov 2023',type:'stated',    typeClass:'ev-t-stated',    src:'US Strategy Briefing', text:'Hyrimoz named as anchor for US biosimilar strategy. Double-digit market share stated as target across first-wave launches.', note:'First US-specific objective disclosure.'},
+      {date:'Q1 2024', type:'reinforced',typeClass:'ev-t-reinforced',src:'FDA Announcement',     text:'Hyrimoz received FDA interchangeability designation — enabling pharmacy-level substitution. Structural enabler for the US strategy.', note:'Milestone event, not a language signal. Positive impact on objective credibility.'},
+      {date:'H1 2025', type:'reinforced',typeClass:'ev-t-reinforced',src:'H1 2025 Results',      text:'US biosimilar revenues disclosed as fastest-growing segment. Market share consistent with leadership positioning in adalimumab market.', note:'First quantitative confirmation of US strategy execution.'},
+    ],
+    nodes:[
+      {date:'2023-11-01',stage:2,key:'run', obj:'US Penetration', signal:'US launch strategy — Hyrimoz as flagship, double-digit share target', src:'US Strategy Briefing'},
+      {date:'2024-04-01',stage:3,key:'fly', obj:'US Penetration', signal:'FDA interchangeability granted — pharmacy-level substitution enabled', src:'FDA Announcement'},
+      {date:'2025-08-01',stage:3,key:'fly', obj:'US Penetration', signal:'Fastest-growing segment confirmed in H1 2025 results',               src:'H1 2025 Results'},
+      {date:'2026-03-15',stage:3,key:'fly', obj:'US Penetration', signal:'Portfolio expanding beyond adalimumab — strategy intact and broadening', src:'FY2025 Annual Report', latest:true},
+    ]
+  },
+  {
+    id:'em', num:'OBJ 03', cardClass:'s-watch',
+    title:'Emerging Markets Volume Growth',
+    subtitle:'Originally volume leadership in EM generics. Reframed toward profitability. Under watch.',
+    status:'watch', statusBadge:'sb-watch', statusLabel:'Watch',
+    miniDots:[{c:'#444'},{c:'#BBF7D0'},{c:'#FCD34D'},{c:'#FCA5A5'}],
+    signals:7, updated:'Mar 2026',
+    evidence:[
+      {date:'Oct 2023',type:'stated',    typeClass:'ev-t-stated',    src:'Spin-off Prospectus',  text:'Volume leadership in EM identified as a structural pillar, with named countries: India, Brazil, Middle East. China separated into its own workstream.', note:'China already caveated at first disclosure — notable.'},
+      {date:'Mar 2024',type:'reinforced',typeClass:'ev-t-reinforced',src:'CMD 2024',             text:'Volume leadership language retained with added caveat: "targeted expansion in high-return markets." Minor softening.', note:'First hint of portfolio selectivity language.'},
+      {date:'H2 2024', type:'softened',  typeClass:'ev-t-softened',  src:'H1 2024 Q&A Transcript',text:'CFO: "We\'re focused on profitability-led growth in EM" — in response to analyst question on volume targets. Significant shift from prospectus language.', note:'Language change occurred in Q&A, not prepared remarks. Classic quiet shift pattern.'},
+      {date:'Mar 2026',type:'softened',  typeClass:'ev-t-softened',  src:'FY2025 Annual Report', text:'"Selective profitable growth in prioritised geographies." Volume leadership language from 2023 prospectus has been silently removed. No investor communication of change.', note:'Status elevated to Watch. If next reporting period shows further retreat, recommend Drifting reclassification.'},
+    ],
+    nodes:[
+      {date:'2023-10-15',stage:2, key:'run',   obj:'EM Volume Growth', signal:'Volume leadership in EM named as strategic pillar',              src:'Spin-off Prospectus'},
+      {date:'2024-03-10',stage:1, key:'walk',  obj:'EM Volume Growth', signal:'Retained with caveat — "targeted high-return markets"',          src:'CMD 2024'},
+      {date:'2024-09-01',stage:0, key:'watch', obj:'EM Volume Growth', signal:'CFO shifts to "profitability-led" in Q&A — volume language gone', src:'H1 2024 Results'},
+      {date:'2026-03-15',stage:-1,key:'crawl', obj:'EM Volume Growth', signal:'"Selective profitable growth" — volume targets absent entirely',  src:'FY2025 Annual Report', latest:true},
+    ]
+  },
+  {
+    id:'pipe', num:'OBJ 04', cardClass:'s-active',
+    title:'Next-Wave Biosimilar Pipeline',
+    subtitle:'Build post-2027 pipeline across immunology, oncology, ophthalmology.',
+    status:'active', statusBadge:'sb-active', statusLabel:'Active',
+    miniDots:[{c:'#444'},{c:'#BBF7D0'},{c:'#86EFAC'},{c:'#86EFAC'}],
+    signals:11, updated:'Mar 2026',
+    evidence:[
+      {date:'Nov 2023',type:'stated',    typeClass:'ev-t-stated',    src:'Investor Day',          text:'Pipeline depth across immunology, oncology, and ophthalmology stated as key differentiator. 30+ programmes referenced.', note:'Pipeline breadth argument central to IPO investment case.'},
+      {date:'H1 2024', type:'reinforced',typeClass:'ev-t-reinforced',src:'EMA/IND Filings',       text:'Multiple IND filings and EMA submissions in biosimilar oncology: bevacizumab and pertuzumab biosimilars. Pipeline execution visible.', note:'Observable execution signal — not just language.'},
+      {date:'Mar 2026',type:'reinforced',typeClass:'ev-t-reinforced',src:'FY2025 Annual Report',  text:'35+ active programmes cited. Ophthalmology entry (ranibizumab biosimilar) confirmed. Therapeutic area expansion consistent with 2023 stated ambition.', note:'Pipeline has grown since IPO. Commitment well-supported by execution.'},
+    ],
+    nodes:[
+      {date:'2023-11-01',stage:2,key:'run', obj:'Next-Wave Pipeline', signal:'30+ pipeline programmes across immuno/oncology/ophthalmology stated', src:'Investor Day'},
+      {date:'2024-06-01',stage:3,key:'fly', obj:'Next-Wave Pipeline', signal:'Multiple IND/EMA filings provide observable pipeline execution',      src:'EMA/IND Submissions'},
+      {date:'2025-03-01',stage:3,key:'fly', obj:'Next-Wave Pipeline', signal:'Ophthalmology entry confirmed — consistent with 2023 ambition',       src:'FY2024 Annual Report'},
+      {date:'2026-03-15',stage:3,key:'fly', obj:'Next-Wave Pipeline', signal:'35+ programmes — pipeline grown since IPO. Execution confirmed.',     src:'FY2025 Annual Report', latest:true},
+    ]
+  },
+  {
+    id:'mfg', num:'OBJ 05', cardClass:'s-drift',
+    title:'Manufacturing Network Simplification',
+    subtitle:'Site reduction targets quietly replaced by efficiency framing. Language drifting.',
+    status:'drift', statusBadge:'sb-drift', statusLabel:'Drifting',
+    miniDots:[{c:'#444'},{c:'#BBF7D0'},{c:'#FCA5A5'},{c:'#F87171'}],
+    signals:5, updated:'Mar 2026',
+    evidence:[
+      {date:'Oct 2023',type:'stated',    typeClass:'ev-t-stated',   src:'Spin-off Prospectus',    text:'Site reduction from 26 to 18–20 sites stated as operational objective. Headcount efficiency cited explicitly.', note:'Specific and measurable — the clearest operational commitment in the prospectus.'},
+      {date:'Mar 2024',type:'reinforced',typeClass:'ev-t-reinforced',src:'CMD 2024',              text:'COO reiterated network rationalisation as cost-efficiency driver. Site targets discussed broadly but not updated numerically.', note:'Minor concern: no numeric update after 6 months.'},
+      {date:'Q4 2024', type:'softened',  typeClass:'ev-t-softened', src:'H2 2024 Results',        text:'Headcount efficiency language absent for the first time. Q&A probing on site count produced no specific answer. Management deflected to "network optimisation."', note:'Headcount language removal is a meaningful signal.'},
+      {date:'Mar 2026',type:'softened',  typeClass:'ev-t-softened', src:'FY2025 Annual Report',   text:'"Efficiency-led manufacturing network" is the current framing. No numeric site targets. No reference to original prospectus commitment. Assessed: quietly deprioritised, not abandoned.', note:'Classified as Drifting. Three consecutive periods without numeric targets.'},
+    ],
+    nodes:[
+      {date:'2023-10-15',stage:2, key:'run',   obj:'Mfg Simplification', signal:'Site reduction 26→18–20 stated with headcount targets',     src:'Spin-off Prospectus'},
+      {date:'2024-03-10',stage:1, key:'walk',  obj:'Mfg Simplification', signal:'Reiterated broadly — no numeric update at CMD',              src:'CMD 2024'},
+      {date:'2024-12-01',stage:-1,key:'crawl', obj:'Mfg Simplification', signal:'Headcount language removed. Site count not disclosed in Q&A', src:'H2 2024 Results'},
+      {date:'2026-03-15',stage:-2,key:'drag',  obj:'Mfg Simplification', signal:'"Efficiency-led network." Original targets unmentioned.',     src:'FY2025 Annual Report', latest:true},
+    ]
+  },
+  {
+    id:'margin', num:'OBJ 06', cardClass:'s-active',
+    title:'Margin Expansion to 24–26%',
+    subtitle:'Core EBITDA target stated at IPO. Numeric range retained in every subsequent communication.',
+    status:'active', statusBadge:'sb-active', statusLabel:'Active',
+    miniDots:[{c:'#444'},{c:'#BBF7D0'},{c:'#86EFAC'},{c:'#86EFAC'}],
+    signals:8, updated:'Mar 2026',
+    evidence:[
+      {date:'Oct 2023',type:'stated',    typeClass:'ev-t-stated',    src:'Spin-off Prospectus',  text:'Core EBITDA margin of 24–26% stated as medium-term financial target. Entry level ~20%. Most specific numeric commitment at listing.', note:'Numeric specificity is a positive accountability signal.'},
+      {date:'Mar 2024',type:'reinforced',typeClass:'ev-t-reinforced',src:'CMD 2024',             text:'CFO provided explicit bridge from ~20% entry to 24–26% range. Timeline and levers named. Commitment strengthened.', note:'Most explicit quantitative commitment in the whole portfolio.'},
+      {date:'Feb 2025',type:'reinforced',typeClass:'ev-t-reinforced',src:'FY2024 Results',       text:'On-track status confirmed. Intermediate progress disclosed. Guidance retained.', note:'No change to numeric target after 16 months — highest retention rate.'},
+      {date:'Mar 2026',type:'reinforced',typeClass:'ev-t-reinforced',src:'FY2025 Annual Report', text:'24–26% range explicitly retained in medium-term guidance. FY2025 results confirm trajectory. Commitment unchanged after 29 months.', note:'Highest commitment consistency score in portfolio: 97/100.'},
+    ],
+    nodes:[
+      {date:'2023-10-15',stage:2,key:'run', obj:'Margin 24–26%', signal:'24–26% EBITDA target announced at IPO',                      src:'Spin-off Prospectus'},
+      {date:'2024-03-10',stage:3,key:'fly', obj:'Margin 24–26%', signal:'CFO bridge analysis confirms trajectory — commitment strengthened', src:'CMD 2024'},
+      {date:'2025-02-14',stage:3,key:'fly', obj:'Margin 24–26%', signal:'On-track confirmed. Intermediate progress disclosed.',          src:'FY2024 Results'},
+      {date:'2026-03-15',stage:3,key:'fly', obj:'Margin 24–26%', signal:'Target range retained. 29 months. Unchanged.',                  src:'FY2025 Annual Report', latest:true},
+    ]
+  },
+];
+
+let graveyardData = [
+  {
+    id:'gy-china',
+    num:'OBJ-G1',
+    title:'China as Strategic Growth Platform',
+    dates:'Oct 2023 — Q2 2024',
+    epitaph:'"China will be a cornerstone of our emerging market ambition."',
+    manner:'silent', mannerLabel:'⬛ Silently Dropped', mannerClass:'sm-silent',
+    transparency:'Very Low', tvClass:'tv-very-low',
+    verdict:'China moved from "cornerstone" to complete absence in six months with zero investor communication acknowledging the change. The most unambiguous silent drop in the tracked portfolio. Investors who weighted the China commitment received no correction signal.',
+    successor:null,
+    timeline:[
+      {cls:'ev-alive', date:'Oct 2023', text:'China explicitly named as strategic cornerstone in the spin-off prospectus.', src:'Spin-off Prospectus'},
+      {cls:'ev-alive', date:'Nov 2023', text:'CEO cites China biosimilar regulatory tailwinds as a "timing opportunity" in post-listing roadshow Q&A.', src:'Post-listing Roadshow'},
+      {cls:'ev-soft',  date:'Q1 2024', text:'Absent from top-five markets at CMD. Described as "long-term optionality" when pressed.', src:'CMD 2024'},
+      {cls:'ev-gone',  date:'Q2 2024', text:'Not mentioned in H1 results — third consecutive absence. No exit statement issued. Assessment: confirmed silent drop.', src:'H1 2024 Results'},
+    ]
+  },
+  {
+    id:'gy-rev',
+    num:'OBJ-G2',
+    title:'Explicit 2025 Revenue Target Band',
+    dates:'Oct 2023 — Mar 2024',
+    epitaph:'"$8.0–8.5B net sales by end of 2025."',
+    manner:'morphed', mannerLabel:'↝ Morphed', mannerClass:'sm-morphed',
+    transparency:'Low', tvClass:'tv-low',
+    verdict:'The absolute revenue target morphed into growth-rate framing — technically different but effectively dissolving the accountability of a specific number. The shift was not announced; the original figure simply ceased to appear. Classic morph pattern: spirit retained, measurability quietly retired.',
+    successor:'Replaced by "mid- to high-single-digit organic CAGR" — active guidance, no baseline accountability',
+    timeline:[
+      {cls:'ev-alive', date:'Oct 2023', text:'Net sales target of $8.0–8.5B by end of 2025 stated in prospectus financial outlook section.', src:'Spin-off Prospectus'},
+      {cls:'ev-soft',  date:'Mar 2024', text:'CMD does not restate the $8.0–8.5B figure. Growth-rate language replaces it without acknowledgment.', src:'CMD 2024'},
+      {cls:'ev-gone',  date:'H2 2024 onward', text:'Revenue guidance is exclusively growth-rate (5–8% CAGR). FY2024 at ~$7.7B implies original target would not be met. No investor communication.', src:'FY2024 Results'},
+    ]
+  },
+  {
+    id:'gy-mena',
+    num:'OBJ-G3',
+    title:'Branded Generics Expansion (MENA)',
+    dates:'Oct 2023 — H1 2025',
+    epitaph:'"Build a differentiated branded generics presence in MENA markets."',
+    manner:'phased', mannerLabel:'⇣ Quietly Phased Out', mannerClass:'sm-phased',
+    transparency:'Medium', tvClass:'tv-medium',
+    verdict:'The most defensible exit in the graveyard. The objective had no numeric KPI, was a secondary pillar, and disappeared gradually — visible across four reporting periods. Still no formal acknowledgment of retirement, but the phased nature makes this a medium-transparency outcome rather than a silent drop.',
+    successor:'Partially absorbed into OBJ 03 "Selective Profitable Growth in EM" — now itself under Watch',
+    timeline:[
+      {cls:'ev-alive', date:'Oct 2023', text:'Branded generics in MENA positioned as a growth platform distinct from standard generics. Gulf markets and Egypt named as priorities.', src:'Spin-off Prospectus'},
+      {cls:'ev-alive', date:'Q1 2024', text:'Reiterated at CMD as part of broader EM pillar. No specific KPI attached.', src:'CMD 2024'},
+      {cls:'ev-soft',  date:'H2 2024', text:'MENA branded generics reduced to single line in regional overview. Profitability language replaces differentiation framing.', src:'H1 2024 Results'},
+      {cls:'ev-gone',  date:'H1 2025', text:'Not identifiable as a distinct strategic objective. MENA absorbed into consolidated "Rest of World." No retirement statement.', src:'FY2024 Annual Report'},
+    ]
+  }
+];
+
+/* ═══════════════════════════════════════════════════════
+   RENDER TIMELINE
+═══════════════════════════════════════════════════════ */
+function renderTimeline(){
+  const canvas = document.getElementById('tlCanvas');
+  const svg    = document.getElementById('tl-svg');
+  const nodes  = document.getElementById('tl-nodes');
+
+  canvas.style.height = '660px';
+
+  // Ground decorations
+  const ground = document.createElement('div');
+  ground.innerHTML = `
+    <div class="tl-ground" style="top:${GROUND_PX}px;">
+      <div class="tl-ground-bar"></div>
+      <div class="tl-ground-soil"></div>
+      <div class="tl-ground-lbl">commitment threshold</div>
+    </div>`;
+  canvas.appendChild(ground);
+
+  // Time axis
+  const axisWrap = document.createElement('div');
+  axisWrap.className = 'tl-time-axis';
+  axisWrap.style.cssText = `position:absolute;bottom:30px;left:${T_LEFT}px;right:${1400-T_RIGHT}px;height:1px;background:rgba(255,255,255,.04);`;
+  // Generate month ticks dynamically from D_START to D_END (quarterly)
+  const months = [];
+  const cursor = new Date(D_START);
+  cursor.setDate(1);
+  while (cursor <= D_END) {
+    const iso = cursor.toISOString().slice(0, 10);
+    const lbl = cursor.toLocaleDateString('en-GB', { month: 'short', year: '2-digit' });
+    months.push([iso, lbl]);
+    cursor.setMonth(cursor.getMonth() + 3);
+  }
+  months.forEach(([d,lbl])=>{
+    const x = dateToX(d)-T_LEFT;
+    const tick = document.createElement('div');
+    tick.className='tl-tick';tick.style.left=x+'px';
+    const ml = document.createElement('div');
+    ml.className='tl-month';ml.style.left=x+'px';ml.textContent=lbl;
+    axisWrap.appendChild(tick);axisWrap.appendChild(ml);
+  });
+  canvas.appendChild(axisWrap);
+
+  // SVG
+  svg.setAttribute('viewBox',`0 0 1400 660`);
+  svg.setAttribute('width','1400');
+  svg.setAttribute('height','660');
+
+  // Objective colours for connector lines
+  const objColors = ['#86EFAC','#6EE7B7','#FCD34D','#86EFAC','#F87171','#6EE7B7'];
+
+  objectives.forEach((obj,oi)=>{
+    const pts = obj.nodes.map(n=>({x:dateToX(n.date),y:stageToY(n.stage),...n}));
+    const clr = objColors[oi];
+
+    // Cubic bezier connector path
+    if(pts.length>1){
+      let d=`M${pts[0].x} ${pts[0].y}`;
+      for(let i=1;i<pts.length;i++){
+        const dx=pts[i].x-pts[i-1].x;
+        d+=` C${pts[i-1].x+dx*.4} ${pts[i-1].y},${pts[i-1].x+dx*.6} ${pts[i].y},${pts[i].x} ${pts[i].y}`;
+      }
+      const path = document.createElementNS('http://www.w3.org/2000/svg','path');
+      path.setAttribute('d',d);
+      path.setAttribute('stroke',clr);
+      path.setAttribute('stroke-width','1.5');
+      path.setAttribute('stroke-opacity','0.3');
+      path.setAttribute('fill','none');
+      path.setAttribute('stroke-dasharray','5 4');
+      svg.appendChild(path);
+
+      // Ground crossing markers
+      for(let i=1;i<pts.length;i++){
+        if(pts[i-1].y<GROUND_PX && pts[i].y>GROUND_PX){
+          const t=(GROUND_PX-pts[i-1].y)/(pts[i].y-pts[i-1].y);
+          const cx=pts[i-1].x+t*(pts[i].x-pts[i-1].x);
+          const marker=document.createElement('div');
+          marker.className='tl-cross';
+          marker.style.cssText=`left:${cx}px;top:${GROUND_PX}px;`;
+          marker.innerHTML=`<div class="tl-cross-ring"></div><div class="tl-cross-lbl">↓ crossed</div>`;
+          nodes.appendChild(marker);
+        }
+      }
+    }
+
+    // Node elements
+    pts.forEach((pt,ni)=>{
+      const stage=STAGES[pt.key];
+      const isLatest=!!pt.latest;
+      const isBelow=pt.stage<0;
+      const node=document.createElement('div');
+      node.className='tl-node'+(isLatest?' latest':'');
+      node.style.cssText=`left:${pt.x}px;top:${pt.y}px;--node-clr:${stage.color};--node-rgb:${stage.rgb};`;
+      const tipFlip=isBelow?'flip':'';
+      node.innerHTML=`
+        <div class="tl-node-body">
+          <div class="tl-node-icon">${stageIcon(pt.key,stage.color,26)}</div>
+        </div>
+        <div class="tl-node-lbl">
+          <span class="tl-node-stage">${stage.label}</span>
+        </div>
+        <div class="tl-tooltip ${tipFlip}">
+          <div class="tt-stage">${stage.label} · Stage ${pt.stage>=0?'+':''}${pt.stage}</div>
+          <div class="tt-obj">${pt.obj}</div>
+          <div class="tt-signal">${pt.signal}</div>
+          <div class="tt-source">${pt.src} · ${new Date(pt.date).toLocaleDateString('en-GB',{month:'short',year:'numeric'})}</div>
+        </div>`;
+      nodes.appendChild(node);
+    });
+  });
+}
+
+/* ═══════════════════════════════════════════════════════
+   RENDER OBJECTIVE CARDS
+═══════════════════════════════════════════════════════ */
+function renderCards(){
+  const grid=document.getElementById('cardsGrid');
+  let openId=null, openCard=null;
+
+  objectives.forEach(obj=>{
+    if (!obj.nodes || !obj.nodes.length) return; // skip objectives with no signal data
+    const card=document.createElement('div');
+    card.className=`obj-card ${obj.cardClass}`;
+    card.id=`card-${obj.id}`;
+
+    const currentNode=obj.nodes[obj.nodes.length-1];
+    const stage=STAGES[currentNode.key] || STAGES.watch;
+    const miniDots=obj.miniDots.map(d=>`<div class="mini-dot" style="background:${d.c}"></div>`).join('<div class="mini-spacer"></div>');
+
+    card.innerHTML=`
+      <div class="card-top">
+        <span class="card-num">${obj.num}</span>
+        <span class="status-badge ${obj.statusBadge}">${obj.statusLabel}</span>
+      </div>
+      <div class="card-momentum">
+        <div class="card-stage-icon">${stageIcon(currentNode.key,stage.color,36)}</div>
+        <div>
+          <div class="card-stage-name" style="color:${stage.color}">${stage.label}</div>
+          <div class="card-stage-score">Stage ${currentNode.stage>=0?'+':''}${currentNode.stage} · ${obj.signals} signals</div>
+        </div>
+      </div>
+      <div class="card-title">${obj.title}</div>
+      <div class="card-subtitle">${obj.subtitle}</div>
+      <div class="card-mini-tl">${miniDots}</div>
+      <div class="card-footer">
+        <span class="card-signals">${obj.signals} evidence signals</span>
+        <span class="card-updated">Updated ${obj.updated}</span>
+      </div>`;
+
+    // Evidence drawer
+    const drawer=document.createElement('div');
+    drawer.className='ev-drawer';
+    drawer.id=`drawer-${obj.id}`;
+
+    const evHtml=obj.evidence.map(e=>`
+      <div class="ev-event" style="--ev-clr:${e.typeClass.includes('reinforced')?'#6EE7B7':e.typeClass.includes('stated')?'rgba(255,255,255,.06)':'#F87171'}">
+        <div class="ev-event-head">
+          <span class="ev-date">${e.date}</span>
+          <span class="ev-type ${e.typeClass}">${e.type}</span>
+          <span class="ev-source">${e.src}</span>
+        </div>
+        <div class="ev-text">${e.text}</div>
+        ${e.note?`<div class="ev-reasoning">→ ${e.note}</div>`:''}
+      </div>`).join('');
+
+    drawer.innerHTML=`
+      <div class="ev-drawer-head">
+        <span class="ev-drawer-title">${obj.num} — ${obj.title} · Evidence Record</span>
+        <button class="ev-close" onclick="closeDrawer('${obj.id}')">✕</button>
+      </div>
+      <div class="ev-drawer-body">${evHtml}</div>`;
+
+    card.addEventListener('click',()=>{
+      if(openId===obj.id){closeDrawer(obj.id);return;}
+      if(openId){closeDrawer(openId);}
+      // Insert drawer after this card's row
+      const cols=window.innerWidth<=768?1:window.innerWidth<=1100?2:3;
+      const allCards=[...grid.querySelectorAll('.obj-card')];
+      const idx=allCards.indexOf(card);
+      const rowEnd=Math.min(Math.ceil((idx+1)/cols)*cols-1,allCards.length-1);
+      allCards[rowEnd].after(drawer);
+      drawer.classList.add('open');
+      card.classList.add('expanded');
+      openId=obj.id;openCard=card;
+      setTimeout(()=>drawer.scrollIntoView({behavior:'smooth',block:'nearest'}),80);
+    });
+
+    window.closeDrawer=function(id){
+      const d=document.getElementById(`drawer-${id}`);
+      if(d)d.classList.remove('open');
+      document.getElementById(`card-${id}`)?.classList.remove('expanded');
+      openId=null;openCard=null;
+    };
+
+    grid.appendChild(card);
+    grid.appendChild(drawer);
+  });
+}
+
+/* ═══════════════════════════════════════════════════════
+   RENDER GRAVEYARD
+═══════════════════════════════════════════════════════ */
+function renderGraveyard(){
+  const grid=document.getElementById('gyGrid');
+  let openGy=null, openGySt=null;
+
+  graveyardData.forEach(g=>{
+    const stone=document.createElement('div');
+    stone.className='gravestone';
+    stone.id=`gy-stone-${g.id}`;
+    stone.innerHTML=`
+      <div class="stone-shape">
+        <div class="stone-cross">✛</div>
+        <div class="stone-num">${g.num}</div>
+        <div class="stone-title">${g.title}</div>
+        <div class="stone-dates">${g.dates}</div>
+        <div class="stone-epitaph">${g.epitaph}</div>
+        <span class="stone-manner ${g.mannerClass}">${g.mannerLabel}</span>
+      </div>
+      <div class="stone-base"></div>
+      <div class="stone-expand" id="gy-exp-${g.id}">↓ open record</div>`;
+
+    const record=document.createElement('div');
+    record.className='grave-record';
+    record.id=`gy-rec-${g.id}`;
+
+    const tlHtml=g.timeline.map(e=>`
+      <div class="gr-ev ${e.cls}">
+        <div class="gr-ev-date">${e.date}</div>
+        <div class="gr-ev-text">${e.text}</div>
+        <div class="gr-ev-src">${e.src}</div>
+      </div>`).join('');
+
+    record.innerHTML=`
+      <div class="gr-head">
+        <span class="gr-head-title">${g.title} — Full Record</span>
+        <button class="gr-close" onclick="closeGrave('${g.id}')">✕</button>
+      </div>
+      <div class="gr-body">
+        <div>
+          <div class="gr-section-lbl">Decline Timeline</div>
+          ${tlHtml}
+        </div>
+        <div>
+          <div class="gr-section-lbl">Editorial Verdict</div>
+          <div class="gr-verdict">
+            <div class="gr-verdict-row">
+              <span class="gr-transparency-lbl">Transparency</span>
+              <span class="gr-transparency-val ${g.tvClass}">${g.transparency}</span>
+            </div>
+            <p class="gr-verdict-text">${g.verdict}</p>
+            ${g.successor?`<div class="gr-successor"><div class="gr-succ-lbl">↝ Successor</div><div class="gr-succ-text">${g.successor}</div></div>`:'<div class="gr-successor"><div class="gr-succ-lbl">No identified successor</div></div>'}
+          </div>
+        </div>
+      </div>`;
+
+    stone.addEventListener('click',()=>{
+      if(openGy===g.id){closeGrave(g.id);return;}
+      if(openGy)closeGrave(openGy);
+      const cols=window.innerWidth<=768?1:window.innerWidth<=1100?2:3;
+      const allStones=[...grid.querySelectorAll('.gravestone')];
+      const idx=allStones.indexOf(stone);
+      const rowEnd=Math.min(Math.ceil((idx+1)/cols)*cols-1,allStones.length-1);
+      allStones[rowEnd].after(record);
+      record.classList.add('open');
+      stone.classList.add('open');
+      document.getElementById(`gy-exp-${g.id}`).textContent='↑ close record';
+      openGy=g.id;openGySt=stone;
+      setTimeout(()=>record.scrollIntoView({behavior:'smooth',block:'nearest'}),80);
+    });
+
+    window.closeGrave=function(id){
+      document.getElementById(`gy-rec-${id}`)?.classList.remove('open');
+      document.getElementById(`gy-stone-${id}`)?.classList.remove('open');
+      const e=document.getElementById(`gy-exp-${id}`);
+      if(e)e.textContent='↓ open record';
+      openGy=null;openGySt=null;
+    };
+
+    grid.appendChild(stone);
+    grid.appendChild(record);
+  });
+}
+
+/* ═══════════════════════════════════════════════════════
+   MASTHEAD NAV
+═══════════════════════════════════════════════════════ */
+const toggle=document.getElementById('mastToggle');
+const drawer=document.getElementById('mobileDrawer');
+toggle.addEventListener('click',()=>{
+  const o=drawer.classList.toggle('open');
+  toggle.classList.toggle('open',o);
+});
+window.closeMobileNav=()=>{
+  drawer.classList.remove('open');
+  toggle.classList.remove('open');
+};
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeMobileNav();});
+
+/* ═══════════════════════════════════════════════════════
+   DYNAMIC HEADER UPDATE
+   Populates company header from DB data instead of hardcoded HTML.
+═══════════════════════════════════════════════════════ */
+function updateHeader(company) {
+  if (!company) return;
+  const mark = document.querySelector('.co-mark');
+  if (mark) mark.textContent = company.logo_initials || company.ticker || '';
+
+  const name = document.querySelector('.co-name');
+  if (name) name.textContent = company.name;
+
+  const initiative = document.querySelector('.co-initiative');
+  if (initiative) {
+    const parts = [company.initiative_name, company.initiative_subtitle].filter(Boolean);
+    initiative.textContent = `"${parts.join(' ')}"`;
+  }
+
+  const desc = document.querySelector('.co-desc');
+  if (desc && company.initiative_desc) desc.textContent = company.initiative_desc;
+
+  const mastCompany = document.querySelector('.mast-company');
+  if (mastCompany) mastCompany.textContent = `${company.name} · ${company.initiative_name || ''}`;
+
+  const score = company.overall_commitment_score || 0;
+  const commitFill = document.getElementById('commitFill');
+  if (commitFill) commitFill.dataset.score = score;
+  const commitScore = document.querySelector('.commit-score');
+  if (commitScore) commitScore.textContent = `${score} / 100`;
+
+  document.title = `Drift — ${company.name} · ${company.initiative_name || ''}`;
+}
+
+/* ═══════════════════════════════════════════════════════
+   INIT — Try Supabase, fall back to hardcoded data
+═══════════════════════════════════════════════════════ */
+(async function init() {
+  let liveObjectives = null;
+  let liveGraveyard = null;
+  let liveCompany = null;
+
+  // Determine ticker from URL params or default to SDZ
+  const urlTicker = new URLSearchParams(window.location.search).get('ticker') || 'SDZ';
+
+  if (SB_URL && SB_KEY) {
+    try {
+      const data = await fetchCompanyData(urlTicker);
+      liveCompany = data.company;
+      liveObjectives = data.objectives;
+      liveGraveyard = data.graveyard;
+      console.log(`[Drift] Loaded ${urlTicker} from Supabase — ${liveObjectives.length} objectives, ${liveGraveyard.length} graveyard entries`);
+    } catch (err) {
+      console.warn('[Drift] Supabase fetch failed, using hardcoded data:', err.message);
+    }
+  } else {
+    console.info('[Drift] Supabase not configured — using hardcoded data. Set credentials in admin.html → Settings.');
+  }
+
+  // Use live data if available, otherwise fall back to hardcoded
+  if (liveObjectives && liveObjectives.length) {
+    objectives.length = 0;
+    objectives.push(...liveObjectives);
+  }
+  if (liveGraveyard && liveGraveyard.length) {
+    graveyardData.length = 0;
+    graveyardData.push(...liveGraveyard);
+  }
+  if (liveCompany) {
+    updateHeader(liveCompany);
+  }
+
+  // Update section rule counts
+  const objRule = document.querySelector('#objectives');
+  if (objRule) objRule.textContent = `Active Objectives · ${objectives.length} tracked`;
+  const gyRule = document.querySelector('#graveyard');
+  if (gyRule) gyRule.textContent = `Objective Graveyard · ${graveyardData.length} entries`;
+
+  // Compute dynamic date range and render
+  computeDateRange();
+  renderTimeline();
+  renderCards();
+  renderGraveyard();
+
+  // Animate commitment bar
+  const commitFill = document.getElementById('commitFill');
+  const score = commitFill?.dataset.score || '88';
+  requestAnimationFrame(() => {
+    setTimeout(() => { commitFill.style.width = score + '%'; }, 400);
+  });
+})();
+
+// Responsive resize — close open drawers to avoid row-mismatch
+window.addEventListener('resize', () => {});
+
+/* ── MASTHEAD SCROLL ── */
+const mast = document.querySelector('.mast');
+window.addEventListener('scroll', () => {
+  mast.classList.toggle('scrolled', window.scrollY > 40);
+}, { passive: true });
+
+/* ── SCROLL REVEALS ── */
+const revealEls = document.querySelectorAll('.reveal');
+const revealObs = new IntersectionObserver((entries) => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      e.target.classList.add('visible');
+      revealObs.unobserve(e.target);
+    }
+  });
+}, { threshold: 0.12 });
+revealEls.forEach(el => revealObs.observe(el));
+</script>
+</body>
+</html>
