@@ -486,9 +486,8 @@ def update_agent_run(db: Client, run_id: str, **kwargs):
 
 
 def save_signal(db: Client, signal: dict) -> str:
-    """Save a signal as draft by default. Requires human approval to publish."""
-    if "is_draft" not in signal:
-        signal["is_draft"] = True
+    """Save a signal as draft. Always enforced — human approval required to publish (per D-01)."""
+    signal["is_draft"] = True
     result = db.table("signals").insert(signal).execute()
     return result.data[0]["id"]
 
