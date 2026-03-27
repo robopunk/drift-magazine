@@ -75,6 +75,6 @@ Full details: [milestones/v4.0-ROADMAP.md](milestones/v4.0-ROADMAP.md)
 | 1. Firecrawl Integration & Testing | v4.0 | 2/2 | Complete | 2026-03-26 |
 | 2. Quality Measurement & Page Maturity | v4.0 | 3/3 | Complete | 2026-03-26 |
 | 3. Production & Monetization Gate | v4.0 | 3/3 | Complete | 2026-03-27 |
-| 4. Environment & Authentication | v4.1 | 0/TBD | Not started | - |
+| 4. Environment & Authentication | v4.1 | 1/3 | In Progress|  |
 | 5. Supabase Verification & Deployment | v4.1 | 0/TBD | Not started | - |
 | 6. Automation & End-to-End Validation | v4.1 | 0/TBD | Not started | - |
