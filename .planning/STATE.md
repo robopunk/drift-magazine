@@ -2,28 +2,28 @@
 gsd_state_version: 1.0
 milestone: v4.1
 milestone_name: Production Readiness
-status: executing
-last_updated: "2026-03-27T20:30:00Z"
-last_activity: 2026-03-27 -- Plan 04-01 complete: env vars configured, frontend build verified
+status: verifying
+last_updated: "2026-03-27T20:32:26.381Z"
+last_activity: 2026-03-27
 progress:
   total_phases: 3
-  completed_phases: 0
+  completed_phases: 1
   total_plans: 3
-  completed_plans: 1
+  completed_plans: 3
 ---
 
 # Project State — Drift v4.1
 
 **Last Updated:** 2026-03-27
-**Status:** Executing Phase 04
-**Phase:** Phase 4 — Plan 2 of 3
+**Status:** Phase 04 complete — pending human action (create Supabase admin user before Phase 5)
+**Phase:** Phase 4 — All 3 plans complete
 
 ## Current Position
 
-Phase: 04 (environment-authentication) — EXECUTING
-Plan: 2 of 3
-Status: Plan 04-01 complete, ready for 04-02 and 04-03
-Last activity: 2026-03-27 -- frontend/.env.local configured with real Supabase creds; backend/.env.local scaffolded (3 secrets need Stefano's values)
+Phase: 04 (environment-authentication) — COMPLETE
+Plan: 3 of 3 (04-03 complete)
+Status: Plan 04-03 complete — auth gate verified, RUNBOOK section 9 expanded, dev server confirmed operational
+Last activity: 2026-03-27 -- RUNBOOK.md admin auth section expanded with dev/prod flows + security notes; /admin client-side auth gate verified; Supabase user creation is pending human action (see 04-03-SUMMARY.md)
 
 ---
 
@@ -58,7 +58,7 @@ Phase 6: [ ] Automation & End-to-End Validation
 - No live agent run executed (Python environment unavailable during dev)
 - No cross-phase integration check or E2E flow verification
 - No Vercel deployment with production env vars
-- GitHub Actions workflow created but secrets not configured
+- ~~GitHub Actions workflow created but secrets not configured~~ ✅ Fixed in 04-02
 
 ### v4.0 Monetization Gate (4 Conditions)
 
@@ -87,9 +87,10 @@ This milestone satisfies monetization gate condition #3 and unblocks company #2 
 | Automation + E2E grouped in Phase 6 | Two clean runs require deployed infrastructure from Phases 4–5 |
 | frontend/.env.local sourced from Vercel CLI root .env.local | Same Supabase project, real production values already available |
 | backend/.env.local pre-fills SUPABASE_URL | Project URL known from Vercel; reduces manual setup — secrets still need Stefano |
+| GitHub secrets set via gh CLI, not UI | Token had repo scope; gh secret set is non-interactive and fully automatable |
 
 ---
 
 ## Next Step
 
-Execute Plan 04-02 (GitHub Secrets) and/or Plan 04-03 (Production Auth). Both are Wave 1, parallel-ready.
+Execute Plan 04-03 (Production Authentication Verification).

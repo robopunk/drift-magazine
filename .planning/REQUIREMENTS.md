@@ -10,7 +10,7 @@
 
 - [x] **ENV-01**: All backend env vars configured (ANTHROPIC_API_KEY, SUPABASE_URL, SUPABASE_SERVICE_KEY, FIRECRAWL_API_KEY)
 - [x] **ENV-02**: Frontend env vars set (NEXT_PUBLIC_SUPABASE_URL, NEXT_PUBLIC_SUPABASE_ANON_KEY)
-- [ ] **ENV-03**: GitHub Secrets configured for CI/CD (same 4 backend vars)
+- [x] **ENV-03**: GitHub Secrets configured for CI/CD (same 4 backend vars)
 
 ### Supabase Verification
 

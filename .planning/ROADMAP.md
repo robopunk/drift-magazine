@@ -24,7 +24,7 @@ Full details: [milestones/v4.0-ROADMAP.md](milestones/v4.0-ROADMAP.md)
 
 **Milestone Goal:** Verify live Supabase connection end-to-end, deploy to Vercel, activate GitHub Actions automation, and clear monetization gate condition #3 (2 clean agent runs). Unblocks company #2 intake.
 
-- [ ] **Phase 4: Environment & Authentication** — Configure all env vars, verify auth gate works in production
+- [x] **Phase 4: Environment & Authentication** — Configure all env vars, verify auth gate works in production (completed 2026-03-27)
 - [ ] **Phase 5: Supabase Verification & Deployment** — Confirm live DB read/write, deploy frontend to Vercel
 - [ ] **Phase 6: Automation & End-to-End Validation** — Activate GitHub Actions scheduling, run 2 clean agent cycles, verify full data flow
 
@@ -75,6 +75,6 @@ Full details: [milestones/v4.0-ROADMAP.md](milestones/v4.0-ROADMAP.md)
 | 1. Firecrawl Integration & Testing | v4.0 | 2/2 | Complete | 2026-03-26 |
 | 2. Quality Measurement & Page Maturity | v4.0 | 3/3 | Complete | 2026-03-26 |
 | 3. Production & Monetization Gate | v4.0 | 3/3 | Complete | 2026-03-27 |
-| 4. Environment & Authentication | v4.1 | 1/3 | In Progress|  |
+| 4. Environment & Authentication | v4.1 | 3/3 | Complete   | 2026-03-27 |
 | 5. Supabase Verification & Deployment | v4.1 | 0/TBD | Not started | - |
 | 6. Automation & End-to-End Validation | v4.1 | 0/TBD | Not started | - |
