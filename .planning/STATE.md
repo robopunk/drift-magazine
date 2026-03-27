@@ -88,9 +88,13 @@ This milestone satisfies monetization gate condition #3 and unblocks company #2 
 | frontend/.env.local sourced from Vercel CLI root .env.local | Same Supabase project, real production values already available |
 | backend/.env.local pre-fills SUPABASE_URL | Project URL known from Vercel; reduces manual setup — secrets still need Stefano |
 | GitHub secrets set via gh CLI, not UI | Token had repo scope; gh secret set is non-interactive and fully automatable |
+| Client-side auth gate on /admin returns HTTP 200 | Expected — React renders login form when no session; admin data never visible without session |
+| Email/password auth needs no redirect URL config | Supabase redirect URLs only required for OAuth/magic links; not needed for current implementation |
 
 ---
 
 ## Next Step
 
-Execute Plan 04-03 (Production Authentication Verification).
+Human action required before Phase 5: Create admin user in Supabase Dashboard (Authentication → Users → Create new user). Full instructions in `docs/RUNBOOK.md` section 9 and `.planning/phases/04-environment-authentication/04-03-SUMMARY.md`.
+
+After that: Execute Phase 5 (Supabase Verification & Deployment).

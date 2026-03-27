@@ -27,9 +27,9 @@
 
 ### Authentication
 
-- [ ] **AUTH-01**: Supabase Auth gate on `/admin` works in production
-- [ ] **AUTH-02**: Admin user can log in with email/password
-- [ ] **AUTH-03**: Unauthenticated users see 403 on `/admin`
+- [x] **AUTH-01**: Supabase Auth gate on `/admin` works in production
+- [x] **AUTH-02**: Admin user can log in with email/password
+- [x] **AUTH-03**: Unauthenticated users see 403 on `/admin`
 
 ### Automation & Operations
 
