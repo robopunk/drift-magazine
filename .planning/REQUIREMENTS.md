@@ -1,0 +1,87 @@
+# v4.1 Production Readiness — Requirements
+
+**Milestone:** v4.1 | **Version:** 1.0 | **Last Updated:** 2026-03-27
+
+---
+
+## Active Requirements
+
+### Environment Setup
+
+- [ ] **ENV-01**: All backend env vars configured (ANTHROPIC_API_KEY, SUPABASE_URL, SUPABASE_SERVICE_KEY, FIRECRAWL_API_KEY)
+- [ ] **ENV-02**: Frontend env vars set (NEXT_PUBLIC_SUPABASE_URL, NEXT_PUBLIC_SUPABASE_ANON_KEY)
+- [ ] **ENV-03**: GitHub Secrets configured for CI/CD (same 4 backend vars)
+
+### Supabase Verification
+
+- [ ] **DB-01**: Backend agent can connect to live Supabase and authenticate
+- [ ] **DB-02**: Agent can write signals to signals table and read objectives
+- [ ] **DB-03**: Frontend can fetch companies, objectives, and signals from live DB
+- [ ] **DB-04**: RLS policies enforced (only service key can write, anon can read)
+
+### Frontend Deployment
+
+- [ ] **DEPLOY-01**: Frontend deployed to Vercel with production env vars
+- [ ] **DEPLOY-02**: Deployed site is accessible at production URL
+- [ ] **DEPLOY-03**: All pages load and render data from live Supabase
+
+### Authentication
+
+- [ ] **AUTH-01**: Supabase Auth gate on `/admin` works in production
+- [ ] **AUTH-02**: Admin user can log in with email/password
+- [ ] **AUTH-03**: Unauthenticated users see 403 on `/admin`
+
+### Automation & Operations
+
+- [ ] **SCHED-01**: GitHub Actions workflow can authenticate and run agent
+- [ ] **SCHED-02**: Agent completes first run without errors (signals drafted)
+- [ ] **SCHED-03**: Agent completes second run without errors (consistent execution)
+- [ ] **OPS-01**: Operator can monitor agent runs via GitHub Actions UI
+- [ ] **OPS-02**: Failure alerts work (email notification on workflow failure)
+
+### End-to-End Validation
+
+- [ ] **E2E-01**: Signal flows from agent → Supabase → frontend display
+- [ ] **E2E-02**: Confidence badges display correctly on live site
+- [ ] **E2E-03**: Company page shows all Sandoz data (6 objectives, 51+ signals)
+
+---
+
+## Future Requirements
+
+(Deferred to v4.2+ — out of scope for v4.1)
+
+- **Payment Integration** — Stripe subscription gating for premium features
+- **Mobile Responsive Polish** — Enhanced mobile UX and breakpoints
+- **Email Alerts** — Subscriber digest when objectives cross ground line
+- **API / Data Export** — CSV/JSON export for premium subscribers
+- **Additional Companies** — Roche, Volkswagen, BP (after v4.1 gate clears)
+
+---
+
+## Out of Scope
+
+None specified for v4.1.
+
+---
+
+## Traceability
+
+(Populated by roadmapper)
+
+| REQ-ID | Phase | Plan |
+|--------|-------|------|
+| — | — | — |
+
+---
+
+## Success Criteria
+
+**v4.1 is complete when:**
+1. All 18 requirements are satisfied ✓
+2. 2 clean agent runs complete without errors ✓
+3. Live Supabase data flows end-to-end ✓
+4. Frontend deployed to Vercel and accessible ✓
+5. GitHub Actions automation activated ✓
+6. Monetization gate condition #3 cleared (agent stability verified) ✓
+7. Ready for company #2 intake ✓
