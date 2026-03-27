@@ -368,32 +368,83 @@ WHERE is_draft = false;
 
 ---
 
-## 9. Admin Authentication Setup
+## 9. Admin Authentication
 
-The `/admin` route is protected by Supabase Auth (email/password). No unauthenticated visitor can view or act on draft signals.
+The `/admin` route is protected by Supabase Auth (email/password). No unauthenticated visitor can view or act on draft signals. The page renders a login form when no session exists — the session check runs client-side via `supabase.auth.getSession()`.
 
 ### Create the admin user
 
 1. Go to Supabase Dashboard → **Authentication** → **Users**
-2. Click **"Add User"** (top right)
-3. Enter your email address and a strong password
+2. Click **"Add User"** → **"Create new user"**
+3. Fill in:
+   - **Email:** Your email address (e.g., `stefano@yourdomain.com`)
+   - **Password:** Strong password (minimum 12 characters recommended)
+   - **Auto Confirm user:** Check this box — the account is immediately active, no email verification required
 4. Click **"Create User"**
 
-The user is created with a confirmed email — no email verification required.
+The user appears in the Users list with status "Confirmed". This is the email/password you will use to log in.
 
-### Log in
+**One user is sufficient.** The admin page is for Stefano's use only. There is no multi-user or role-based access — any confirmed Supabase Auth user can log in.
 
-Navigate to `/admin` in the browser. You will see a login form. Enter the email and password you created above.
+### Log in (development)
 
-On successful login, the review queue loads. The session persists across browser tabs and reloads until you sign out.
+1. Start the frontend dev server: `cd frontend && npm run dev`
+2. Navigate to `http://localhost:3000/admin`
+3. The login form appears (the page never shows admin content without an active session)
+4. Enter the email and password you created above
+5. Click **"Sign In"**
+
+On successful login, the review queue loads. The session persists across browser tabs and reloads (stored in browser `localStorage`) until you sign out or the session expires.
+
+### Log in (production)
+
+Same flow as development, using the production URL:
+
+1. Navigate to `https://yourdomain.com/admin` (replace with your Vercel deployment URL)
+2. Enter your Supabase email and password
+3. Click **"Sign In"**
 
 ### Sign out
 
-Click **"Sign Out"** in the admin header.
+Click **"Sign Out"** in the admin page header. The session token is cleared from browser storage. Navigating back to `/admin` shows the login form again.
 
-### If you are locked out
+### Verify the auth gate is working
 
-Reset your password via Supabase Dashboard → Authentication → Users → click the user → "Send password reset email", or set a new password directly in the dashboard.
+After logging out, navigate to `/admin` — you should see the login form, not the admin dashboard. The HTTP response code is 200 (expected — the auth check is client-side; the page shell always loads, but the React component renders the login form rather than the dashboard for unauthenticated users).
+
+### Reset a forgotten password
+
+Option 1 — set directly in Dashboard (no email required):
+1. Go to Supabase Dashboard → **Authentication** → **Users**
+2. Find the user row
+3. Click the three-dot menu → **"Reset password"** → set a new password directly
+
+Option 2 — email reset link:
+1. Go to Supabase Dashboard → **Authentication** → **Users**
+2. Click the user row
+3. Click **"Send password reset email"** — user receives a link to set a new password
+
+### Production deployment checklist
+
+When deploying to Vercel for the first time, verify these authentication-related settings:
+
+**1. Frontend environment variables** — Add to Vercel project settings (Settings → Environment Variables):
+- `NEXT_PUBLIC_SUPABASE_URL` — same value as in `frontend/.env.local`
+- `NEXT_PUBLIC_SUPABASE_ANON_KEY` — same value as in `frontend/.env.local`
+
+**2. Admin user** — The Supabase user is project-wide and works across development and production. If already created for local testing, no further action needed.
+
+**3. Auth redirect URLs** — For email/password auth (current implementation), no redirect URL configuration is required. If you add OAuth or magic links in the future, add your production domain to Supabase Dashboard → **Authentication** → **URL Configuration** → **Redirect URLs**:
+- `https://yourdomain.com/auth/callback`
+- `http://localhost:3000/auth/callback` (for local development)
+
+### Security notes
+
+- Passwords are stored encrypted in Supabase Auth (bcrypt) — never in the application database
+- Sessions are stored in browser `localStorage` as encrypted JWTs
+- Unauthenticated users see only the login form — admin data (draft signals, agent runs) is never rendered without a valid session
+- The Supabase `anon` key used in the frontend cannot read draft signals directly — RLS policies require authentication for sensitive operations
+- The `service_role` key (used by the backend agent) must never appear in frontend code or be committed to the repository
 
 ---
 
