@@ -103,11 +103,11 @@
 - Free tier rate limits prevent bi-weekly execution
 - Scaling criteria unclear or difficult to achieve
 
-**Plans:** 3 plans
+**Plans:** 1/3 plans executed
 
 Plans:
 - [ ] 03-01-PLAN.md — Fix is_draft enforcement bug + GitHub Actions bi-weekly workflow (Wave 1)
-- [ ] 03-02-PLAN.md — Admin auth gate (Supabase Auth) + ad slot placements (Wave 1)
+- [x] 03-02-PLAN.md — Admin auth gate (Supabase Auth) + ad slot placements (Wave 1)
 - [ ] 03-03-PLAN.md — Operations runbook + monetization gate criteria (Wave 2)
 
 ---
