@@ -1,8 +1,8 @@
 # Drift — Project
 
 **Owner:** Stefano (Drift founder, Sandoz Head of Infra, Switzerland)
-**Current version:** v4.0.0 (shipped 2026-03-27)
-**Status:** Production-ready — awaiting monetization gate clearance before scaling
+**Current version:** v4.1.0 (in planning)
+**Status:** Live Supabase verification, Vercel deployment, GitHub Actions automation
 
 ---
 
@@ -19,6 +19,20 @@ The research agent (v4.0) uses **Firecrawl** for structured web scraping + **Cla
 ## Core Value
 
 Measuring the *language of commitment* — and the silence that follows when it fades.
+
+---
+
+## Current Milestone: v4.1 Production Readiness
+
+**Goal:** Verify live Supabase connection end-to-end, deploy to production, activate autonomous agent scheduling, and clear monetization gate for company #2 intake.
+
+**Target features:**
+- Live Supabase environment variables verified (backend → DB → frontend)
+- Frontend deployed to Vercel with production env vars
+- GitHub Actions secrets configured for bi-weekly automation
+- Admin auth gate tested in production
+- 2 clean agent cycles completed (monetization gate condition #3)
+- Ready for company #2 intake
 
 ---
 
