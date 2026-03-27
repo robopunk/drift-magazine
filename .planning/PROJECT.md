@@ -1,9 +1,9 @@
 # Drift v4.0 — Research Agent Quality & Firecrawl Integration
 
 **Project Name:** Drift v4.0 Research Enhancement
-**Version:** 4.0.0 (in planning)
+**Version:** 4.0.0 (complete)
 **Owner:** Stefano (Drift founder, Sandoz Head of Infra)
-**Status:** Initiating — GSD new-project phase
+**Status:** All 3 phases complete — production-ready
 **Created:** 2026-03-26
 
 ---
@@ -20,7 +20,7 @@ The Drift research agent currently uses basic web search and Claude API for sign
 
 ---
 
-## Current State (v3.3.0)
+## Current State (v4.0.0)
 
 ### What Works
 - ✅ Next.js 15 frontend with interactive timeline, momentum scale, graveyard
@@ -28,8 +28,13 @@ The Drift research agent currently uses basic web search and Claude API for sign
 - ✅ 3 graveyard entries (Silent Drop, Morphed, Phased Out)
 - ✅ Supabase backend with RLS, audit trails
 - ✅ Python agent runs bi-weekly, outputs draft signals for human review
-- ✅ Admin UI for signal review/approval
-- ✅ Full test suite (99 tests)
+- ✅ Firecrawl integration for structured data extraction (Phase 1)
+- ✅ Signal quality measurement and confidence scoring (Phase 2)
+- ✅ Admin UI auth-gated with Supabase Auth email/password (Phase 3)
+- ✅ GitHub Actions workflow for bi-weekly agent scheduling (Phase 3)
+- ✅ 4 ad slot placements across landing and company pages (Phase 3)
+- ✅ Operations runbook with monetization gate criteria (Phase 3)
+- ✅ Full test suite (99 frontend + 26 backend tests)
 
 ### Pain Points
 - ⚠️ Agent uses generic web search — hits paywalls, spam, off-topic content
