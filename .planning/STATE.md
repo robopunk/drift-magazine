@@ -6,7 +6,7 @@ current_phase: null
 status: planning
 last_updated: "2026-03-27T18:00:00.000Z"
 progress:
-  total_phases: null
+  total_phases: 3
   completed_phases: 0
   total_plans: null
   completed_plans: 0
@@ -15,15 +15,27 @@ progress:
 # Project State — Drift v4.1
 
 **Last Updated:** 2026-03-27
-**Status:** Defining requirements for v4.1 Production Readiness
-**Phase:** Planning (requirements and roadmap)
+**Status:** Roadmap created — ready for phase planning
+**Phase:** Phase 4 (not started)
 
 ## Current Position
 
-Phase: Not started (defining requirements)
+Phase: 4 — Environment & Authentication (not started)
 Plan: —
-Status: Defining requirements
-Last activity: 2026-03-27 — Milestone v4.1 started
+Status: Roadmap defined, awaiting `/gsd:plan-phase 4`
+Last activity: 2026-03-27 — v4.1 roadmap created (3 phases, 21 requirements)
+
+---
+
+## Progress Bar
+
+```
+Phase 4: [ ] Environment & Authentication
+Phase 5: [ ] Supabase Verification & Deployment
+Phase 6: [ ] Automation & End-to-End Validation
+```
+
+0 of 3 phases complete (0%)
 
 ---
 
@@ -40,7 +52,7 @@ Last activity: 2026-03-27 — Milestone v4.1 started
 - 408-line operations runbook with monetization gate logic
 - 125 tests total (99 frontend, 26 backend)
 
-### Known Gaps (v4.0)
+### Known Gaps (v4.0 — the reason v4.1 exists)
 
 - No live Supabase connection verified end-to-end
 - No live agent run executed (Python environment unavailable during dev)
@@ -52,7 +64,7 @@ Last activity: 2026-03-27 — Milestone v4.1 started
 
 1. ✅ Editorial maturity — Sandoz page meets research-grade standards
 2. ✅ Ad slot readiness — 4 slots placed, ready for network integration
-3. ⏳ Agent stability — **v4.1 goal**: 2 clean bi-weekly runs
+3. ⏳ Agent stability — **v4.1 goal**: 2 clean bi-weekly runs (SCHED-02, SCHED-03)
 4. ✅ Runbook reviewed — ops runbook complete and documented
 
 ---
@@ -65,6 +77,17 @@ This milestone satisfies monetization gate condition #3 and unblocks company #2 
 
 ---
 
+## Key Decisions
+
+| Decision | Outcome |
+|----------|---------|
+| Phase numbering continues from v4.0 | Phases 4, 5, 6 (not restarting at 1) |
+| ENV + AUTH grouped in Phase 4 | Both require operator configuration before any live testing can occur |
+| DB verification + Vercel deploy grouped in Phase 5 | Frontend deployment depends on confirmed DB connectivity |
+| Automation + E2E grouped in Phase 6 | Two clean runs require deployed infrastructure from Phases 4–5 |
+
+---
+
 ## Next Step
 
-Defining requirements for v4.1, then creating roadmap.
+Run `/gsd:plan-phase 4` to decompose Phase 4 into executable plans.

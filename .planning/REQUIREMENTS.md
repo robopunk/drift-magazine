@@ -67,18 +67,36 @@ None specified for v4.1.
 
 ## Traceability
 
-(Populated by roadmapper)
-
 | REQ-ID | Phase | Plan |
 |--------|-------|------|
-| — | — | — |
+| ENV-01 | Phase 4 | TBD |
+| ENV-02 | Phase 4 | TBD |
+| ENV-03 | Phase 4 | TBD |
+| AUTH-01 | Phase 4 | TBD |
+| AUTH-02 | Phase 4 | TBD |
+| AUTH-03 | Phase 4 | TBD |
+| DB-01 | Phase 5 | TBD |
+| DB-02 | Phase 5 | TBD |
+| DB-03 | Phase 5 | TBD |
+| DB-04 | Phase 5 | TBD |
+| DEPLOY-01 | Phase 5 | TBD |
+| DEPLOY-02 | Phase 5 | TBD |
+| DEPLOY-03 | Phase 5 | TBD |
+| SCHED-01 | Phase 6 | TBD |
+| SCHED-02 | Phase 6 | TBD |
+| SCHED-03 | Phase 6 | TBD |
+| OPS-01 | Phase 6 | TBD |
+| OPS-02 | Phase 6 | TBD |
+| E2E-01 | Phase 6 | TBD |
+| E2E-02 | Phase 6 | TBD |
+| E2E-03 | Phase 6 | TBD |
 
 ---
 
 ## Success Criteria
 
 **v4.1 is complete when:**
-1. All 18 requirements are satisfied ✓
+1. All 21 requirements are satisfied ✓
 2. 2 clean agent runs complete without errors ✓
 3. Live Supabase data flows end-to-end ✓
 4. Frontend deployed to Vercel and accessible ✓
