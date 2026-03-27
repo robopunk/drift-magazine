@@ -1,16 +1,23 @@
 interface AdSlotProps {
-  slot: 1 | 2 | 3;
+  slot: number;
+  variant?: "sidebar" | "banner" | "inline";
   className?: string;
 }
 
-export function AdSlot({ slot, className = "" }: AdSlotProps) {
+const variantStyles: Record<"sidebar" | "banner" | "inline", string> = {
+  sidebar: "p-4",
+  banner: "p-6 w-full",
+  inline: "p-3",
+};
+
+export function AdSlot({ slot, variant = "sidebar", className = "" }: AdSlotProps) {
   return (
     <div
-      className={`border border-dashed border-border rounded-lg p-4 text-center ${className}`}
+      className={`border border-dashed border-border rounded-lg text-center ${variantStyles[variant]} ${className}`}
       data-ad-slot={slot}
     >
       <p className="text-xs font-mono uppercase tracking-wider text-muted-foreground">
-        Sponsored
+        Advertisement
       </p>
     </div>
   );

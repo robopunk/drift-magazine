@@ -74,10 +74,15 @@ export function CompanyPageClient({
           activeObjectives.length === 0 ? (
             <p className="text-center py-20 text-muted-foreground font-sans">No objectives tracked yet for {company.name}.</p>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {activeObjectives.map((obj) => (
-                <ObjectiveCard key={obj.id} objective={obj} signals={signals.filter((s) => s.objective_id === obj.id)} />
-              ))}
+            <div className="flex flex-col lg:flex-row gap-6">
+              <div className="flex-1 grid grid-cols-1 md:grid-cols-2 gap-4">
+                {activeObjectives.map((obj) => (
+                  <ObjectiveCard key={obj.id} objective={obj} signals={signals.filter((s) => s.objective_id === obj.id)} />
+                ))}
+              </div>
+              <aside className="w-full lg:w-64 shrink-0 space-y-4">
+                <AdSlot slot={4} variant="sidebar" />
+              </aside>
             </div>
           )
         )}
@@ -125,7 +130,7 @@ export function CompanyPageClient({
         )}
         {activeTab === "evidence" && (<EvidenceTable signals={signals} objectives={objectives} />)}
       </div>
-      <AdSlot slot={3} className="max-w-7xl mx-auto px-4 mb-8" />
+      <AdSlot slot={3} variant="banner" className="max-w-7xl mx-auto px-4 mb-8" />
     </>
   );
 }
