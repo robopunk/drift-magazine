@@ -1,7 +1,7 @@
 # Project State — Drift v4.0
 
-**Last Updated:** 2026-03-27T00:15:00Z
-**Status:** Phase 1 complete, Phase 2 complete, Phase 3 pending
+**Last Updated:** 2026-03-27T16:13:37Z
+**Status:** Phase 1 complete, Phase 2 complete, Phase 3 in progress (Plan 01/03 complete)
 **Current Phase:** Phase 3 — Production & Monetization Gate
 
 ---
@@ -52,8 +52,19 @@
   - [x] Task 4: ROADMAP update and Phase 2 completion (commit 85e415e)
   - [x] SUMMARY.md created: `.planning/phases/02-quality-measurement-maturity/02-03-SUMMARY.md`
 
+### Phase 3 Execution In Progress 🔄
+
+- [x] Phase 3 Plan 01 (Draft Enforcement Fix + GitHub Actions Workflow) — COMPLETE
+  - [x] Task 1 (TDD RED): Add failing tests for is_draft enforcement (commit c636f02)
+  - [x] Task 1 (TDD GREEN): Fix save_signal unconditional enforcement (commit d7b27a6)
+  - [x] Task 2: Create GitHub Actions bi-weekly workflow (commit aabd235)
+  - [x] SUMMARY.md created: `.planning/phases/03-production-monetization-gate/03-01-SUMMARY.md`
+  - Key results: 26 tests passing, save_signal hardened, .github/workflows/agent-run.yml created
+  - Execution time: 15 minutes
+
 ### Ready For
-- → Phase 3 Execution (Production & Monetization Gate)
+- → Phase 3 Plan 02 (Admin Auth)
+- → Phase 3 Plan 03 (Runbook + Monetization Gate)
 
 ---
 
@@ -221,6 +232,14 @@ Phase 3: Production Rollout (5 days) [pending]
 ### Decision 4: Use Firecrawl for New Signals Only
 **Why?** Retroactive re-processing of 40+ signals is expensive and risky.
 **Impact:** Historical signals use old methodology; new signals use Firecrawl.
+
+### Decision 6: Unconditional is_draft Enforcement (Phase 3 Plan 01)
+**Why?** Conditional guard (`if "is_draft" not in signal`) allowed callers to bypass draft-only workflow by passing `is_draft=False`. Unconditional assignment closes this path permanently.
+**Impact:** No signal can ever be published without human approval, regardless of caller input.
+
+### Decision 7: GitHub Actions for Agent Scheduling (Phase 3 Plan 01)
+**Why?** Replaces manual cron setup. GitHub Actions provides scheduling, failure email notifications (built-in), and manual dispatch — all at zero additional cost.
+**Impact:** D-06, D-07, D-08 satisfied. Workflow in .github/workflows/agent-run.yml.
 
 ### Decision 5: Three-Plan Phase 2 Structure
 **Why?** Baseline measurement (Wave 1) → Detection refinement (Wave 1 parallel) → Agent run & curation (Wave 2)
