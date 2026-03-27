@@ -14,9 +14,9 @@ progress:
 
 # Project State — Drift v4.0
 
-**Last Updated:** 2026-03-27T16:14:00Z
-**Status:** Executing Phase 03
-**Current Phase:** 03
+**Last Updated:** 2026-03-27T16:20:00Z
+**Status:** Phase 3 in progress (Plans 01-02/03 complete)
+**Current Phase:** Phase 3 — Production & Monetization Gate
 
 ---
 
@@ -70,18 +70,21 @@ progress:
 
 ### Phase 3 Execution In Progress
 
-- [x] Phase 3 Plan 01 (Agent Fix, Admin Auth, Runbook) — COMPLETE (from prior session)
+- [x] Phase 3 Plan 01 (Draft Enforcement Fix + GitHub Actions Workflow) — COMPLETE
+  - [x] Task 1 (TDD RED): Add failing tests for is_draft enforcement (commit c636f02)
+  - [x] Task 1 (TDD GREEN): Fix save_signal unconditional enforcement (commit d7b27a6)
+  - [x] Task 2: Create GitHub Actions bi-weekly workflow (commit aabd235)
+  - [x] SUMMARY.md created: `.planning/phases/03-production-monetization-gate/03-01-SUMMARY.md`
+  - Key results: 26 tests passing, save_signal hardened, .github/workflows/agent-run.yml created
+
 - [x] Phase 3 Plan 02 (Admin Auth Gate + Ad Slot Placements) — COMPLETE
   - [x] Task 1: Supabase Auth gate on /admin page (commit 6ad69c3)
   - [x] Task 2: AdSlot variant system + slot 4 on company page (commit 17b7521)
   - [x] SUMMARY.md created: `.planning/phases/03-production-monetization-gate/03-02-SUMMARY.md`
-  - Key Results: Admin now requires email/password login via Supabase Auth. 4 ad slots across site with Advertisement label. TypeScript: clean.
-  - Decisions: getSession + onAuthStateChange for session management; AdSlot slot widened to number type
-  - Duration: 2 minutes
+  - Key Results: Admin requires email/password login via Supabase Auth. 4 ad slots across site.
 
 ### Ready For
-
-- → Phase 3 Plan 03 (if exists) or Phase 3 completion
+- → Phase 3 Plan 03 (Runbook + Monetization Gate)
 
 ---
 
@@ -265,6 +268,14 @@ Phase 3: Production Rollout (5 days) [pending]
 
 **Why?** Retroactive re-processing of 40+ signals is expensive and risky.
 **Impact:** Historical signals use old methodology; new signals use Firecrawl.
+
+### Decision 6: Unconditional is_draft Enforcement (Phase 3 Plan 01)
+**Why?** Conditional guard (`if "is_draft" not in signal`) allowed callers to bypass draft-only workflow by passing `is_draft=False`. Unconditional assignment closes this path permanently.
+**Impact:** No signal can ever be published without human approval, regardless of caller input.
+
+### Decision 7: GitHub Actions for Agent Scheduling (Phase 3 Plan 01)
+**Why?** Replaces manual cron setup. GitHub Actions provides scheduling, failure email notifications (built-in), and manual dispatch — all at zero additional cost.
+**Impact:** D-06, D-07, D-08 satisfied. Workflow in .github/workflows/agent-run.yml.
 
 ### Decision 5: Three-Plan Phase 2 Structure
 

@@ -3,7 +3,7 @@
 **Project:** Drift v4.0 Research Enhancement
 **Created:** 2026-03-26
 **Owner:** Stefano
-**Status:** Phase 1 complete, Phase 2 complete, Phase 3 planned
+**Status:** Phase 1 complete, Phase 2 complete, Phase 3 in progress (1/3 plans complete)
 
 ---
 
@@ -103,11 +103,11 @@
 - Free tier rate limits prevent bi-weekly execution
 - Scaling criteria unclear or difficult to achieve
 
-**Plans:** 1/3 plans executed
+**Plans:** 2/3 plans executed
 
 Plans:
-- [ ] 03-01-PLAN.md — Fix is_draft enforcement bug + GitHub Actions bi-weekly workflow (Wave 1)
-- [x] 03-02-PLAN.md — Admin auth gate (Supabase Auth) + ad slot placements (Wave 1)
+- [x] 03-01-PLAN.md — Fix is_draft enforcement bug + GitHub Actions bi-weekly workflow (Wave 1) — COMPLETE
+- [x] 03-02-PLAN.md — Admin auth gate (Supabase Auth) + ad slot placements (Wave 1) — COMPLETE
 - [ ] 03-03-PLAN.md — Operations runbook + monetization gate criteria (Wave 2)
 
 ---
@@ -256,6 +256,7 @@ Apr 14+               | v4.0.0 Stable (Sandoz)
 | 1.3 | 2026-03-26 | Phase 1 executed, Phase 2 planned (3 plans) |
 | 1.4 | 2026-03-26 | Phase 2 executed: 3 plans, 10 tasks, confidence 9.3/10, editorial curation |
 | 1.5 | 2026-03-27 | Phase 3 planned: 3 plans, 2 waves (agent fix, admin auth, runbook, monetization gate) |
+| 1.6 | 2026-03-27 | Phase 3 Plan 01 executed: is_draft enforcement fixed, GitHub Actions workflow created, 26 tests passing |
 
 ---
 

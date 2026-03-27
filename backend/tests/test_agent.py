@@ -407,3 +407,46 @@ Last Updated: March 20, 2024
 
     # Should be: stated base (7) + firecrawl (0) + structured bonus (+1) = 8
     assert conf == 8
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# PHASE 3 TESTS: Draft enforcement (D-01, D-02)
+# ─────────────────────────────────────────────────────────────────────────────
+
+
+def test_save_signal_always_sets_draft():
+    """D-01: save_signal must ALWAYS set is_draft=True, even if caller passes False."""
+    mock_db = MagicMock()
+    mock_db.table.return_value.insert.return_value.execute.return_value = MagicMock(
+        data=[{"id": "test-id-123"}]
+    )
+    signal = {"company_id": "c1", "is_draft": False, "classification": "stated"}
+    result = agent.save_signal(mock_db, signal)
+    # Verify is_draft was overridden to True
+    inserted = mock_db.table.return_value.insert.call_args[0][0]
+    assert inserted["is_draft"] is True
+    assert result == "test-id-123"
+
+
+def test_save_signal_sets_draft_when_absent():
+    """D-01: save_signal sets is_draft=True when key is missing from signal dict."""
+    mock_db = MagicMock()
+    mock_db.table.return_value.insert.return_value.execute.return_value = MagicMock(
+        data=[{"id": "test-id-456"}]
+    )
+    signal = {"company_id": "c1", "classification": "reinforced"}
+    agent.save_signal(mock_db, signal)
+    inserted = mock_db.table.return_value.insert.call_args[0][0]
+    assert inserted["is_draft"] is True
+
+
+def test_save_signal_preserves_draft_true():
+    """D-01: save_signal keeps is_draft=True when already set correctly."""
+    mock_db = MagicMock()
+    mock_db.table.return_value.insert.return_value.execute.return_value = MagicMock(
+        data=[{"id": "test-id-789"}]
+    )
+    signal = {"company_id": "c1", "is_draft": True}
+    agent.save_signal(mock_db, signal)
+    inserted = mock_db.table.return_value.insert.call_args[0][0]
+    assert inserted["is_draft"] is True
