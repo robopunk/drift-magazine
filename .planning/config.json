@@ -8,7 +8,8 @@
     "plannerModel": "sonnet",
     "executorModel": "sonnet",
     "verificationEnabled": true,
-    "commitFrequency": "phase-end"
+    "commitFrequency": "phase-end",
+    "_auto_chain_active": false
   },
   "constraints": {
     "maxPhases": 10,
