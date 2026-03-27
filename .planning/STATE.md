@@ -2,21 +2,21 @@
 gsd_state_version: 1.0
 milestone: v4.0
 milestone_name: milestone
-current_phase: 03
-status: executing
-last_updated: "2026-03-27T16:13:36.133Z"
+current_phase: Phase 3 — Production & Monetization Gate
+status: complete
+last_updated: "2026-03-27T16:26:00Z"
 progress:
   total_phases: 3
-  completed_phases: 2
+  completed_phases: 3
   total_plans: 8
-  completed_plans: 6
+  completed_plans: 8
 ---
 
 # Project State — Drift v4.0
 
-**Last Updated:** 2026-03-27T16:20:00Z
-**Status:** Phase 3 in progress (Plans 01-02/03 complete)
-**Current Phase:** Phase 3 — Production & Monetization Gate
+**Last Updated:** 2026-03-27T16:26:00Z
+**Status:** ALL PHASES COMPLETE — Drift v4.0 production-ready
+**Current Phase:** Phase 3 — Production & Monetization Gate (COMPLETE)
 
 ---
 
@@ -83,8 +83,23 @@ progress:
   - [x] SUMMARY.md created: `.planning/phases/03-production-monetization-gate/03-02-SUMMARY.md`
   - Key Results: Admin requires email/password login via Supabase Auth. 4 ad slots across site.
 
-### Ready For
-- → Phase 3 Plan 03 (Runbook + Monetization Gate)
+- [x] Phase 3 Plan 03 (Runbook + Monetization Gate) — COMPLETE
+  - [x] Task 1: Write operations runbook at docs/RUNBOOK.md (commit 4ed52be)
+  - [x] SUMMARY.md created: `.planning/phases/03-production-monetization-gate/03-03-SUMMARY.md`
+  - Key Results: 408-line runbook, 10 sections, GitHub Actions setup, Firecrawl troubleshooting, 4-condition monetization gate
+
+### Drift v4.0 — ALL PHASES COMPLETE ✅
+
+**Monetization gate decisions (per D-16, D-17, D-18):**
+- Gate to company #2 is public launch readiness, not a revenue milestone
+- 4 conditions: editorial maturity + ad slot readiness + 2x clean agent runs + runbook reviewed
+- Scaling decision is Stefano's manual judgment call — no automated trigger
+
+**Next (operator actions):**
+- Configure GitHub Secrets to activate bi-weekly agent schedule
+- Create admin user in Supabase Dashboard (Authentication → Users → Add User)
+- Run 2 clean bi-weekly Sandoz agent runs
+- When gate conditions met: `python backend/agent.py --intake <uuid>` to add company #2
 
 ---
 
@@ -270,10 +285,12 @@ Phase 3: Production Rollout (5 days) [pending]
 **Impact:** Historical signals use old methodology; new signals use Firecrawl.
 
 ### Decision 6: Unconditional is_draft Enforcement (Phase 3 Plan 01)
+
 **Why?** Conditional guard (`if "is_draft" not in signal`) allowed callers to bypass draft-only workflow by passing `is_draft=False`. Unconditional assignment closes this path permanently.
 **Impact:** No signal can ever be published without human approval, regardless of caller input.
 
 ### Decision 7: GitHub Actions for Agent Scheduling (Phase 3 Plan 01)
+
 **Why?** Replaces manual cron setup. GitHub Actions provides scheduling, failure email notifications (built-in), and manual dispatch — all at zero additional cost.
 **Impact:** D-06, D-07, D-08 satisfied. Workflow in .github/workflows/agent-run.yml.
 
