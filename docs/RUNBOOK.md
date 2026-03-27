@@ -60,6 +60,60 @@ The workflow runs automatically on the **1st and 15th of each month at 06:00 UTC
 
 ---
 
+## 2a. GitHub Secrets — Reference & Rotation Policy
+
+### What secrets are stored
+
+The agent workflow reads 4 secrets from GitHub Actions. All are encrypted at rest and automatically masked in workflow logs (never appears as plaintext).
+
+| Secret name | Purpose | Where to retrieve |
+|---|---|---|
+| `ANTHROPIC_API_KEY` | Anthropic Claude API authentication | [console.anthropic.com](https://console.anthropic.com) → API Keys |
+| `SUPABASE_URL` | Supabase project endpoint | Supabase Dashboard → Settings → API → Project URL |
+| `SUPABASE_SERVICE_KEY` | Full DB access, bypasses RLS | Supabase Dashboard → Settings → API → `service_role` key |
+| `FIRECRAWL_API_KEY` | Structured web scraping | [firecrawl.dev](https://www.firecrawl.dev) → API Keys (optional) |
+
+**Warning:** `SUPABASE_SERVICE_KEY` bypasses Row Level Security. Never use it in frontend code or expose it publicly.
+
+### How to rotate / update a secret
+
+1. Go to **Repository → Settings → Secrets and variables → Actions**
+2. Click the secret name you want to update
+3. Paste the new value in the "Value" field
+4. Click **"Update secret"**
+
+The updated value is available immediately to any new workflow runs. In-progress runs are not affected.
+
+### How to add a new secret
+
+1. Go to **Repository → Settings → Secrets and variables → Actions**
+2. Click **"New repository secret"**
+3. Enter the exact secret name (case-sensitive) and value
+4. Click **"Add secret"**
+
+### Precedence
+
+GitHub secrets override local `.env.local` values when running in GitHub Actions. Local `.env.local` is used for local development only and is never committed to the repository.
+
+### Security properties
+
+- Secrets are encrypted at rest using GitHub's secure storage
+- Each secret is accessible only to workflows in this repository
+- Secret values are masked in all workflow log output
+- Committing changes to workflow YAML that reference secrets does NOT expose the secret values
+- To revoke a secret: delete it from the Secrets UI — it will no longer be available to new workflow runs
+
+### Current status (as of Phase 4 Plan 02 — 2026-03-27)
+
+All 4 secrets have been configured via `gh secret set`. Verify current state:
+
+```bash
+gh secret list
+# Expected output: ANTHROPIC_API_KEY, FIRECRAWL_API_KEY, SUPABASE_SERVICE_KEY, SUPABASE_URL
+```
+
+---
+
 ## 3. Manual Agent Trigger
 
 ### Via GitHub Actions UI (recommended)
