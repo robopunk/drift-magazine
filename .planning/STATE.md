@@ -1,10 +1,10 @@
 ---
 gsd_state_version: 1.0
 milestone: v4.0
-milestone_name: milestone
+milestone_name: Research Enhancement
 current_phase: 03
-status: completed
-last_updated: "2026-03-27T16:26:52.195Z"
+status: archived
+last_updated: "2026-03-27T17:00:00.000Z"
 progress:
   total_phases: 3
   completed_phases: 3
@@ -14,9 +14,16 @@ progress:
 
 # Project State — Drift v4.0
 
-**Last Updated:** 2026-03-27T16:26:00Z
-**Status:** Milestone complete
-**Current Phase:** 03
+**Last Updated:** 2026-03-27
+**Status:** v4.0 milestone archived — see `.planning/MILESTONES.md` and `.planning/milestones/v4.0-ROADMAP.md`
+**Current Phase:** archived
+
+## Project Reference
+
+See: `.planning/PROJECT.md` (updated 2026-03-27)
+
+**Core value:** Measuring the language of commitment — and the silence that follows when it fades.
+**Current focus:** Planning next milestone (`/gsd:new-milestone`)
 
 ---
 
