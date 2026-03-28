@@ -409,6 +409,42 @@ def calculate_signal_confidence(
     # Cap at 10
     return min(score, 10)
 
+
+def _extract_json(text: str) -> dict:
+    """Extract and parse the first complete JSON object or array from a text response.
+
+    Claude sometimes prefixes JSON with prose analysis or wraps it in markdown code
+    fences. This function strips code fences, locates the first ``{`` or ``[``, then
+    uses json.JSONDecoder.raw_decode to parse exactly one JSON value (ignoring any
+    trailing prose or extra text after the JSON closes).
+    """
+    text = text.strip()
+
+    # Strip markdown code fences (```json ... ``` or ``` ... ```)
+    if text.startswith("```"):
+        lines = text.split("\n")
+        # Drop the opening ``` line and, if the last line is a closing ```, drop it too
+        inner_lines = lines[1:]
+        if inner_lines and inner_lines[-1].strip() == "```":
+            inner_lines = inner_lines[:-1]
+        text = "\n".join(inner_lines).strip()
+
+    # Find the first JSON start character
+    json_start = -1
+    for char in ("{", "["):
+        idx = text.find(char)
+        if idx != -1 and (json_start == -1 or idx < json_start):
+            json_start = idx
+
+    if json_start == -1:
+        raise ValueError(f"No JSON object or array found in response text (len={len(text)}). "
+                         f"First 200 chars: {repr(text[:200])}")
+
+    decoder = json.JSONDecoder()
+    result, _ = decoder.raw_decode(text, json_start)
+    return result
+
+
 # ── CONFIG ──────────────────────────────────────────────────────────────────
 
 ANTHROPIC_API_KEY  = os.environ["ANTHROPIC_API_KEY"]
@@ -927,7 +963,14 @@ def run_intake(claude: anthropic.Anthropic, db: Client, company_id: str):
             if hasattr(block, "text"):
                 result_text += block.text
 
-        result = json.loads(result_text)
+        if not result_text.strip():
+            block_types = [type(b).__name__ for b in response.content]
+            raise ValueError(
+                f"Claude returned no text content. stop_reason={response.stop_reason}, "
+                f"block types={block_types}. Check API key permissions and model access."
+            )
+
+        result = _extract_json(result_text)
 
         # Update company metadata
         if "company_update" in result:
@@ -1023,7 +1066,14 @@ def run_monthly(claude: anthropic.Anthropic, db: Client, company_id: str):
             if hasattr(block, "text"):
                 result_text += block.text
 
-        result = json.loads(result_text)
+        if not result_text.strip():
+            block_types = [type(b).__name__ for b in response.content]
+            raise ValueError(
+                f"Claude returned no text content. stop_reason={response.stop_reason}, "
+                f"block types={block_types}. Check API key permissions and model access."
+            )
+
+        result = _extract_json(result_text)
 
         # Save new signals (draft by default for human review)
         new_signals = result.get("new_signals", [])
@@ -1056,13 +1106,13 @@ def run_monthly(claude: anthropic.Anthropic, db: Client, company_id: str):
                 "signal_date":      date.today().isoformat(),
                 "source_type":      "other",
                 "source_name":      "Agent Status Change",
-                "classification":   prop.get("exit_manner", "absent"),
+                "classification":   prop.get("exit_manner") or "absent",
                 "excerpt":          prop["rationale"],
                 "agent_reasoning":  f"[STATUS CHANGE: {prop['proposed_status']}] {prop['rationale']}",
             }
             # Calculate confidence for this status change signal
             status_change_signal["confidence"] = calculate_signal_confidence(
-                evidence_type=prop.get("exit_manner", "absent"),
+                evidence_type=prop.get("exit_manner") or "absent",
                 source_type="web_search",
                 has_tables=False,
                 has_timestamp=True,
