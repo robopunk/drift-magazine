@@ -35,9 +35,9 @@
 
 - [x] **SCHED-01**: GitHub Actions workflow can authenticate and run agent
 - [x] **SCHED-02**: Agent completes first run without errors (signals drafted)
-- [ ] **SCHED-03**: Agent completes second run without errors (consistent execution)
+- [x] **SCHED-03**: Agent completes second run without errors (consistent execution)
 - [x] **OPS-01**: Operator can monitor agent runs via GitHub Actions UI
-- [ ] **OPS-02**: Failure alerts work (email notification on workflow failure)
+- [x] **OPS-02**: Failure alerts work (email notification on workflow failure)
 
 ### End-to-End Validation
 
@@ -82,11 +82,11 @@ None specified for v4.1.
 | DEPLOY-01 | Phase 5 | TBD |
 | DEPLOY-02 | Phase 5 | TBD |
 | DEPLOY-03 | Phase 5 | TBD |
-| SCHED-01 | Phase 6 | TBD |
-| SCHED-02 | Phase 6 | TBD |
-| SCHED-03 | Phase 6 | TBD |
-| OPS-01 | Phase 6 | TBD |
-| OPS-02 | Phase 6 | TBD |
+| SCHED-01 | Phase 6 | 06-01 |
+| SCHED-02 | Phase 6 | 06-01 |
+| SCHED-03 | Phase 6 | 06-02 |
+| OPS-01 | Phase 6 | 06-01 |
+| OPS-02 | Phase 6 | 06-02 |
 | E2E-01 | Phase 6 | TBD |
 | E2E-02 | Phase 6 | TBD |
 | E2E-03 | Phase 6 | TBD |

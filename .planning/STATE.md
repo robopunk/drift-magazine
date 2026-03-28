@@ -3,8 +3,8 @@ gsd_state_version: 1.0
 milestone: v4.1
 milestone_name: Production Readiness
 status: executing
-last_updated: "2026-03-28T13:20:00Z"
-last_activity: 2026-03-28 -- 06-01 complete, SCHED-01/02/OPS-01 verified, 22 new draft signals
+last_updated: "2026-03-28T13:35:03Z"
+last_activity: 2026-03-28 -- 06-02 complete, SCHED-03/OPS-02 satisfied, monetization gate #3 cleared
 progress:
   total_phases: 3
   completed_phases: 2
@@ -21,22 +21,22 @@ progress:
 ## Current Position
 
 Phase: 06 (automation-end-to-end-validation) — EXECUTING
-Plan: 2 of 3
-Status: Executing Phase 06 (06-01 complete, starting 06-02)
-Last activity: 2026-03-28 -- 06-01 complete, SCHED-01/02/OPS-01 verified, 22 new draft signals
+Plan: 3 of 3
+Status: Executing Phase 06 (06-02 complete, starting 06-03)
+Last activity: 2026-03-28 -- 06-02 complete, SCHED-03/OPS-02 satisfied, monetization gate #3 cleared
 
 ---
 
 ## Progress Bar
 
 ```
-[████████░░] 75%
+[█████████░] 87%
 Phase 4: [x] Environment & Authentication (complete)
 Phase 5: [x] Supabase Verification & Deployment (complete — all 5 SC verified, production live)
-Phase 6: [1/3] Automation & End-to-End Validation — 06-01 complete
+Phase 6: [2/3] Automation & End-to-End Validation — 06-02 complete
 ```
 
-6 of 8 plans complete across phases 4–6
+7 of 8 plans complete across phases 4–6
 
 ---
 
@@ -65,7 +65,7 @@ Phase 6: [1/3] Automation & End-to-End Validation — 06-01 complete
 
 1. ✅ Editorial maturity — Sandoz page meets research-grade standards
 2. ✅ Ad slot readiness — 4 slots placed, ready for network integration
-3. ⏳ Agent stability — **v4.1 goal**: 2 clean bi-weekly runs (SCHED-02, SCHED-03)
+3. ✅ Agent stability — **v4.1 goal**: 2 clean bi-weekly runs (SCHED-02, SCHED-03) — CLEARED
 4. ✅ Runbook reviewed — ops runbook complete and documented
 
 ---
@@ -125,20 +125,17 @@ This milestone satisfies monetization gate condition #3 and unblocks company #2 
 | terminal_state column migration deferred to 06-02 | Cannot apply DDL via PostgREST; requires Supabase Dashboard SQL editor — operator action |
 | Rate limit cooldown required between CI runs | Shared 30k TPM org limit; 5-minute wait needed when planning conversation is active |
 
+## Key Decisions (06-02)
+
+| Decision | Outcome |
+|----------|---------|
+| OPS-02 satisfied by GitHub native email-on-failure | No agent-run.yml modification required (per D-01, D-02); robopunk is admin owner |
+| Rate limit during correlation pass is acceptable | 9 signals written before correlation step; graceful degradation by design; conclusion=success |
+
 ## Known Blockers
 
-- **terminal_state column missing**: `ALTER TABLE objectives ADD COLUMN terminal_state terminal_state;` must be run in Supabase Dashboard before 06-02. Without it, status_change_proposals objective updates fail (signals are still written, just the objective status update fails).
 - **git push mmap error**: `fatal: mmap failed: Invalid argument` on Windows due to corrupted .claude/worktrees worktree index. Workaround: use GitHub Contents API. Separate cleanup needed.
 
 ## Next Step
 
-Phase 6, Plan 2: Second workflow_dispatch run + OPS-02 email notification documentation
-
-**Prerequisite before running 06-02:** Apply terminal_state migration in Supabase Dashboard SQL editor:
-```sql
-CREATE TYPE terminal_state AS ENUM ('proved', 'buried');
-ALTER TABLE objectives ADD COLUMN terminal_state terminal_state;
-UPDATE objectives SET terminal_state = 'buried' WHERE is_in_graveyard = true;
-CREATE INDEX idx_objectives_terminal ON objectives(terminal_state);
-```
-URL: https://supabase.com/dashboard/project/myaxttyhhzpdugikdmue/sql/new
+Phase 6, Plan 3: E2E signal approval — approve draft signals via CLI, verify they appear on live Vercel frontend (E2E-01, E2E-02, E2E-03)
