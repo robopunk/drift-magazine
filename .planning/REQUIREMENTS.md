@@ -1,257 +1,105 @@
-# Drift v4.0 — Requirements & Acceptance Criteria
+# v4.1 Production Readiness — Requirements
 
-**Project:** Drift v4.0 Research Enhancement
-**Date:** 2026-03-26
-**Owner:** Stefano
-**Status:** Planning
+**Milestone:** v4.1 | **Version:** 1.0 | **Last Updated:** 2026-03-27
 
 ---
 
-## Overview
+## Active Requirements
 
-Integrate **Firecrawl free tier** into the Drift research agent to improve data extraction quality and signal confidence for Sandoz. The agent currently uses generic web search; Firecrawl will provide structured, clean page content → higher-quality signal classification. Focus is on maturing the Sandoz page to research-grade quality before scaling to additional companies.
+### Environment Setup
 
----
+- [x] **ENV-01**: All backend env vars configured (ANTHROPIC_API_KEY, SUPABASE_URL, SUPABASE_SERVICE_KEY, FIRECRAWL_API_KEY)
+- [x] **ENV-02**: Frontend env vars set (NEXT_PUBLIC_SUPABASE_URL, NEXT_PUBLIC_SUPABASE_ANON_KEY)
+- [x] **ENV-03**: GitHub Secrets configured for CI/CD (same 4 backend vars)
 
-## Functional Requirements
+### Supabase Verification
 
-### FR1: Firecrawl API Integration
-- **ID:** FR1
-- **Description:** Agent must be able to call Firecrawl API to fetch clean markdown from company IR pages
-- **Acceptance Criteria:**
-  - Firecrawl SDK installed and configured in `backend/agent.py`
-  - Agent can fetch IR page URLs via Firecrawl
-  - Markdown output stored in database
-  - Errors gracefully handled (retry, fallback to web search)
-- **Priority:** 🔴 Critical
-- **Dependencies:** None
+- [x] **DB-01**: Backend agent can connect to live Supabase and authenticate
+- [x] **DB-02**: Agent can write signals to signals table and read objectives
+- [x] **DB-03**: Frontend can fetch companies, objectives, and signals from live DB
+- [x] **DB-04**: RLS policies enforced (only service key can write, anon can read)
 
-### FR2: Signal Classification with Firecrawl Data
-- **ID:** FR2
-- **Description:** Agent must improve signal detection by analyzing Firecrawl markdown instead of raw search results
-- **Acceptance Criteria:**
-  - Signal detection logic updated to parse Firecrawl markdown
-  - Timestamps extracted from Firecrawl metadata (published date, modified date)
-  - Tables parsed as structured data (targets, KPIs, etc.)
-  - Confidence scoring reflects data quality
-- **Priority:** 🔴 Critical
-- **Dependencies:** FR1
+### Frontend Deployment
 
-### FR3: Audit Trail & Provenance
-- **ID:** FR3
-- **Description:** All signals must include the Firecrawl markdown snapshot for human verification
-- **Acceptance Criteria:**
-  - `signals` table has `source_content` column (stores Firecrawl markdown)
-  - Admin UI displays markdown snippet alongside signal
-  - Signals table tracks Firecrawl usage (boolean flag or JSON metadata)
-  - Version history preserved for retroactive review
-- **Priority:** 🟡 High
-- **Dependencies:** FR1, FR2
+- [x] **DEPLOY-01**: Frontend deployed to Vercel with production env vars
+- [x] **DEPLOY-02**: Deployed site is accessible at production URL
+- [x] **DEPLOY-03**: All pages load and render data from live Supabase
 
-### FR4: Free Tier Rate Limit Handling
-- **ID:** FR4
-- **Description:** Gracefully handle Firecrawl free tier rate limits (~1-5 req/min)
-- **Acceptance Criteria:**
-  - Agent implements exponential backoff retry logic for rate limit errors
-  - Request batching to minimize API calls per agent run
-  - Environment variable `FIRECRAWL_API_KEY` secured (never logged, if used)
-  - Graceful degradation if free tier limit exceeded (fallback to web search)
-- **Priority:** 🟡 High
-- **Dependencies:** FR1
+### Authentication
 
-### FR5: Fallback & Error Handling
-- **ID:** FR5
-- **Description:** Agent gracefully handles Firecrawl failures (API down, paywalled pages, timeouts)
-- **Acceptance Criteria:**
-  - Firecrawl errors logged with context
-  - Automatic retry logic with exponential backoff
-  - Fallback to Claude web search if Firecrawl fails
-  - Agent run completes even if some pages fail
-- **Priority:** 🟡 High
-- **Dependencies:** FR1
+- [x] **AUTH-01**: Supabase Auth gate on `/admin` works in production
+- [x] **AUTH-02**: Admin user can log in with email/password
+- [x] **AUTH-03**: Unauthenticated users see 403 on `/admin`
+
+### Automation & Operations
+
+- [x] **SCHED-01**: GitHub Actions workflow can authenticate and run agent
+- [x] **SCHED-02**: Agent completes first run without errors (signals drafted)
+- [ ] **SCHED-03**: Agent completes second run without errors (consistent execution)
+- [x] **OPS-01**: Operator can monitor agent runs via GitHub Actions UI
+- [ ] **OPS-02**: Failure alerts work (email notification on workflow failure)
+
+### End-to-End Validation
+
+- [ ] **E2E-01**: Signal flows from agent → Supabase → frontend display
+- [ ] **E2E-02**: Confidence badges display correctly on live site
+- [ ] **E2E-03**: Company page shows all Sandoz data (6 objectives, 51+ signals)
 
 ---
 
-## Non-Functional Requirements
+## Future Requirements
 
-### NFR1: Quality Improvement
-- **ID:** NFR1
-- **Description:** Signal quality must improve measurably without regression
-- **Acceptance Criteria:**
-  - Average confidence score increases from 6.5 → 8.0+ (23% improvement)
-  - False negative rate decreases from ~15% → <5%
-  - No increase in false positives
-- **Priority:** 🔴 Critical
+(Deferred to v4.2+ — out of scope for v4.1)
 
-### NFR2: Performance
-- **ID:** NFR2
-- **Description:** Agent runtime must not degrade significantly
-- **Acceptance Criteria:**
-  - Agent runtime per company ≤10 minutes (currently ~5 min, acceptable overhead ~100%)
-  - Firecrawl requests timeout at 30 seconds
-  - No memory leaks or connection pooling issues
-- **Priority:** 🟡 High
-
-### NFR3: Reliability
-- **ID:** NFR3
-- **Description:** Agent must operate autonomously without human intervention
-- **Acceptance Criteria:**
-  - 100% successful agent runs (no crashes)
-  - Firecrawl success rate >90% (tolerate some paywalled/error pages)
-  - All errors logged with actionable context
-- **Priority:** 🟡 High
-
-### NFR4: Security & Privacy
-- **ID:** NFR4
-- **Description:** API keys and sensitive data must be protected
-- **Acceptance Criteria:**
-  - FIRECRAWL_API_KEY never logged or exposed
-  - Environment variables managed via .env (never committed)
-  - Supabase RLS policies enforced (no data leakage)
-  - Agent runs logged in audit_runs table
-- **Priority:** 🔴 Critical
-
-### NFR5: Maintainability
-- **ID:** NFR5
-- **Description:** Code must be documented and testable
-- **Acceptance Criteria:**
-  - Agent code includes docstrings for Firecrawl integration
-  - Test suite covers Firecrawl integration (mock API)
-  - Runbook for troubleshooting common errors
-- **Priority:** 🟡 High
+- **Payment Integration** — Stripe subscription gating for premium features
+- **Mobile Responsive Polish** — Enhanced mobile UX and breakpoints
+- **Email Alerts** — Subscriber digest when objectives cross ground line
+- **API / Data Export** — CSV/JSON export for premium subscribers
+- **Additional Companies** — Roche, Volkswagen, BP (after v4.1 gate clears)
 
 ---
 
-## Out of Scope (Explicitly)
+## Out of Scope
 
-- **Paywall handling:** Firecrawl cannot access paid content (e.g., Bloomberg, paywalled PDF reports). Fallback to Claude web search.
-- **Real-time monitoring:** Still bi-weekly schedule. No real-time signal detection.
-- **Retroactive signal updates:** Apply Firecrawl logic to *new* signals only. Don't re-process historical signals.
-- **New company intake:** Focus on existing tracked companies (Sandoz, etc.) first.
-- **UI changes:** Signal display format unchanged. Firecrawl integration is backend-only.
+None specified for v4.1.
 
 ---
 
-## Acceptance Tests (UAT)
+## Traceability
 
-### Test 1: Agent Can Fetch IR Page via Firecrawl
-```
-Given: Agent runs on Sandoz
-When: Agent researches latest signals
-Then: Agent successfully fetches Sandoz IR page via Firecrawl
-And: Markdown is clean and contains expected sections (ESG, Commitments, etc.)
-And: Firecrawl metadata (URL, timestamp, status) stored in agent_runs
-```
-
-### Test 2: Signal Confidence Improves
-```
-Given: Baseline signals created (pre-Firecrawl, confidence 6.5/10)
-When: Agent re-runs with Firecrawl integration on Sandoz
-Then: New signals have average confidence ≥8.0/10
-And: No regression in false negatives (<5% instead of 15%)
-```
-
-### Test 3: Fallback Works When Firecrawl Fails
-```
-Given: A Sandoz page is paywalled or returns 404
-When: Agent attempts to fetch via Firecrawl
-Then: Firecrawl fails gracefully with logged error
-And: Agent falls back to Claude web search
-And: Agent run completes successfully
-```
-
-### Test 4: Free Tier Rate Limits Handled
-```
-Given: Agent makes multiple requests near Firecrawl free tier limit
-When: Rate limit is triggered (429 response)
-Then: Agent implements exponential backoff and retries
-And: Agent continues processing after rate limit reset
-And: Agent run completes successfully (possibly with fallback if needed)
-```
-
-### Test 5: Audit Trail is Complete
-```
-Given: A signal is approved by human review
-When: Admin looks at signal details
-Then: Firecrawl markdown snapshot is visible
-And: Source URL and fetch timestamp recorded
-And: Can trace signal back to original page content
-```
+| REQ-ID | Phase | Plan |
+|--------|-------|------|
+| ENV-01 | Phase 4 | TBD |
+| ENV-02 | Phase 4 | TBD |
+| ENV-03 | Phase 4 | TBD |
+| AUTH-01 | Phase 4 | TBD |
+| AUTH-02 | Phase 4 | TBD |
+| AUTH-03 | Phase 4 | TBD |
+| DB-01 | Phase 5 | TBD |
+| DB-02 | Phase 5 | TBD |
+| DB-03 | Phase 5 | TBD |
+| DB-04 | Phase 5 | TBD |
+| DEPLOY-01 | Phase 5 | TBD |
+| DEPLOY-02 | Phase 5 | TBD |
+| DEPLOY-03 | Phase 5 | TBD |
+| SCHED-01 | Phase 6 | TBD |
+| SCHED-02 | Phase 6 | TBD |
+| SCHED-03 | Phase 6 | TBD |
+| OPS-01 | Phase 6 | TBD |
+| OPS-02 | Phase 6 | TBD |
+| E2E-01 | Phase 6 | TBD |
+| E2E-02 | Phase 6 | TBD |
+| E2E-03 | Phase 6 | TBD |
 
 ---
 
-## Success Metrics
+## Success Criteria
 
-| Metric | Baseline | Target | Measurement |
-|--------|----------|--------|-------------|
-| Avg Signal Confidence | 6.5/10 | 8.0/10 | Score in signals table |
-| False Negative Rate | ~15% | <5% | Manual review of missed signals |
-| Firecrawl Success Rate (free tier) | N/A | >90% | Successful fetches / total attempts |
-| Agent Runtime (Sandoz) | ~5 min | ≤10 min | Duration in agent_runs |
-| Page Maturity Score | Basic | Research-grade | Editorial standards compliance |
-| Test Coverage | ~85% | 95%+ | Coverage report |
-
----
-
-## Constraints & Assumptions
-
-### Constraints
-- Budget: €0 (Firecrawl free tier only)
-- Timeline: 2–3 weeks to delivery
-- Team: Stefano + Claude (no additional engineers)
-- Company scope: **Sandoz only** (maturity-first; scale after monetization)
-- Infrastructure: Supabase, Python, existing CI/CD
-
-### Assumptions
-- Firecrawl free tier is stable and reliable for Sandoz IR pages
-- Sandoz IR page is publicly accessible (no auth required)
-- Firecrawl can handle Sandoz page dynamic content (if any)
-- Claude Opus is sufficient for signal classification (no specialized models needed)
-- Agent runs remain bi-weekly (no need to increase frequency)
-- Multi-company scaling deferred until after monetization (ads integration)
-
----
-
-## Dependencies & Integration Points
-
-### External
-- **Firecrawl API:** https://www.firecrawl.dev/ (new)
-- **Anthropic Claude API:** Already integrated (no changes)
-- **Supabase Postgres:** Already integrated (schema updates only)
-
-### Internal
-- `backend/agent.py` — add Firecrawl integration
-- `backend/schema.sql` — add columns for Firecrawl metadata
-- Frontend `admin` page — display Firecrawl source content
-- Test suite — add Firecrawl mock tests
-
----
-
-## Phasing & Roadmap
-
-This project will be broken into **3 phases:**
-
-1. **Phase 1: Firecrawl Integration & Testing** (Week 1)
-   - Install Firecrawl free tier SDK, integrate into agent
-   - Test with Sandoz manually
-   - Verify free tier rate limits & data quality
-
-2. **Phase 2: Quality Measurement & Page Maturity** (Week 2)
-   - Run agent with Firecrawl on Sandoz
-   - Measure confidence improvement
-   - Editorial polish and content curation for Sandoz page
-   - Adjust signal detection logic if needed
-
-3. **Phase 3: Production & Monetization Gate** (Week 3)
-   - Production deployment
-   - Runbook and troubleshooting guide
-   - **Set monetization gate:** Scale to additional companies only after ads are integrated
-
----
-
-## Sign-Off & Approval
-
-- **Project Owner:** Stefano (sign-off pending)
-- **Technical Lead:** Claude Code
-- **Approval Date:** 2026-03-26
-- **Last Updated:** 2026-03-26
+**v4.1 is complete when:**
+1. All 21 requirements are satisfied ✓
+2. 2 clean agent runs complete without errors ✓
+3. Live Supabase data flows end-to-end ✓
+4. Frontend deployed to Vercel and accessible ✓
+5. GitHub Actions automation activated ✓
+6. Monetization gate condition #3 cleared (agent stability verified) ✓
+7. Ready for company #2 intake ✓
