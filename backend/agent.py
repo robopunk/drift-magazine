@@ -75,6 +75,13 @@ PHASE 2: QUALITY MEASUREMENT & MATURITY (2026-03-26 COMPLETE)
 
 import os
 import sys
+
+# Ensure Unicode output works on Windows terminals
+if sys.stdout.encoding and sys.stdout.encoding.lower() not in ("utf-8", "utf_8"):
+    import io
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+    sys.stderr = io.TextIOWrapper(sys.stderr.buffer, encoding="utf-8", errors="replace")
+
 import re
 import json
 import time
@@ -94,7 +101,8 @@ try:
 except ImportError:
     _FIRECRAWL_AVAILABLE = False
 
-load_dotenv()
+load_dotenv(".env.local")
+load_dotenv()  # fallback to .env if .env.local not present
 
 # ── FIRECRAWL HELPERS ────────────────────────────────────────────────────────
 
