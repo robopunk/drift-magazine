@@ -1100,19 +1100,33 @@ def run_monthly(claude: anthropic.Anthropic, db: Client, company_id: str):
         status_proposals = result.get("status_change_proposals", [])
         for prop in status_proposals:
             # Determine appropriate confidence for status change signal
+            # Map exit_manner to a valid signal_classification enum value.
+            # exit_manner values 'morphed', 'phased', 'resurrected' have no direct
+            # signal_classification equivalent — use nearest semantic match.
+            EXIT_MANNER_TO_CLASSIFICATION = {
+                "silent":       "retired_silent",
+                "transparent":  "retired_transparent",
+                "achieved":     "achieved",
+                "morphed":      "reframed",    # morphed ≈ reframed for signal classification
+                "phased":       "softened",    # phased out ≈ progressively softened
+                "resurrected":  "stated",      # revived = re-stated commitment
+                "absent":       "absent",
+            }
+            exit_manner = prop.get("exit_manner") or "absent"
+            classification = EXIT_MANNER_TO_CLASSIFICATION.get(exit_manner, "absent")
             status_change_signal = {
                 "objective_id":     prop["objective_id"],
                 "company_id":       company_id,
                 "signal_date":      date.today().isoformat(),
                 "source_type":      "other",
                 "source_name":      "Agent Status Change",
-                "classification":   prop.get("exit_manner") or "absent",
+                "classification":   classification,
                 "excerpt":          prop["rationale"],
                 "agent_reasoning":  f"[STATUS CHANGE: {prop['proposed_status']}] {prop['rationale']}",
             }
             # Calculate confidence for this status change signal
             status_change_signal["confidence"] = calculate_signal_confidence(
-                evidence_type=prop.get("exit_manner") or "absent",
+                evidence_type=exit_manner,  # use exit_manner (not classification) for scoring
                 source_type="web_search",
                 has_tables=False,
                 has_timestamp=True,
