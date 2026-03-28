@@ -54,8 +54,8 @@ completed: 2026-03-28
 
 - **Duration:** ~45 min
 - **Started:** 2026-03-28T11:06:30Z
-- **Completed:** 2026-03-28 (Task 1 complete; Task 2 checkpoint pending human verify)
-- **Tasks:** 1 of 2 complete (Task 2 is checkpoint:human-verify)
+- **Completed:** 2026-03-28
+- **Tasks:** 2 of 2 complete
 - **Files modified:** 1
 
 ## Accomplishments
@@ -64,11 +64,13 @@ completed: 2026-03-28
 - Triggered new production deployment via Vercel REST API (dpl_9U49s8XGC8wxo82FYnt9Vih112Pu) — state READY
 - Verified all 4 pages return HTTP 200 on drift-magazine.vercel.app
 - Confirmed /company/sdz loads live Supabase data: Sandoz AG, Golden Decade, biosimilar objectives, momentum scores
-- Updated VERIFICATION.md with SC-4 (PASS) and SC-5 (PASS, automated portion)
+- Updated VERIFICATION.md with SC-4 (PASS) and SC-5 (PASS — automated curl + human browser confirmation)
+- Human browser verification confirmed: all 4 pages render correctly with live Supabase data, no errors
 
 ## Task Commits
 
 1. **Task 1: Add Supabase env vars to Vercel and deploy to production** - `f9f51c8` (feat)
+2. **Task 2: Confirm live data and page rendering on production URL** - human-verify checkpoint approved by Stefano 2026-03-28
 
 ## Files Created/Modified
 
@@ -123,7 +125,7 @@ None — all data is live from Supabase production. No placeholder values in any
 
 - Phase 6 (Automation & E2E Validation) can proceed: production URL is live, Supabase connection confirmed end-to-end
 - GitHub Actions secrets already configured (Phase 4), ready for automated agent runs
-- Task 2 (human browser verification) must be confirmed before closing Phase 5 requirements DB-03 and DEPLOY-03
+- Task 2 (human browser verification) confirmed by Stefano 2026-03-28 — Phase 5 requirements DB-03 and DEPLOY-03 fully closed
 
 ---
 *Phase: 05-supabase-verification-deployment*

@@ -2,28 +2,28 @@
 gsd_state_version: 1.0
 milestone: v4.1
 milestone_name: Production Readiness
-status: executing
-last_updated: "2026-03-28T11:05:44.822Z"
-last_activity: 2026-03-28 -- Phase 05 execution started
+status: verifying
+last_updated: "2026-03-28T11:27:20.371Z"
+last_activity: 2026-03-28
 progress:
   total_phases: 3
-  completed_phases: 1
+  completed_phases: 2
   total_plans: 5
-  completed_plans: 4
+  completed_plans: 5
 ---
 
 # Project State — Drift v4.1
 
 **Last Updated:** 2026-03-28
-**Status:** Checkpoint — awaiting human browser verification (Task 2 of 05-02)
-**Phase:** 5
+**Status:** Phase 5 COMPLETE — all requirements satisfied; ready for Phase 6
+**Phase:** 5 complete / 6 next
 
 ## Current Position
 
-Phase: 05 (supabase-verification-deployment) — EXECUTING
-Plan: 2 of 2 (Task 1 complete; Task 2 checkpoint:human-verify pending)
-Status: Checkpoint at Task 2
-Last activity: 2026-03-28 -- Task 1 of 05-02 complete; production deployed to drift-magazine.vercel.app
+Phase: 05 (supabase-verification-deployment) — COMPLETE
+Plan: 2 of 2 (both tasks complete including human browser verification)
+Status: Phase 5 closed; DB-03, DEPLOY-01, DEPLOY-02, DEPLOY-03 satisfied
+Last activity: 2026-03-28 -- 05-02 complete; Stefano confirmed all 4 pages render with live Supabase data
 
 ---
 
@@ -32,11 +32,11 @@ Last activity: 2026-03-28 -- Task 1 of 05-02 complete; production deployed to dr
 ```
 [██████████] 100%
 Phase 4: [x] Environment & Authentication (complete)
-Phase 5: [x] Supabase Verification (backend 05-01 done) | [~] Deployment (05-02 Task 1 done, awaiting checkpoint)
+Phase 5: [x] Supabase Verification & Deployment (complete — all 5 SC verified, production live)
 Phase 6: [ ] Automation & End-to-End Validation
 ```
 
-3 of 4 plans partially complete (75% of phase 5; awaiting Task 2 human verify)
+5 of 5 plans complete across phases 4 and 5
 
 ---
 
@@ -117,6 +117,7 @@ This milestone satisfies monetization gate condition #3 and unblocks company #2 
 
 ## Next Step
 
-Confirm Task 2 checkpoint: open https://drift-magazine.vercel.app/company/sdz in browser.
-Verify Sandoz objectives and signals render with live data (no empty states, no console errors).
-Type "approved" in chat to close Phase 5 and advance to Phase 6.
+Phase 6: Automation & E2E Validation
+- Trigger and monitor the first scheduled agent run on GitHub Actions
+- Verify 2 clean bi-weekly runs to satisfy monetization gate condition #3
+- Confirm end-to-end flow: GitHub Actions → agent.py → Supabase → Vercel frontend

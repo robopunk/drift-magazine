@@ -16,14 +16,14 @@
 
 - [x] **DB-01**: Backend agent can connect to live Supabase and authenticate
 - [x] **DB-02**: Agent can write signals to signals table and read objectives
-- [ ] **DB-03**: Frontend can fetch companies, objectives, and signals from live DB
+- [x] **DB-03**: Frontend can fetch companies, objectives, and signals from live DB
 - [x] **DB-04**: RLS policies enforced (only service key can write, anon can read)
 
 ### Frontend Deployment
 
-- [ ] **DEPLOY-01**: Frontend deployed to Vercel with production env vars
-- [ ] **DEPLOY-02**: Deployed site is accessible at production URL
-- [ ] **DEPLOY-03**: All pages load and render data from live Supabase
+- [x] **DEPLOY-01**: Frontend deployed to Vercel with production env vars
+- [x] **DEPLOY-02**: Deployed site is accessible at production URL
+- [x] **DEPLOY-03**: All pages load and render data from live Supabase
 
 ### Authentication
 
