@@ -14,10 +14,10 @@
 
 ### Supabase Verification
 
-- [ ] **DB-01**: Backend agent can connect to live Supabase and authenticate
-- [ ] **DB-02**: Agent can write signals to signals table and read objectives
+- [x] **DB-01**: Backend agent can connect to live Supabase and authenticate
+- [x] **DB-02**: Agent can write signals to signals table and read objectives
 - [ ] **DB-03**: Frontend can fetch companies, objectives, and signals from live DB
-- [ ] **DB-04**: RLS policies enforced (only service key can write, anon can read)
+- [x] **DB-04**: RLS policies enforced (only service key can write, anon can read)
 
 ### Frontend Deployment
 

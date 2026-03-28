@@ -2,40 +2,41 @@
 gsd_state_version: 1.0
 milestone: v4.1
 milestone_name: Production Readiness
-status: planning
-last_updated: "2026-03-27T20:43:03.739Z"
-last_activity: 2026-03-27
+status: verifying
+last_updated: "2026-03-28T10:10:11.322Z"
+last_activity: 2026-03-28
 progress:
   total_phases: 3
-  completed_phases: 1
-  total_plans: 3
-  completed_plans: 3
+  completed_phases: 2
+  total_plans: 4
+  completed_plans: 4
 ---
 
 # Project State — Drift v4.1
 
 **Last Updated:** 2026-03-27
-**Status:** Ready to plan
+**Status:** Phase complete — ready for verification
 **Phase:** 5
 
 ## Current Position
 
-Phase: 04 (environment-authentication) — COMPLETE
-Plan: Not started
-Status: Plan 04-03 complete — auth gate verified, RUNBOOK section 9 expanded, dev server confirmed operational
-Last activity: 2026-03-27
+Phase: 05 (supabase-verification-deployment) — PLAN 01 COMPLETE
+Plan: 1 of 1 complete (backend verification done, deployment pending Plan 02)
+Status: Plan 01 verified — proceed to Plan 02 (Vercel deployment)
+Last activity: 2026-03-28 -- Phase 05 Plan 01 complete: DB-01, DB-02, DB-04 verified
 
 ---
 
 ## Progress Bar
 
 ```
-Phase 4: [ ] Environment & Authentication
-Phase 5: [ ] Supabase Verification & Deployment
+[██████████] 100%
+Phase 4: [x] Environment & Authentication (complete)
+Phase 5: [x] Supabase Verification (backend 05-01 done) | [ ] Deployment (05-02 pending)
 Phase 6: [ ] Automation & End-to-End Validation
 ```
 
-0 of 3 phases complete (0%)
+2 of 4 plans complete (50% of phase 5)
 
 ---
 
@@ -90,11 +91,13 @@ This milestone satisfies monetization gate condition #3 and unblocks company #2 
 | GitHub secrets set via gh CLI, not UI | Token had repo scope; gh secret set is non-interactive and fully automatable |
 | Client-side auth gate on /admin returns HTTP 200 | Expected — React renders login form when no session; admin data never visible without session |
 | Email/password auth needs no redirect URL config | Supabase redirect URLs only required for OAuth/magic links; not needed for current implementation |
+| agent.py uses load_dotenv('.env.local') explicitly | Default load_dotenv() searches for .env not .env.local; explicit path required for production secrets |
+| RLS test reads anon key from frontend/.env.local | DRY — frontend already has NEXT_PUBLIC_SUPABASE_ANON_KEY; no need to duplicate in backend env |
 
 ---
 
 ## Next Step
 
-Human action required before Phase 5: Create admin user in Supabase Dashboard (Authentication → Users → Create new user). Full instructions in `docs/RUNBOOK.md` section 9 and `.planning/phases/04-environment-authentication/04-03-SUMMARY.md`.
-
-After that: Execute Phase 5 (Supabase Verification & Deployment).
+Execute Phase 5 Plan 02 (Vercel deployment with production env vars).
+Backend verification complete: DB-01, DB-02, DB-04 all PASS.
+See `.planning/phases/05-supabase-verification-deployment/VERIFICATION.md` for evidence.
