@@ -33,10 +33,10 @@
 
 ### Automation & Operations
 
-- [ ] **SCHED-01**: GitHub Actions workflow can authenticate and run agent
-- [ ] **SCHED-02**: Agent completes first run without errors (signals drafted)
+- [x] **SCHED-01**: GitHub Actions workflow can authenticate and run agent
+- [x] **SCHED-02**: Agent completes first run without errors (signals drafted)
 - [ ] **SCHED-03**: Agent completes second run without errors (consistent execution)
-- [ ] **OPS-01**: Operator can monitor agent runs via GitHub Actions UI
+- [x] **OPS-01**: Operator can monitor agent runs via GitHub Actions UI
 - [ ] **OPS-02**: Failure alerts work (email notification on workflow failure)
 
 ### End-to-End Validation

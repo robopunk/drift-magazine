@@ -66,7 +66,11 @@ Full details: [milestones/v4.0-ROADMAP.md](milestones/v4.0-ROADMAP.md)
   4. Operator can view run logs, step output, and pass/fail status in the GitHub Actions UI
   5. A failure in the workflow triggers an email notification to the repository owner
   6. Draft signals created by the agent appear on the live Vercel frontend after approval (confidence badges correct, Sandoz page shows 6 objectives and 51+ signals)
-**Plans**: TBD
+**Plans:** 3 plans
+Plans:
+- [x] 06-01-PLAN.md — First workflow_dispatch run + verify draft signals + operator monitoring (SCHED-01, SCHED-02, OPS-01 verified; 22 new signals; run 23685921199)
+- [ ] 06-02-PLAN.md — Second workflow_dispatch run + OPS-02 email notification documentation
+- [ ] 06-03-PLAN.md — Approve all draft signals + E2E frontend verification + human check
 
 ## Progress
 
@@ -77,4 +81,4 @@ Full details: [milestones/v4.0-ROADMAP.md](milestones/v4.0-ROADMAP.md)
 | 3. Production & Monetization Gate | v4.0 | 3/3 | Complete | 2026-03-27 |
 | 4. Environment & Authentication | v4.1 | 3/3 | Complete   | 2026-03-27 |
 | 5. Supabase Verification & Deployment | v4.1 | 2/2 | Complete   | 2026-03-28 |
-| 6. Automation & End-to-End Validation | v4.1 | 0/TBD | Not started | - |
+| 6. Automation & End-to-End Validation | v4.1 | 1/3 | Executing | - |
