@@ -1,6 +1,6 @@
 # v4.1 Production Readiness — Requirements
 
-**Milestone:** v4.1 | **Version:** 1.0 | **Last Updated:** 2026-03-27
+**Milestone:** v4.1 | **Version:** 1.0 | **Last Updated:** 2026-03-28
 
 ---
 
@@ -41,9 +41,9 @@
 
 ### End-to-End Validation
 
-- [ ] **E2E-01**: Signal flows from agent → Supabase → frontend display
-- [ ] **E2E-02**: Confidence badges display correctly on live site
-- [ ] **E2E-03**: Company page shows all Sandoz data (6 objectives, 51+ signals)
+- [x] **E2E-01**: Signal flows from agent → Supabase → frontend display
+- [x] **E2E-02**: Confidence badges display correctly on live site
+- [x] **E2E-03**: Company page shows all Sandoz data (6 objectives, 51+ signals)
 
 ---
 
@@ -87,9 +87,9 @@ None specified for v4.1.
 | SCHED-03 | Phase 6 | 06-02 |
 | OPS-01 | Phase 6 | 06-01 |
 | OPS-02 | Phase 6 | 06-02 |
-| E2E-01 | Phase 6 | TBD |
-| E2E-02 | Phase 6 | TBD |
-| E2E-03 | Phase 6 | TBD |
+| E2E-01 | Phase 6 | 06-03 |
+| E2E-02 | Phase 6 | 06-03 |
+| E2E-03 | Phase 6 | 06-03 |
 
 ---
 

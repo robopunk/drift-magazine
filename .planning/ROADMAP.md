@@ -3,7 +3,7 @@
 ## Milestones
 
 - ✅ **v4.0 Research Enhancement** — Phases 1–3 (shipped 2026-03-27) → [archive](milestones/v4.0-ROADMAP.md)
-- 🚧 **v4.1 Production Readiness** — Phases 4–6 (in progress)
+- ✅ **v4.1 Production Readiness** — Phases 4–6 (shipped 2026-03-28)
 
 ## Phases
 
@@ -20,13 +20,13 @@ Full details: [milestones/v4.0-ROADMAP.md](milestones/v4.0-ROADMAP.md)
 
 ---
 
-### 🚧 v4.1 Production Readiness (In Progress)
+### ✅ v4.1 Production Readiness (COMPLETE — 2026-03-28)
 
 **Milestone Goal:** Verify live Supabase connection end-to-end, deploy to Vercel, activate GitHub Actions automation, and clear monetization gate condition #3 (2 clean agent runs). Unblocks company #2 intake.
 
 - [x] **Phase 4: Environment & Authentication** — Configure all env vars, verify auth gate works in production (completed 2026-03-27)
 - [x] **Phase 5: Supabase Verification & Deployment** — Confirm live DB read/write, deploy frontend to Vercel (completed 2026-03-28)
-- [ ] **Phase 6: Automation & End-to-End Validation** — Activate GitHub Actions scheduling, run 2 clean agent cycles, verify full data flow
+- [x] **Phase 6: Automation & End-to-End Validation** — Activate GitHub Actions scheduling, run 2 clean agent cycles, verify full data flow (completed 2026-03-28)
 
 ## Phase Details
 
@@ -69,8 +69,8 @@ Full details: [milestones/v4.0-ROADMAP.md](milestones/v4.0-ROADMAP.md)
 **Plans:** 3 plans
 Plans:
 - [x] 06-01-PLAN.md — First workflow_dispatch run + verify draft signals + operator monitoring (SCHED-01, SCHED-02, OPS-01 verified; 22 new signals; run 23685921199)
-- [ ] 06-02-PLAN.md — Second workflow_dispatch run + OPS-02 email notification documentation
-- [ ] 06-03-PLAN.md — Approve all draft signals + E2E frontend verification + human check
+- [x] 06-02-PLAN.md — Second workflow_dispatch run + OPS-02 email notification documentation (SCHED-03, OPS-02 verified; 9 new signals; run 23686275614)
+- [x] 06-03-PLAN.md — Approve all draft signals + E2E frontend verification + human check (E2E-01, E2E-02, E2E-03 verified; 92 signals live)
 
 ## Progress
 
@@ -81,4 +81,4 @@ Plans:
 | 3. Production & Monetization Gate | v4.0 | 3/3 | Complete | 2026-03-27 |
 | 4. Environment & Authentication | v4.1 | 3/3 | Complete   | 2026-03-27 |
 | 5. Supabase Verification & Deployment | v4.1 | 2/2 | Complete   | 2026-03-28 |
-| 6. Automation & End-to-End Validation | v4.1 | 1/3 | Executing | - |
+| 6. Automation & End-to-End Validation | v4.1 | 3/3 | Complete | 2026-03-28 |
