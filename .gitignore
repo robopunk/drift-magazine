@@ -51,5 +51,8 @@ test-artifacts/
 # Skills cache
 .claude/skills/
 
+# GSD ephemeral state
+.claude/worktrees/
+
 .vercel
 .env*.local
