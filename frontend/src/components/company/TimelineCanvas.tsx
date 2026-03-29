@@ -43,13 +43,14 @@ interface TooltipState {
   staleInfo?: { lastSignalDate: string; monthsSilent: number } | null;
 }
 
-const PADDING_Y = 30;
-const CANVAS_HEIGHT = 620;
+const PADDING_Y = 60;
+const CANVAS_HEIGHT = 650;
 const AXIS_LABEL_HEIGHT = 40;
 const STAGE_HEIGHT = (CANVAS_HEIGHT - PADDING_Y - AXIS_LABEL_HEIGHT) / 8;
 const GROUND_Y = PADDING_Y + 4 * STAGE_HEIGHT;
 const MONTH_WIDTH = 40;
 const LABEL_COL_WIDTH = 60;
+const HORIZONTAL_PADDING = 40;
 
 function getDefaultSelection(): Set<string> {
   return new Set<string>();
@@ -120,7 +121,7 @@ export function TimelineCanvas({ objectives, signals, onNavigateToEvidence, fisc
     return { minDate: min, maxDate: max, totalMonths: Math.max(months, 12) };
   }, [signals]);
 
-  const canvasWidth = Math.max(totalMonths * MONTH_WIDTH, 800);
+  const canvasWidth = Math.max(totalMonths * MONTH_WIDTH + HORIZONTAL_PADDING * 2, 800);
 
   // Generate monthly nodes for visible objectives
   const visibleObjectives = useMemo(
@@ -144,7 +145,7 @@ export function TimelineCanvas({ objectives, signals, onNavigateToEvidence, fisc
           (originMonth.getMonth() - globalOriginMonth.getMonth());
 
         monthlyNodes.forEach((node, i) => {
-          node.x = (originOffset + i) * MONTH_WIDTH + MONTH_WIDTH / 2;
+          node.x = (originOffset + i) * MONTH_WIDTH + MONTH_WIDTH / 2 + HORIZONTAL_PADDING;
           node.y = scoreToY(node.score);
         });
       }
@@ -166,7 +167,7 @@ export function TimelineCanvas({ objectives, signals, onNavigateToEvidence, fisc
         const globalOriginMonth = new Date(globalOrigin.getFullYear(), globalOrigin.getMonth(), 1);
         const exitMonthOffset = (exitDate.getFullYear() - globalOriginMonth.getFullYear()) * 12 +
           (exitDate.getMonth() - globalOriginMonth.getMonth());
-        const terminalX = exitMonthOffset * MONTH_WIDTH + MONTH_WIDTH / 2;
+        const terminalX = exitMonthOffset * MONTH_WIDTH + MONTH_WIDTH / 2 + HORIZONTAL_PADDING;
         const terminalY = scoreToY(obj.momentum_score);
         const terminalType = obj.terminal_state === "proved" ? "terminal-proved" : "terminal-buried";
 
@@ -210,7 +211,7 @@ export function TimelineCanvas({ objectives, signals, onNavigateToEvidence, fisc
       const d = new Date(startMonth);
       d.setMonth(d.getMonth() + i);
       labels.push({
-        x: i * MONTH_WIDTH + MONTH_WIDTH / 2,
+        x: i * MONTH_WIDTH + MONTH_WIDTH / 2 + HORIZONTAL_PADDING,
         label: MONTH_ABBR[d.getMonth()],
         isJanuary: d.getMonth() === 0,
         year: d.getFullYear(),
@@ -227,7 +228,7 @@ export function TimelineCanvas({ objectives, signals, onNavigateToEvidence, fisc
     const monthsFromStart =
       (today.getFullYear() - startMonth.getFullYear()) * 12 + (today.getMonth() - startMonth.getMonth());
     const dayFraction = today.getDate() / 30;
-    return (monthsFromStart + dayFraction) * MONTH_WIDTH;
+    return (monthsFromStart + dayFraction) * MONTH_WIDTH + HORIZONTAL_PADDING;
   }, [minDate]);
 
   // Deadline flags for objectives with commitment windows
@@ -242,7 +243,7 @@ export function TimelineCanvas({ objectives, signals, onNavigateToEvidence, fisc
           (deadlineDate.getFullYear() - startMonth.getFullYear()) * 12 +
           (deadlineDate.getMonth() - startMonth.getMonth());
         const dayFraction = deadlineDate.getDate() / 30;
-        const x = (monthsFromStart + dayFraction) * MONTH_WIDTH;
+        const x = (monthsFromStart + dayFraction) * MONTH_WIDTH + HORIZONTAL_PADDING;
         const isOverdue = deadlineDate < now;
         const label = new Intl.DateTimeFormat("en-US", { month: "short", year: "numeric" }).format(deadlineDate);
         return { objectiveId: obj.id, x, isOverdue, label };
