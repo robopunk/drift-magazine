@@ -1,14 +1,12 @@
 name: Drift Agent — Bi-weekly Research Run
 
 on:
-  schedule:
-    # Bi-weekly: 1st and 15th of each month at 06:00 UTC
-    - cron: "0 6 1,15 * *"
+  # schedule disabled — manual runs only to control API costs
   workflow_dispatch:
     inputs:
       company_id:
-        description: "Optional: Run for a specific company ID"
-        required: false
+        description: "Required: Run for a specific company ID"
+        required: true
         type: string
 
 jobs:
@@ -37,8 +35,4 @@ jobs:
           SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
           FIRECRAWL_API_KEY: ${{ secrets.FIRECRAWL_API_KEY }}
         run: |
-          if [ -n "${{ github.event.inputs.company_id }}" ]; then
-            python backend/agent.py --company-id "${{ github.event.inputs.company_id }}"
-          else
-            python backend/agent.py
-          fi
+          python backend/agent.py --company-id "${{ github.event.inputs.company_id }}"

@@ -1422,8 +1422,15 @@ def main():
         run_monthly(claude, db, args.company_id)
 
     else:
-        # Default: run all companies due for research
-        run_all_due(claude, db)
+        # Auto-scheduling disabled — manual runs only.
+        # To run research, use: python agent.py --company-id <uuid>
+        print("\n  ℹ Auto-scheduling is disabled. Specify a command to run:")
+        print("    --company-id <uuid>   Monthly research for one company")
+        print("    --intake <uuid>       Intake for a new company")
+        print("    --correlate <uuid>    Correlation pass only")
+        print("    --review              Show pending draft signals")
+        print("    --approve <id>        Approve a draft signal")
+        print("    --reject  <id>        Reject a draft signal")
 
 
 if __name__ == "__main__":
