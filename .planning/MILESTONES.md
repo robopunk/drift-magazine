@@ -1,5 +1,22 @@
 # Milestones
 
+## v4.1 Production Readiness (Shipped: 2026-03-29)
+
+**Phases completed:** 3 phases, 8 plans, 22 tasks
+
+**Key accomplishments:**
+
+- frontend/.env.local wired with real Supabase credentials from Vercel project; backend/.env.local scaffolded with correct structure requiring Stefano to fill in 3 secrets (Anthropic, Supabase service key, Firecrawl)
+- All 4 GitHub Actions secrets provisioned via gh CLI, agent-run.yml verified with correct secret references, and RUNBOOK.md updated with rotation policy — ENV-03 satisfied.
+- Supabase Auth gate on /admin verified operational, dev server running, RUNBOOK admin auth section expanded with dev/prod flows, security notes, and production deployment checklist
+- 1. [Rule 1 - Bug] Fixed dotenv not loading .env.local
+- Vercel production deployment confirmed live at drift-magazine.vercel.app with Supabase env vars serving real Sandoz data (objectives, signals, momentum) on /company/sdz
+- First GitHub Actions workflow_dispatch run produces 22 new draft Sandoz signals via claude-sonnet-4-6 web search, validating SCHED-01, SCHED-02, and OPS-01 with all steps green in Actions UI
+- Second GitHub Actions workflow_dispatch run produces 9 more draft signals in 3m1s, confirming consistent reproducible agent execution (SCHED-03), with OPS-02 satisfied via GitHub native owner email notifications
+- Full end-to-end pipeline verified: agent-produced signals approved via CLI, all 6 objectives visible on live Vercel frontend at /company/sdz with 92 total signals and correct confidence badges (10/10, 7/10, 8/10)
+
+---
+
 ## v4.0 Research Enhancement (Shipped: 2026-03-27)
 
 **Phases:** 1–3 | **Plans:** 8 | **Tasks:** 18
@@ -16,6 +33,7 @@
 - Color-coded confidence badges (4-tier semantic scale) added to `ObjectiveCard`, `EvidenceTable`, `EvidenceDrawer` — editorial maturity achieved
 
 **Known Gaps (proceeding without formal audit):**
+
 - No cross-phase integration check or E2E flow verification performed
 - Live Firecrawl agent run not verified (Python environment unavailable during execution)
 - Test coverage target (95%+) not formally measured; 23 backend + 99 frontend tests passing

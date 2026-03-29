@@ -2,9 +2,9 @@
 gsd_state_version: 1.0
 milestone: v4.1
 milestone_name: Production Readiness
-status: complete
-last_updated: "2026-03-28T13:53:08Z"
-last_activity: 2026-03-28 -- 06-03 complete, E2E-01/E2E-02/E2E-03 satisfied, v4.1 milestone complete
+status: completed
+last_updated: "2026-03-29T07:52:36.369Z"
+last_activity: 2026-03-29
 progress:
   total_phases: 3
   completed_phases: 3
@@ -15,7 +15,7 @@ progress:
 # Project State — Drift v4.1
 
 **Last Updated:** 2026-03-28
-**Status:** COMPLETE — v4.1 milestone achieved
+**Status:** v4.1 milestone complete
 **Phase:** 6 (complete)
 
 ## Current Position
@@ -23,7 +23,7 @@ progress:
 Phase: 06 (automation-end-to-end-validation) — COMPLETE
 Plan: 3 of 3 — COMPLETE
 Status: v4.1 milestone complete — all 21 requirements satisfied, all 3 phases done
-Last activity: 2026-03-28 -- 06-03 complete, E2E-01/E2E-02/E2E-03 satisfied, 92 signals live on Vercel
+Last activity: 2026-03-29
 
 ---
 
@@ -136,6 +136,13 @@ This milestone satisfies monetization gate condition #3 and unblocks company #2 
 
 - **git push mmap error**: `fatal: mmap failed: Invalid argument` on Windows due to corrupted .claude/worktrees worktree index. Workaround: use GitHub Contents API. Separate cleanup needed.
 
+## Project Reference
+
+See: .planning/PROJECT.md (updated 2026-03-29)
+
+**Core value:** Measuring the *language of commitment* — and the silence that follows when it fades.
+**Current focus:** Planning next milestone (v4.2) — Timeline UI overhaul + Company #2 intake
+
 ## Next Step
 
-v4.1 complete. Next milestone: v4.2 — Company #2 intake (Roche, Volkswagen, or BP candidate), paywall layer, email alerts.
+v4.1 archived. Run `/gsd:new-milestone` to define v4.2.
