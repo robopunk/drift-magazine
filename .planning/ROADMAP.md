@@ -3,7 +3,8 @@
 ## Milestones
 
 - ✅ **v4.0 Research Enhancement** — Phases 1–3 (shipped 2026-03-27) → [archive](milestones/v4.0-ROADMAP.md)
-- 🚧 **v4.1 Production Readiness** — Phases 4–6 (in progress)
+- ✅ **v4.1 Production Readiness** — Phases 4–6 (shipped 2026-03-28) → [archive](milestones/v4.1-ROADMAP.md)
+- 🔄 **v4.2 Timeline UI Overhaul** — Phases 7–10 (in progress)
 
 ## Phases
 
@@ -18,59 +19,77 @@ Full details: [milestones/v4.0-ROADMAP.md](milestones/v4.0-ROADMAP.md)
 
 </details>
 
+<details>
+<summary>✅ v4.1 Production Readiness (Phases 4–6) — SHIPPED 2026-03-28</summary>
+
+- [x] Phase 4: Environment & Authentication (3/3 plans) — completed 2026-03-27
+- [x] Phase 5: Supabase Verification & Deployment (2/2 plans) — completed 2026-03-28
+- [x] Phase 6: Automation & End-to-End Validation (3/3 plans) — completed 2026-03-28
+
+Full details: [milestones/v4.1-ROADMAP.md](milestones/v4.1-ROADMAP.md)
+
+</details>
+
+### v4.2 Timeline UI Overhaul (Phases 7–10)
+
+- [ ] **Phase 7: Canvas Geometry Foundation** — Correct canvas dimensions, padding, and viewBox so no content is ever clipped
+- [ ] **Phase 8: Path & Fill Fixes** — Clip bug and spline smoothness corrected against the verified canvas geometry
+- [ ] **Phase 9: Node Layer** — Legible, decluttered node markers with correct sizing and stagger logic
+- [ ] **Phase 10: Tooltip & Zone Polish** — Tooltip edge guard and graveyard hatch pattern applied
+
 ---
-
-### 🚧 v4.1 Production Readiness (In Progress)
-
-**Milestone Goal:** Verify live Supabase connection end-to-end, deploy to Vercel, activate GitHub Actions automation, and clear monetization gate condition #3 (2 clean agent runs). Unblocks company #2 intake.
-
-- [x] **Phase 4: Environment & Authentication** — Configure all env vars, verify auth gate works in production (completed 2026-03-27)
-- [x] **Phase 5: Supabase Verification & Deployment** — Confirm live DB read/write, deploy frontend to Vercel (completed 2026-03-28)
-- [ ] **Phase 6: Automation & End-to-End Validation** — Activate GitHub Actions scheduling, run 2 clean agent cycles, verify full data flow
 
 ## Phase Details
 
-### Phase 4: Environment & Authentication
-**Goal**: All environment variables are configured and the admin auth gate works in production
-**Depends on**: Phase 3 (v4.0 complete)
-**Requirements**: ENV-01, ENV-02, ENV-03, AUTH-01, AUTH-02, AUTH-03
+### Phase 7: Canvas Geometry Foundation
+**Goal**: The canvas has correct padding and dimensions so every element is fully visible with no edge clipping
+**Depends on**: Nothing (first phase of this milestone)
+**Requirements**: CANVAS-03
 **Success Criteria** (what must be TRUE):
-  1. Backend agent starts without a missing-env-var error (ANTHROPIC_API_KEY, SUPABASE_URL, SUPABASE_SERVICE_KEY, FIRECRAWL_API_KEY all present)
-  2. Frontend application loads without Supabase configuration errors (NEXT_PUBLIC_SUPABASE_URL, NEXT_PUBLIC_SUPABASE_ANON_KEY set)
-  3. GitHub repository has all 4 backend secrets stored and accessible to Actions workflows
-  4. Admin user can log in to `/admin` with email and password on the production deployment
-  5. An unauthenticated request to `/admin` is blocked and returns a 403 or redirect
-**Plans**: TBD
+  1. User scrolls to the leftmost and rightmost points of the timeline and sees no node, label, or tick cut off by the canvas edge
+  2. User sees the top score labels (at the top of the momentum axis) fully visible with clearance above them
+  3. User sees the ground line and below-ground zone extend to the correct vertical position after the canvas height increase
+**Plans**: 1 plan
+Plans:
+- [ ] 07-01-PLAN.md — Update canvas geometry constants (PADDING_Y, CANVAS_HEIGHT, HORIZONTAL_PADDING) and visual verification
+**UI hint**: yes
 
-### Phase 5: Supabase Verification & Deployment
-**Goal**: Live Supabase data flows correctly through the backend and frontend, and the site is deployed at a production URL
-**Depends on**: Phase 4
-**Requirements**: DB-01, DB-02, DB-03, DB-04, DEPLOY-01, DEPLOY-02, DEPLOY-03
+### Phase 8: Path & Fill Fixes
+**Goal**: The timeline path is smooth and the area fill correctly splits at the ground line with no spurious red strip
+**Depends on**: Phase 7
+**Requirements**: CANVAS-01, CANVAS-02
 **Success Criteria** (what must be TRUE):
-  1. Running `python backend/agent.py` connects to live Supabase without authentication errors
-  2. Agent can write a draft signal to the signals table and read objectives from the live database
-  3. RLS is enforced: the anon key cannot write to signals; only the service key can
-  4. The deployed Vercel site loads company and objective data from live Supabase (not mock/static data)
-  5. All pages (landing, company/sandoz, about, admin) render without runtime errors on the production URL
+  1. User sees the red (below-ground) area fill starting exactly at the ground line — no red visible above it on clean above-ground trajectories
+  2. User sees the emerald (above-ground) area fill stopping exactly at the ground line — no missing fill gap or double-fill at the boundary
+  3. User sees a smooth, continuous path curve with no visible kinks or overshoot at steep momentum transitions
 **Plans**: TBD
 **UI hint**: yes
 
-### Phase 6: Automation & End-to-End Validation
-**Goal**: GitHub Actions runs the agent autonomously on schedule, two clean cycles complete, and signal data flows end-to-end from agent to the live site
-**Depends on**: Phase 5
-**Requirements**: SCHED-01, SCHED-02, SCHED-03, OPS-01, OPS-02, E2E-01, E2E-02, E2E-03
+### Phase 9: Node Layer
+**Goal**: Node markers are legible at default zoom and do not visually collide when multiple objectives share the same x-position
+**Depends on**: Phase 7
+**Requirements**: NODE-01, NODE-02, NODE-03
 **Success Criteria** (what must be TRUE):
-  1. GitHub Actions workflow authenticates and runs `agent.py` to completion using repository secrets
-  2. First agent run completes without errors and produces at least one draft signal in Supabase
-  3. Second agent run completes without errors (consistent, reproducible execution — monetization gate condition #3 cleared)
-  4. Operator can view run logs, step output, and pass/fail status in the GitHub Actions UI
-  5. A failure in the workflow triggers an email notification to the repository owner
-  6. Draft signals created by the agent appear on the live Vercel frontend after approval (confidence badges correct, Sandoz page shows 6 objectives and 51+ signals)
-**Plans:** 3 plans
-Plans:
-- [x] 06-01-PLAN.md — First workflow_dispatch run + verify draft signals + operator monitoring (SCHED-01, SCHED-02, OPS-01 verified; 22 new signals; run 23685921199)
-- [ ] 06-02-PLAN.md — Second workflow_dispatch run + OPS-02 email notification documentation
-- [ ] 06-03-PLAN.md — Approve all draft signals + E2E frontend verification + human check
+  1. User reads node emoji/icon markers clearly at default zoom — markers are noticeably larger than before and not cramped inside their containing circles
+  2. User sees three objectives at the same date rendered with staggered tick heights — labels do not overlap each other
+  3. User reads the stage label and date on content-bearing nodes without zooming or squinting at default browser zoom
+  4. User sees node circle radii proportional to the larger icon size — no icon overflowing its containing circle
+**Plans**: TBD
+**UI hint**: yes
+
+### Phase 10: Tooltip & Zone Polish
+**Goal**: Tooltips are always fully visible and the graveyard zone is visually authoritative
+**Depends on**: Phase 7
+**Requirements**: TOOLTIP-01, ZONE-01
+**Success Criteria** (what must be TRUE):
+  1. User hovers a signal node near the left edge of the canvas and sees the full tooltip — it shifts right rather than clipping off-screen
+  2. User hovers a signal node near the right edge and sees the full tooltip without any portion hidden
+  3. User sees the below-ground (graveyard) zone with a diagonal hatch pattern — visually distinct from the flat colour wash of the above-ground zone
+  4. User perceives the graveyard zone as carrying stronger editorial weight than the above-ground region
+**Plans**: TBD
+**UI hint**: yes
+
+---
 
 ## Progress
 
@@ -79,6 +98,10 @@ Plans:
 | 1. Firecrawl Integration & Testing | v4.0 | 2/2 | Complete | 2026-03-26 |
 | 2. Quality Measurement & Page Maturity | v4.0 | 3/3 | Complete | 2026-03-26 |
 | 3. Production & Monetization Gate | v4.0 | 3/3 | Complete | 2026-03-27 |
-| 4. Environment & Authentication | v4.1 | 3/3 | Complete   | 2026-03-27 |
-| 5. Supabase Verification & Deployment | v4.1 | 2/2 | Complete   | 2026-03-28 |
-| 6. Automation & End-to-End Validation | v4.1 | 1/3 | Executing | - |
+| 4. Environment & Authentication | v4.1 | 3/3 | Complete | 2026-03-27 |
+| 5. Supabase Verification & Deployment | v4.1 | 2/2 | Complete | 2026-03-28 |
+| 6. Automation & End-to-End Validation | v4.1 | 3/3 | Complete | 2026-03-28 |
+| 7. Canvas Geometry Foundation | v4.2 | 0/1 | Planning complete | - |
+| 8. Path & Fill Fixes | v4.2 | 0/? | Not started | - |
+| 9. Node Layer | v4.2 | 0/? | Not started | - |
+| 10. Tooltip & Zone Polish | v4.2 | 0/? | Not started | - |

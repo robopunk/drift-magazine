@@ -30,6 +30,7 @@ The product's most distinctive feature is the **Graveyard** — a record of obje
 
 ### Design Rules
 - Use the AskUserQuestion tool to interview the user about their website design vision before making UI decisions
+- Use the GSD tool to plan, build and document work
 - Use the `frontend-design` skill for all UI decisions
 - Use UI/UX Pro Max for design system generation
 - Use 21st.dev for component inspiration if specified by the user
