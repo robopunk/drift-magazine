@@ -1,29 +1,29 @@
 ---
 gsd_state_version: 1.0
-milestone: v4.1
-milestone_name: Production Readiness
+milestone: v4.2
+milestone_name: Timeline UI Overhaul
 status: executing
-last_updated: "2026-03-28T13:35:03Z"
-last_activity: 2026-03-28 -- 06-02 complete, SCHED-03/OPS-02 satisfied, monetization gate #3 cleared
+last_updated: "2026-03-29T14:03:42.099Z"
+last_activity: 2026-03-29 -- Phase 07 Plan 01 Task 1 complete (82d32b3); awaiting human visual verify (Task 2 checkpoint)
 progress:
-  total_phases: 3
-  completed_phases: 2
-  total_plans: 8
-  completed_plans: 6
+  total_phases: 4
+  completed_phases: 0
+  total_plans: 1
+  completed_plans: 0
 ---
 
 # Project State — Drift v4.1
 
 **Last Updated:** 2026-03-28
-**Status:** Executing Phase 06
+**Status:** Executing Phase 07
 **Phase:** 6
 
 ## Current Position
 
-Phase: 06 (automation-end-to-end-validation) — EXECUTING
-Plan: 3 of 3
-Status: Executing Phase 06 (06-02 complete, starting 06-03)
-Last activity: 2026-03-28 -- 06-02 complete, SCHED-03/OPS-02 satisfied, monetization gate #3 cleared
+Phase: 07 (canvas-geometry-foundation) — EXECUTING
+Plan: 1 of 1 (Task 1 done, Task 2 checkpoint awaiting)
+Status: Checkpoint — awaiting visual verification
+Last activity: 2026-03-29 -- Phase 07 Plan 01 Task 1 complete (82d32b3); awaiting human visual verify (Task 2 checkpoint)
 
 ---
 
@@ -136,6 +136,15 @@ This milestone satisfies monetization gate condition #3 and unblocks company #2 
 
 - **git push mmap error**: `fatal: mmap failed: Invalid argument` on Windows due to corrupted .claude/worktrees worktree index. Workaround: use GitHub Contents API. Separate cleanup needed.
 
+## Key Decisions (07-01)
+
+| Decision | Outcome |
+|----------|---------|
+| PADDING_Y 30→60 | Top axis labels at y=46/56, safely inside SVG boundary (was y=16/26, clipped) |
+| CANVAS_HEIGHT 620→650 | Canvas grows taller; STAGE_HEIGHT preserved at exactly 68.75px |
+| HORIZONTAL_PADDING = 40 (1 MONTH_WIDTH per side) | Nodes/labels at first/last date positions no longer clip at left/right SVG edge |
+| canvasWidth includes HORIZONTAL_PADDING * 2 | All x-positions offset by HORIZONTAL_PADDING for consistent positioning |
+
 ## Next Step
 
-Phase 6, Plan 3: E2E signal approval — approve draft signals via CLI, verify they appear on live Vercel frontend (E2E-01, E2E-02, E2E-03)
+Phase 07, Plan 01, Task 2: Visual verification — start dev server, navigate to /company/sdz, confirm no clipping at any canvas edge
