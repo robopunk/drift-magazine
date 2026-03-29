@@ -57,11 +57,11 @@
 
 | REQ-ID | Phase | Status |
 |--------|-------|--------|
-| CANVAS-01 | TBD | Pending roadmap |
-| CANVAS-02 | TBD | Pending roadmap |
-| CANVAS-03 | TBD | Pending roadmap |
-| NODE-01 | TBD | Pending roadmap |
-| NODE-02 | TBD | Pending roadmap |
-| NODE-03 | TBD | Pending roadmap |
-| TOOLTIP-01 | TBD | Pending roadmap |
-| ZONE-01 | TBD | Pending roadmap |
+| CANVAS-01 | Phase 8 | Pending |
+| CANVAS-02 | Phase 8 | Pending |
+| CANVAS-03 | Phase 7 | Pending |
+| NODE-01 | Phase 9 | Pending |
+| NODE-02 | Phase 9 | Pending |
+| NODE-03 | Phase 9 | Pending |
+| TOOLTIP-01 | Phase 10 | Pending |
+| ZONE-01 | Phase 10 | Pending |
