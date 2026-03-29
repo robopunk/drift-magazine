@@ -7,8 +7,7 @@
           {
             "type": "command",
             "command": "node .claude/hooks/check-docs-freshness.mjs",
-            "timeout": 120,
-            "statusMessage": "Checking doc freshness..."
+            "timeout": 10
           }
         ]
       }

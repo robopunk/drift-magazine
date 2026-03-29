@@ -31,8 +31,7 @@ The product's most distinctive feature is the **Graveyard** — a record of obje
 ### Design Rules
 - Use the AskUserQuestion tool to interview the user about their website design vision before making UI decisions
 - Use the GSD tool to plan, build and document work
-- Use the `frontend-design` skill for all UI decisions
-- Use UI/UX Pro Max for design system generation
+- Use `ui-ux-pro-max` for all UI decisions and design system generation; use `frontend-design` as a fallback only if `ui-ux-pro-max` is unavailable
 - Use 21st.dev for component inspiration if specified by the user
 - No generic AI aesthetics
 - Bold, distinctive design choices
@@ -297,6 +296,6 @@ This project was developed in Claude.ai and Claude Code starting March 2026. Ste
 
 - **v1.0.0** (2026-03-19): Original vanilla HTML/CSS/JS implementation with caffeine dark palette
 - **v2.0.0** (2026-03-20): Complete Next.js redesign with emerald+slate palette, interactive timeline, tabbed company pages
-- **v3.0.0** (2026-03-25): Visual overhaul — masthead redesign, organic spline paths with area fill, 6-type SVG node system, dual axis labels. See `2026-03-25-2121-drift-visual-and-intelligence-roadmap.md` for full roadmap. Next up: Sub-project 2 (Objective Lifecycle: Achieved)
+- **v3.0.0** (2026-03-25): Visual overhaul — masthead redesign, organic spline paths with area fill, 6-type SVG node system, dual axis labels. See `docs/2026-03-25-2121-drift-visual-and-intelligence-roadmap.md` for full roadmap. Next up: Sub-project 2 (Objective Lifecycle: Achieved)
 
 The Sandoz data (seeded in `backend/schema.sql`) is research-grade content based on public disclosures. It is the editorial benchmark for all future company pages.
