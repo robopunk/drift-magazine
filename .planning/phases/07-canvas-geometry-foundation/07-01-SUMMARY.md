@@ -19,9 +19,9 @@ decisions:
   - "CANVAS_HEIGHT increased 620→650: STAGE_HEIGHT preserved at 68.75px, GROUND_Y shifts 305→335"
   - "HORIZONTAL_PADDING = 40: one MONTH_WIDTH per side added to canvasWidth and all x-positions"
 metrics:
-  duration: "~10 minutes"
+  duration: "~15 minutes"
   completed: "2026-03-29"
-  tasks_completed: 1
+  tasks_completed: 2
   tasks_total: 2
   files_changed: 1
 ---
@@ -72,6 +72,7 @@ All six x-position calculations now include `+ HORIZONTAL_PADDING`:
 | Task | Commit | Description |
 |---|---|---|
 | Task 1 | `82d32b3` | feat(07-01): update canvas geometry constants for edge-clipping fix |
+| Task 2 | — | Human visual verification approved — no code changes required |
 
 ---
 
@@ -87,20 +88,16 @@ None — this plan modifies constants only, no UI data stubs introduced.
 
 ---
 
-## Checkpoint Status
+## Verification Results
 
-**Task 2 (checkpoint:human-verify):** Awaiting visual verification.
+**Task 2 (checkpoint:human-verify):** APPROVED by user on 2026-03-29.
 
-The dev server can be started with:
-```bash
-cd frontend && npm run dev
-```
-Then navigate to `http://localhost:3000/company/sdz` and verify:
-1. Top axis labels (Orbit +4, Fly +3 etc.) fully visible with clearance above
-2. Left and right edge nodes/labels not clipped
-3. Ground line visible at correct vertical position (GROUND_Y = 335)
-4. Stage rows evenly spaced (8 rows, 68.75px each)
-5. Below-ground zone extends correctly
+User confirmed:
+1. Top axis labels (Orbit +4, Fly +3 etc.) fully visible with clearance above — PASS
+2. Left and right edge nodes/labels not clipped — PASS
+3. Ground line visible at correct vertical position (GROUND_Y = 335) — PASS
+4. Stage rows evenly spaced (8 rows, 68.75px each) — PASS
+5. Below-ground zone extends correctly — PASS
 
 ---
 
@@ -113,5 +110,6 @@ Then navigate to `http://localhost:3000/company/sdz` and verify:
 - [x] HORIZONTAL_PADDING = 40 verified via grep
 - [x] `HORIZONTAL_PADDING * 2` in canvasWidth verified via grep
 - [x] All 5 x-position calculations updated (nodes, terminal, labels, today, deadlines)
+- [x] Human visual verification approved (Task 2)
 
 ## Self-Check: PASSED

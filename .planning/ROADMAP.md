@@ -32,7 +32,7 @@ Full details: [milestones/v4.1-ROADMAP.md](milestones/v4.1-ROADMAP.md)
 
 ### v4.2 Timeline UI Overhaul (Phases 7–10)
 
-- [ ] **Phase 7: Canvas Geometry Foundation** — Correct canvas dimensions, padding, and viewBox so no content is ever clipped
+- [x] **Phase 7: Canvas Geometry Foundation** — Correct canvas dimensions, padding, and viewBox so no content is ever clipped
 - [ ] **Phase 8: Path & Fill Fixes** — Clip bug and spline smoothness corrected against the verified canvas geometry
 - [ ] **Phase 9: Node Layer** — Legible, decluttered node markers with correct sizing and stagger logic
 - [ ] **Phase 10: Tooltip & Zone Polish** — Tooltip edge guard and graveyard hatch pattern applied
@@ -51,7 +51,7 @@ Full details: [milestones/v4.1-ROADMAP.md](milestones/v4.1-ROADMAP.md)
   3. User sees the ground line and below-ground zone extend to the correct vertical position after the canvas height increase
 **Plans**: 1 plan
 Plans:
-- [ ] 07-01-PLAN.md — Update canvas geometry constants (PADDING_Y, CANVAS_HEIGHT, HORIZONTAL_PADDING) and visual verification
+- [x] 07-01-PLAN.md — Update canvas geometry constants (PADDING_Y, CANVAS_HEIGHT, HORIZONTAL_PADDING) and visual verification
 **UI hint**: yes
 
 ### Phase 8: Path & Fill Fixes
@@ -101,7 +101,7 @@ Plans:
 | 4. Environment & Authentication | v4.1 | 3/3 | Complete | 2026-03-27 |
 | 5. Supabase Verification & Deployment | v4.1 | 2/2 | Complete | 2026-03-28 |
 | 6. Automation & End-to-End Validation | v4.1 | 3/3 | Complete | 2026-03-28 |
-| 7. Canvas Geometry Foundation | v4.2 | 0/1 | Planning complete | - |
+| 7. Canvas Geometry Foundation | v4.2 | 1/1 | Complete | 2026-03-29 |
 | 8. Path & Fill Fixes | v4.2 | 0/? | Not started | - |
 | 9. Node Layer | v4.2 | 0/? | Not started | - |
 | 10. Tooltip & Zone Polish | v4.2 | 0/? | Not started | - |
