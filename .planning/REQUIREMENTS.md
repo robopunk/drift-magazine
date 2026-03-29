@@ -1,67 +1,105 @@
-# Drift v4.2 — Requirements
+# v4.1 Production Readiness — Requirements
 
-**Milestone:** v4.2 Timeline UI Overhaul
-**Status:** Active
-**Last updated:** 2026-03-29
+**Milestone:** v4.1 | **Version:** 1.0 | **Last Updated:** 2026-03-27
 
 ---
 
-## v4.2 Requirements
+## Active Requirements
 
-### Canvas Geometry
+### Environment Setup
 
-- [ ] **CANVAS-01**: User sees the below-ground area fill anchored exactly at the ground line — no red zone appearing above it
-- [ ] **CANVAS-02**: User sees a smooth, continuous timeline path with no overshoot or kinks on steep momentum transitions
-- [ ] **CANVAS-03**: User sees all nodes, labels, and ticks fully visible — nothing clipped at any canvas edge
+- [x] **ENV-01**: All backend env vars configured (ANTHROPIC_API_KEY, SUPABASE_URL, SUPABASE_SERVICE_KEY, FIRECRAWL_API_KEY)
+- [x] **ENV-02**: Frontend env vars set (NEXT_PUBLIC_SUPABASE_URL, NEXT_PUBLIC_SUPABASE_ANON_KEY)
+- [x] **ENV-03**: GitHub Secrets configured for CI/CD (same 4 backend vars)
 
-### Node Layer
+### Supabase Verification
 
-- [ ] **NODE-01**: User sees node icons and emoji markers at a legible size (18–22px font, proportional radii — not the current 7–12px)
-- [ ] **NODE-02**: User sees stacked labels when three or more objectives share the same x-position — no text collisions
-- [ ] **NODE-03**: User reads node content (stage label, date) clearly at default zoom level
+- [x] **DB-01**: Backend agent can connect to live Supabase and authenticate
+- [x] **DB-02**: Agent can write signals to signals table and read objectives
+- [x] **DB-03**: Frontend can fetch companies, objectives, and signals from live DB
+- [x] **DB-04**: RLS policies enforced (only service key can write, anon can read)
 
-### Tooltip
+### Frontend Deployment
 
-- [ ] **TOOLTIP-01**: User sees the signal tooltip in full — never clipped at the left or right canvas edge
+- [x] **DEPLOY-01**: Frontend deployed to Vercel with production env vars
+- [x] **DEPLOY-02**: Deployed site is accessible at production URL
+- [x] **DEPLOY-03**: All pages load and render data from live Supabase
 
-### Graveyard Zone
+### Authentication
 
-- [ ] **ZONE-01**: User sees the below-ground territory with a diagonal hatch SVG pattern — visually distinct from above-ground colour wash
+- [x] **AUTH-01**: Supabase Auth gate on `/admin` works in production
+- [x] **AUTH-02**: Admin user can log in with email/password
+- [x] **AUTH-03**: Unauthenticated users see 403 on `/admin`
+
+### Automation & Operations
+
+- [x] **SCHED-01**: GitHub Actions workflow can authenticate and run agent
+- [x] **SCHED-02**: Agent completes first run without errors (signals drafted)
+- [x] **SCHED-03**: Agent completes second run without errors (consistent execution)
+- [x] **OPS-01**: Operator can monitor agent runs via GitHub Actions UI
+- [x] **OPS-02**: Failure alerts work (email notification on workflow failure)
+
+### End-to-End Validation
+
+- [ ] **E2E-01**: Signal flows from agent → Supabase → frontend display
+- [ ] **E2E-02**: Confidence badges display correctly on live site
+- [ ] **E2E-03**: Company page shows all Sandoz data (6 objectives, 51+ signals)
 
 ---
 
-## Future Requirements (Deferred)
+## Future Requirements
 
-- **Company #2 intake** — agent intake for Roche, Volkswagen, or BP
-- **Paywall layer** — Stripe subscription gating for evidence drawers + graveyard records
-- **Email alerts** — subscriber digest on ground-line crossing
-- **Mobile responsive polish** — enhanced mobile breakpoints and UX
-- **Zoom-adaptive LOD** — hide low-priority nodes at wide zoom, reveal on zoom-in
+(Deferred to v4.2+ — out of scope for v4.1)
+
+- **Payment Integration** — Stripe subscription gating for premium features
+- **Mobile Responsive Polish** — Enhanced mobile UX and breakpoints
+- **Email Alerts** — Subscriber digest when objectives cross ground line
+- **API / Data Export** — CSV/JSON export for premium subscribers
+- **Additional Companies** — Roche, Volkswagen, BP (after v4.1 gate clears)
 
 ---
 
 ## Out of Scope
 
-| Item | Reason |
-|------|--------|
-| New backend changes | Pure frontend milestone |
-| New company data | Monetisation work deferred to v4.3 |
-| Paywall / Stripe | Separate milestone |
-| Real-time agent monitoring | Bi-weekly schedule is operationally sufficient |
-| Floating UI library | Existing portal architecture sufficient; left-edge guard is a 3-line fix |
-| textures.js library | SVG `<pattern>` hand-coded in 8 lines — no dependency needed |
+None specified for v4.1.
 
 ---
 
 ## Traceability
 
-| REQ-ID | Phase | Status |
-|--------|-------|--------|
-| CANVAS-01 | Phase 8 | Pending |
-| CANVAS-02 | Phase 8 | Pending |
-| CANVAS-03 | Phase 7 | Pending |
-| NODE-01 | Phase 9 | Pending |
-| NODE-02 | Phase 9 | Pending |
-| NODE-03 | Phase 9 | Pending |
-| TOOLTIP-01 | Phase 10 | Pending |
-| ZONE-01 | Phase 10 | Pending |
+| REQ-ID | Phase | Plan |
+|--------|-------|------|
+| ENV-01 | Phase 4 | TBD |
+| ENV-02 | Phase 4 | TBD |
+| ENV-03 | Phase 4 | TBD |
+| AUTH-01 | Phase 4 | TBD |
+| AUTH-02 | Phase 4 | TBD |
+| AUTH-03 | Phase 4 | TBD |
+| DB-01 | Phase 5 | TBD |
+| DB-02 | Phase 5 | TBD |
+| DB-03 | Phase 5 | TBD |
+| DB-04 | Phase 5 | TBD |
+| DEPLOY-01 | Phase 5 | TBD |
+| DEPLOY-02 | Phase 5 | TBD |
+| DEPLOY-03 | Phase 5 | TBD |
+| SCHED-01 | Phase 6 | 06-01 |
+| SCHED-02 | Phase 6 | 06-01 |
+| SCHED-03 | Phase 6 | 06-02 |
+| OPS-01 | Phase 6 | 06-01 |
+| OPS-02 | Phase 6 | 06-02 |
+| E2E-01 | Phase 6 | TBD |
+| E2E-02 | Phase 6 | TBD |
+| E2E-03 | Phase 6 | TBD |
+
+---
+
+## Success Criteria
+
+**v4.1 is complete when:**
+1. All 21 requirements are satisfied ✓
+2. 2 clean agent runs complete without errors ✓
+3. Live Supabase data flows end-to-end ✓
+4. Frontend deployed to Vercel and accessible ✓
+5. GitHub Actions automation activated ✓
+6. Monetization gate condition #3 cleared (agent stability verified) ✓
+7. Ready for company #2 intake ✓

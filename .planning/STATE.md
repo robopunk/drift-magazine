@@ -1,96 +1,80 @@
 ---
 gsd_state_version: 1.0
-milestone: v4.2
-milestone_name: Timeline UI Overhaul
-status: roadmap_approved
-last_updated: "2026-03-29T00:00:00.000Z"
-last_activity: 2026-03-29
+milestone: v4.1
+milestone_name: Production Readiness
+status: executing
+last_updated: "2026-03-28T13:35:03Z"
+last_activity: 2026-03-28 -- 06-02 complete, SCHED-03/OPS-02 satisfied, monetization gate #3 cleared
 progress:
-  total_phases: 4
-  completed_phases: 0
-  total_plans: 0
-  completed_plans: 0
+  total_phases: 3
+  completed_phases: 2
+  total_plans: 8
+  completed_plans: 6
 ---
 
-# Project State — Drift v4.2
+# Project State — Drift v4.1
 
-**Last Updated:** 2026-03-29
-**Status:** Roadmap defined — ready to plan Phase 7
-**Phase:** 7 (not started)
+**Last Updated:** 2026-03-28
+**Status:** Executing Phase 06
+**Phase:** 6
 
 ## Current Position
 
-Phase: 7 — Canvas Geometry Foundation
-Plan: —
-Status: Roadmap defined, awaiting `/gsd:plan-phase 7`
-Last activity: 2026-03-29 — Roadmap created for v4.2
+Phase: 06 (automation-end-to-end-validation) — EXECUTING
+Plan: 3 of 3
+Status: Executing Phase 06 (06-02 complete, starting 06-03)
+Last activity: 2026-03-28 -- 06-02 complete, SCHED-03/OPS-02 satisfied, monetization gate #3 cleared
 
 ---
 
 ## Progress Bar
 
 ```
-[          ] 0%
-Phase 7: [ ] Canvas Geometry Foundation
-Phase 8: [ ] Path & Fill Fixes
-Phase 9: [ ] Node Layer
-Phase 10: [ ] Tooltip & Zone Polish
+[█████████░] 87%
+Phase 4: [x] Environment & Authentication (complete)
+Phase 5: [x] Supabase Verification & Deployment (complete — all 5 SC verified, production live)
+Phase 6: [2/3] Automation & End-to-End Validation — 06-02 complete
 ```
 
-0 of 4 phases started — v4.2 roadmap defined
+7 of 8 plans complete across phases 4–6
 
 ---
 
-## v4.2 Milestone Goal
+## Accumulated Context (From v4.0)
 
-**Eliminate visual bugs, declutter the canvas, and upgrade node quality to match Drift's editorial standard.**
+### What v4.0 Shipped
 
-Eight targeted frontend fixes across four phases. No backend changes. No new components required.
+- Firecrawl free-tier SDK integrated with tenacity retry logic
+- Confidence scoring: 6.78/10 baseline → 9.3/10 modeled (+37%)
+- TDD-driven `is_draft` unconditional enforcement (no bypass paths)
+- GitHub Actions bi-weekly cron + manual dispatch
+- Supabase Auth gate on `/admin`
+- 4 AdSlot placements (ready for ad network)
+- 408-line operations runbook with monetization gate logic
+- 125 tests total (99 frontend, 26 backend)
+
+### Known Gaps (v4.0 — the reason v4.1 exists)
+
+- No live Supabase connection verified end-to-end
+- No live agent run executed (Python environment unavailable during dev)
+- No cross-phase integration check or E2E flow verification
+- No Vercel deployment with production env vars
+- ~~GitHub Actions workflow created but secrets not configured~~ ✅ Fixed in 04-02
+
+### v4.0 Monetization Gate (4 Conditions)
+
+1. ✅ Editorial maturity — Sandoz page meets research-grade standards
+2. ✅ Ad slot readiness — 4 slots placed, ready for network integration
+3. ✅ Agent stability — **v4.1 goal**: 2 clean bi-weekly runs (SCHED-02, SCHED-03) — CLEARED
+4. ✅ Runbook reviewed — ops runbook complete and documented
 
 ---
 
-## Phase Overview
+## v4.1 Milestone Goal
 
-| Phase | Goal | Requirements | Status |
-|-------|------|--------------|--------|
-| 7 — Canvas Geometry Foundation | Correct padding/dimensions, no edge clipping | CANVAS-03 | Not started |
-| 8 — Path & Fill Fixes | Clip bug fixed, smooth spline | CANVAS-01, CANVAS-02 | Not started |
-| 9 — Node Layer | Legible nodes, no label collisions, correct sizing | NODE-01, NODE-02, NODE-03 | Not started |
-| 10 — Tooltip & Zone Polish | Tooltip edge guard, graveyard hatch | TOOLTIP-01, ZONE-01 | Not started |
+**Verify live Supabase connection end-to-end, deploy to production, and activate autonomous agent scheduling.**
 
----
-
-## Accumulated Context
-
-### What v4.1 Shipped
-
-- Live Supabase connection verified end-to-end (92 signals, 6 objectives, confidence badges)
-- Vercel deployed at drift-magazine.vercel.app with production env vars
-- GitHub Actions bi-weekly cron confirmed — 2 clean runs
-- All 4 monetization gate conditions cleared
-- Company #2 intake unblocked
-
-### v4.2 Architecture Context
-
-- All fixes are targeted modifications to 4 existing files: `TimelineCanvas.tsx`, `TimelinePath.tsx`, `TimelineNode.tsx`, `TimelineTooltip.tsx`
-- One stack addition required before Phase 8: `npm install d3-shape d3-path`
-- `TimelineCanvas.tsx` is the single source of truth for all layout constants — Phase 7 must land and be visually verified before Phase 8 or 9 work proceeds
-- Portal tooltip (`createPortal` into `document.body`, `position: fixed`) is architecturally correct — TOOLTIP-01 is a 3-line arithmetic fix, not a structural change
-- `@floating-ui/react` not needed — left-edge guard is 3 lines of arithmetic
-- `textures.js` not needed — SVG `<pattern>` hand-coded in 8 lines covers ZONE-01
-- Phases 8 and 9 can be parallelized once Phase 7 is merged and verified
-- Phase 10 is fully independent — can begin at any time
-
-### Critical Pitfalls to Track
-
-1. **Cascading geometry** — `PADDING_Y`, `CANVAS_HEIGHT`, `GROUND_Y`, `STAGE_HEIGHT` all derive from each other. Change Phase 7 constants in a dedicated commit and verify all downstream values cascade before proceeding.
-2. **clipPath boundary** — The below-ground clip rect must use `y={groundY + 1}`, never `y={groundY}`. SVG clip regions include the boundary edge.
-3. **Emoji font size isolation** — Never change `fontSize` on node emoji without updating `r` (circle radius) and tick geometry proportionally.
-4. **Dead prop cleanup** — `TimelinePath` receives `isBelowGround` prop that is never used. Clean up in Phase 8.
-
-### Known Blockers
-
-- **git push mmap error**: `fatal: mmap failed: Invalid argument` on Windows due to corrupted .claude/worktrees worktree index. Workaround: use GitHub Contents API.
+This milestone satisfies monetization gate condition #3 and unblocks company #2 intake.
 
 ---
 
@@ -98,22 +82,60 @@ Eight targeted frontend fixes across four phases. No backend changes. No new com
 
 | Decision | Outcome |
 |----------|---------|
-| Phase numbering continues from v4.1 | Phases 7–10 (not restarting at 1) |
-| Canvas geometry constants isolated in Phase 7 | Changing PADDING_Y/CANVAS_HEIGHT after node sizing is tuned causes regression |
-| d3-shape for spline interpolation | curveMonotoneX guarantees no overshoot; existing manual bezier approach cannot |
-| No @floating-ui/react | TOOLTIP-01 is a 3-line guard — 20 KB library adds no value |
-| No textures.js | ZONE-01 solved with 8-line SVG pattern — no dependency needed |
-| Phase 10 fully independent | Can start at any time — touches no shared geometry constants |
+| Phase numbering continues from v4.0 | Phases 4, 5, 6 (not restarting at 1) |
+| ENV + AUTH grouped in Phase 4 | Both require operator configuration before any live testing can occur |
+| DB verification + Vercel deploy grouped in Phase 5 | Frontend deployment depends on confirmed DB connectivity |
+| Automation + E2E grouped in Phase 6 | Two clean runs require deployed infrastructure from Phases 4–5 |
+| frontend/.env.local sourced from Vercel CLI root .env.local | Same Supabase project, real production values already available |
+| backend/.env.local pre-fills SUPABASE_URL | Project URL known from Vercel; reduces manual setup — secrets still need Stefano |
+| GitHub secrets set via gh CLI, not UI | Token had repo scope; gh secret set is non-interactive and fully automatable |
+| Client-side auth gate on /admin returns HTTP 200 | Expected — React renders login form when no session; admin data never visible without session |
+| Email/password auth needs no redirect URL config | Supabase redirect URLs only required for OAuth/magic links; not needed for current implementation |
+| agent.py uses load_dotenv('.env.local') explicitly | Default load_dotenv() searches for .env not .env.local; explicit path required for production secrets |
+| RLS test reads anon key from frontend/.env.local | DRY — frontend already has NEXT_PUBLIC_SUPABASE_ANON_KEY; no need to duplicate in backend env |
 
 ---
 
-## Project Reference
+## Key Decisions
 
-See: .planning/PROJECT.md (updated 2026-03-29)
+| Decision | Outcome |
+|----------|---------|
+| Phase numbering continues from v4.0 | Phases 4, 5, 6 (not restarting at 1) |
+| ENV + AUTH grouped in Phase 4 | Both require operator configuration before any live testing can occur |
+| DB verification + Vercel deploy grouped in Phase 5 | Frontend deployment depends on confirmed DB connectivity |
+| Automation + E2E grouped in Phase 6 | Two clean runs require deployed infrastructure from Phases 4–5 |
+| frontend/.env.local sourced from Vercel CLI root .env.local | Same Supabase project, real production values already available |
+| backend/.env.local pre-fills SUPABASE_URL | Project URL known from Vercel; reduces manual setup — secrets still need Stefano |
+| GitHub secrets set via gh CLI, not UI | Token had repo scope; gh secret set is non-interactive and fully automatable |
+| Client-side auth gate on /admin returns HTTP 200 | Expected — React renders login form when no session; admin data never visible without session |
+| Email/password auth needs no redirect URL config | Supabase redirect URLs only required for OAuth/magic links; not needed for current implementation |
+| agent.py uses load_dotenv('.env.local') explicitly | Default load_dotenv() searches for .env not .env.local; explicit path required for production secrets |
+| RLS test reads anon key from frontend/.env.local | DRY — frontend already has NEXT_PUBLIC_SUPABASE_ANON_KEY; no need to duplicate in backend env |
+| Real Vercel project is drift-magazine (prj_4mhRuVEqV0XgZnboF5FtvjP1nmqW) | frontend/.vercel/project.json had stale prj_58iBlp9GBdp6VXyTOj6MvrzScb5o — verified via API list |
+| Company URL is /company/sdz not /company/sandoz | Ticker-based routing (ticker=SDZ in DB); CompanyCard links to /company/${ticker.toLowerCase()} |
+| Vercel deployment via REST API not CLI | CLI required interactive tty link; REST API POST /v13/deployments achieves same result |
 
-**Core value:** Measuring the *language of commitment* — and the silence that follows when it fades.
-**Current focus:** v4.2 Timeline UI Overhaul — 4 phases, 8 requirements, pure frontend fixes
+## Key Decisions (06-01)
+
+| Decision | Outcome |
+|----------|---------|
+| exit_manner 'morphed' → signal_classification 'reframed' | 'morphed' not in signal_classification enum; nearest semantic match is reframed |
+| exit_manner 'phased' → 'softened', 'resurrected' → 'stated' | Full EXIT_MANNER_TO_CLASSIFICATION mapping added to agent.py |
+| GitHub Actions conclusion=success masks agent partial failures | Agent's run_all_due() catches exceptions and continues; exit code always 0 even on error |
+| terminal_state column migration deferred to 06-02 | Cannot apply DDL via PostgREST; requires Supabase Dashboard SQL editor — operator action |
+| Rate limit cooldown required between CI runs | Shared 30k TPM org limit; 5-minute wait needed when planning conversation is active |
+
+## Key Decisions (06-02)
+
+| Decision | Outcome |
+|----------|---------|
+| OPS-02 satisfied by GitHub native email-on-failure | No agent-run.yml modification required (per D-01, D-02); robopunk is admin owner |
+| Rate limit during correlation pass is acceptable | 9 signals written before correlation step; graceful degradation by design; conclusion=success |
+
+## Known Blockers
+
+- **git push mmap error**: `fatal: mmap failed: Invalid argument` on Windows due to corrupted .claude/worktrees worktree index. Workaround: use GitHub Contents API. Separate cleanup needed.
 
 ## Next Step
 
-Run `/gsd:plan-phase 7` to plan Phase 7: Canvas Geometry Foundation.
+Phase 6, Plan 3: E2E signal approval — approve draft signals via CLI, verify they appear on live Vercel frontend (E2E-01, E2E-02, E2E-03)
