@@ -1,5 +1,15 @@
 # Drift — Claude Code Project Context
 
+## Project management
+
+This project uses **GSD (Get Shit Done)** for all planning and execution. Always use GSD workflows:
+- `/gsd:new-milestone` — start a new milestone
+- `/gsd:plan-phase` — plan a phase before building
+- `/gsd:execute-phase` — execute a planned phase
+- `/gsd:discuss-phase` — gather context before planning
+
+Planning artifacts live in `.planning/` at the project root (`content/drift magazine/.planning/`).
+
 ## What this project is
 
 **Drift** is a strategic accountability research platform. It tracks what major companies publicly commit to — and monitors how that language changes, weakens, or disappears over time. The editorial core concept: most tools measure outcomes; Drift measures the *language of commitment* and the silence that follows when commitment fades.

@@ -1,8 +1,24 @@
 # Drift — Project
 
 **Owner:** Stefano (Drift founder, Sandoz Head of Infra, Switzerland)
-**Current version:** v4.1.0 (shipped 2026-03-28)
-**Status:** Live in production — automation running, ready for company #2 intake
+**Current version:** v4.2.0 (in progress)
+**Status:** Live in production — v4.2 Timeline UI Overhaul underway
+
+---
+
+## Current Milestone: v4.2 Timeline UI Overhaul
+
+**Goal:** Eliminate visual bugs, declutter the canvas, and upgrade node quality to match Drift's editorial standard.
+
+**Target features:**
+- Area-fill clip bug — red zone anchors correctly at ground line (not above it)
+- Path smoothness — visually continuous, smooth spline
+- Node & icon quality — larger, higher-quality markers; better visual aesthetics
+- Node declutter — smart stacking, no overlapping ticks and labels
+- Content node sizing — nodes with labels sized for legibility
+- Tooltip redesign — clean, well-positioned hover/click signal tooltips
+- Graveyard zone weight — below-ground territory with stronger editorial visual cue
+- Edge overflow — no clipping at canvas edges; proper padding throughout
 
 ---
 
@@ -66,10 +82,20 @@ Measuring the *language of commitment* — and the silence that follows when it 
 - ✓ **OPS-01–02**: Operator monitoring via Actions UI, failure email notifications active — v4.1
 - ✓ **E2E-01–03**: Agent → Supabase → Vercel frontend verified, 92 signals live, confidence badges correct — v4.1
 
-### Active (v4.2+)
+### Active (v4.2)
 
-- [ ] **Timeline UI overhaul** — fix design glitches, improve icons, node quality, and overall timeline UX
-- [ ] **Company #2 intake** — run agent intake on Roche, Volkswagen, or BP (monetization gate cleared)
+- [ ] **CANVAS-01**: Area-fill clip bug fixed — below-ground red fill anchors at the ground line
+- [ ] **CANVAS-02**: Path rendered as smooth continuous spline with no visible kinks
+- [ ] **NODE-01**: Node icons enlarged and visually polished (better quality, not emoji-small)
+- [ ] **NODE-02**: Node decluttering — overlapping labels and ticks handled via smart stacking
+- [ ] **NODE-03**: Content-bearing nodes sized for legibility at normal zoom
+- [ ] **TOOLTIP-01**: Tooltip redesigned — clean layout, correct positioning, no clipping
+- [ ] **ZONE-01**: Graveyard zone (below-ground) carries stronger editorial visual weight
+- [ ] **CANVAS-03**: Canvas edge padding — no content clipping at left/right/top/bottom edges
+
+### Deferred (v4.3+)
+
+- [ ] **Company #2 intake** — run agent intake on Roche, Volkswagen, or BP
 - [ ] **Paywall layer** — Stripe subscription gating for evidence drawers + graveyard records
 - [ ] **Email alerts** — subscriber digest when objectives cross ground line
 - [ ] **Mobile responsive polish** — enhanced mobile UX and breakpoints
@@ -133,7 +159,27 @@ All 4 conditions satisfied (2026-03-28):
 - v3.3.0 (2026-03-25): Committed Duration feature
 - v4.0.0 (2026-03-27): Firecrawl integration, confidence scoring, admin auth, GitHub Actions, runbook
 - v4.1.0 (2026-03-28): Live Supabase verified, Vercel deployed, GitHub Actions automation confirmed, 92 signals live
+- v4.2.0 (in progress): Timeline UI Overhaul — bug fixes, node quality, declutter, tooltips
 
 ---
 
-*Last updated: 2026-03-29 after v4.1 milestone*
+## Evolution
+
+This document evolves at phase transitions and milestone boundaries.
+
+**After each phase transition** (via `/gsd:transition`):
+1. Requirements invalidated? → Move to Out of Scope with reason
+2. Requirements validated? → Move to Validated with phase reference
+3. New requirements emerged? → Add to Active
+4. Decisions to log? → Add to Key Decisions
+5. "What This Is" still accurate? → Update if drifted
+
+**After each milestone** (via `/gsd:complete-milestone`):
+1. Full review of all sections
+2. Core Value check — still the right priority?
+3. Audit Out of Scope — reasons still valid?
+4. Update Context with current state
+
+---
+
+*Last updated: 2026-03-29 — v4.2 milestone started*
