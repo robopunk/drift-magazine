@@ -2,28 +2,28 @@
 gsd_state_version: 1.0
 milestone: v4.2
 milestone_name: Timeline UI Overhaul
-status: planning
-last_updated: "2026-03-29T15:46:53.840Z"
-last_activity: 2026-03-29
+status: executing
+last_updated: "2026-03-30T19:01:15.181Z"
+last_activity: 2026-03-30 -- Phase 08 Plan 01 Task 1 complete (checkpoint: awaiting visual verification)
 progress:
   total_phases: 4
   completed_phases: 1
-  total_plans: 1
+  total_plans: 2
   completed_plans: 1
 ---
 
 # Project State — Drift v4.1
 
 **Last Updated:** 2026-03-28
-**Status:** Ready to plan
+**Status:** Executing Phase 08
 **Phase:** 8
 
 ## Current Position
 
-Phase: 07 (canvas-geometry-foundation) — COMPLETE
-Plan: Not started
-Status: Phase 07 complete. Next: Phase 08 (Path & Fill Fixes)
-Last activity: 2026-03-29
+Phase: 08 (path-fill-fixes) — EXECUTING
+Plan: 1 of 1
+Status: Executing Phase 08
+Last activity: 2026-03-30 -- Phase 08 execution started
 
 ---
 
@@ -145,6 +145,16 @@ This milestone satisfies monetization gate condition #3 and unblocks company #2 
 | HORIZONTAL_PADDING = 40 (1 MONTH_WIDTH per side) | Nodes/labels at first/last date positions no longer clip at left/right SVG edge |
 | canvasWidth includes HORIZONTAL_PADDING * 2 | All x-positions offset by HORIZONTAL_PADDING for consistent positioning |
 
+## Key Decisions (08-01)
+
+| Decision | Outcome |
+|----------|---------|
+| Centripetal Catmull-Rom alpha=0.5 | Prevents overshoot at sharp momentum transitions vs uniform Catmull-Rom |
+| 2-point paths as straight lines | D-04: cleaner visual for single-segment paths; no cubic Bezier |
+| 1px clip overlap at ground line | Eliminates sub-pixel gap artifact (groundY+1 above, groundY-1 below) |
+| canvasWidth/canvasHeight props replace 10000 | D-02: clip rects sized to actual canvas, not unbounded magic values |
+| isBelowGround prop removed | D-05: dead code — not used by fill/clip dual-zone architecture |
+
 ## Next Step
 
-Phase 08: Path & Fill Fixes — correct the clip bug and spline smoothness against the verified canvas geometry from Phase 07
+Phase 08 Plan 01 Task 2: Visual verification — run dev server and confirm rendering at http://localhost:3000/company/sdz
