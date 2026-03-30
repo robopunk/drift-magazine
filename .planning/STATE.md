@@ -2,28 +2,28 @@
 gsd_state_version: 1.0
 milestone: v4.2
 milestone_name: Timeline UI Overhaul
-status: executing
-last_updated: "2026-03-30T19:01:15.181Z"
-last_activity: 2026-03-30 -- Phase 08 Plan 01 Task 1 complete (checkpoint: awaiting visual verification)
+status: verifying
+last_updated: "2026-03-30T19:18:16.450Z"
+last_activity: 2026-03-30
 progress:
   total_phases: 4
-  completed_phases: 1
+  completed_phases: 2
   total_plans: 2
-  completed_plans: 1
+  completed_plans: 2
 ---
 
 # Project State — Drift v4.1
 
 **Last Updated:** 2026-03-28
-**Status:** Executing Phase 08
+**Status:** Phase complete — ready for verification
 **Phase:** 8
 
 ## Current Position
 
-Phase: 08 (path-fill-fixes) — EXECUTING
-Plan: 1 of 1
-Status: Executing Phase 08
-Last activity: 2026-03-30 -- Phase 08 execution started
+Phase: 08 (path-fill-fixes) — COMPLETE
+Plan: 1 of 1 (all plans complete)
+Status: Phase 08 complete — visual fixes applied and verified
+Last activity: 2026-03-30
 
 ---
 
@@ -151,10 +151,11 @@ This milestone satisfies monetization gate condition #3 and unblocks company #2 
 |----------|---------|
 | Centripetal Catmull-Rom alpha=0.5 | Prevents overshoot at sharp momentum transitions vs uniform Catmull-Rom |
 | 2-point paths as straight lines | D-04: cleaner visual for single-segment paths; no cubic Bezier |
-| 1px clip overlap at ground line | Eliminates sub-pixel gap artifact (groundY+1 above, groundY-1 below) |
+| Below clip at groundY+1 (not groundY-1) | Eliminates horizontal stripe artifact from fill path closing line at groundY |
 | canvasWidth/canvasHeight props replace 10000 | D-02: clip rects sized to actual canvas, not unbounded magic values |
 | isBelowGround prop removed | D-05: dead code — not used by fill/clip dual-zone architecture |
+| Ground line rendered after path fills in SVG DOM | SVG painter model: fills sit behind ground line, nodes sit above it |
 
 ## Next Step
 
-Phase 08 Plan 01 Task 2: Visual verification — run dev server and confirm rendering at http://localhost:3000/company/sdz
+Phase 08 complete. All plans done. Visual fixes applied and verified. 143 tests passing.

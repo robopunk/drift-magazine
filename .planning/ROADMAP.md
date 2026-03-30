@@ -33,7 +33,7 @@ Full details: [milestones/v4.1-ROADMAP.md](milestones/v4.1-ROADMAP.md)
 ### v4.2 Timeline UI Overhaul (Phases 7–10)
 
 - [x] **Phase 7: Canvas Geometry Foundation** — Correct canvas dimensions, padding, and viewBox so no content is ever clipped
-- [ ] **Phase 8: Path & Fill Fixes** — Clip bug and spline smoothness corrected against the verified canvas geometry
+- [x] **Phase 8: Path & Fill Fixes** — Clip bug and spline smoothness corrected against the verified canvas geometry (completed 2026-03-30)
 - [ ] **Phase 9: Node Layer** — Legible, decluttered node markers with correct sizing and stagger logic
 - [ ] **Phase 10: Tooltip & Zone Polish** — Tooltip edge guard and graveyard hatch pattern applied
 
@@ -104,6 +104,6 @@ Plans:
 | 5. Supabase Verification & Deployment | v4.1 | 2/2 | Complete | 2026-03-28 |
 | 6. Automation & End-to-End Validation | v4.1 | 3/3 | Complete | 2026-03-28 |
 | 7. Canvas Geometry Foundation | v4.2 | 1/1 | Complete | 2026-03-29 |
-| 8. Path & Fill Fixes | v4.2 | 1/1 | Complete (pending visual verify) | 2026-03-30 |
+| 8. Path & Fill Fixes | v4.2 | 1/1 | Complete   | 2026-03-30 |
 | 9. Node Layer | v4.2 | 0/? | Not started | - |
 | 10. Tooltip & Zone Polish | v4.2 | 0/? | Not started | - |
