@@ -67,7 +67,7 @@ export function TimelinePath({ points, colour, groundY, id, canvasWidth, canvasH
           <rect x={0} y={0} width={canvasWidth} height={groundY + 1} />
         </clipPath>
         <clipPath id={belowId}>
-          <rect x={0} y={groundY - 1} width={canvasWidth} height={canvasHeight} />
+          <rect x={0} y={groundY + 1} width={canvasWidth} height={canvasHeight} />
         </clipPath>
       </defs>
       {/* Fill — above ground (emerald) */}

@@ -124,16 +124,16 @@ describe("TimelinePath", () => {
     expect(aboveRect!.getAttribute("height")).toBe("101");
   });
 
-  it("below clip rect has y equal to groundY - 1 (1px overlap at boundary)", () => {
+  it("below clip rect has y equal to groundY + 1 (starts 1px below ground to prevent stripe artifact)", () => {
     const { container } = render(
       <svg>
         <TimelinePath {...defaultProps} />
       </svg>
     );
-    // groundY is 100, so y should be 99
+    // groundY is 100, so y should be 101 (starts 1px below ground line)
     const belowRect = container.querySelector("clipPath#below-obj-abc123 rect");
     expect(belowRect).not.toBeNull();
-    expect(belowRect!.getAttribute("y")).toBe("99");
+    expect(belowRect!.getAttribute("y")).toBe("101");
   });
 
   it("clip rect widths use canvasWidth (not magic 10000)", () => {

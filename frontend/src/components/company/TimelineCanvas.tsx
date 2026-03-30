@@ -411,17 +411,14 @@ export function TimelineCanvas({ objectives, signals, onNavigateToEvidence, fisc
                 <rect x={0} y={PADDING_Y} width={canvasWidth} height={GROUND_Y - PADDING_Y} fill="var(--timeline-zone-above)" />
                 <rect x={0} y={GROUND_Y} width={canvasWidth} height={PADDING_Y + 8 * STAGE_HEIGHT - GROUND_Y} fill="var(--timeline-zone-below)" />
 
-                {/* Stage lines */}
+                {/* Stage lines (non-ground only — ground line rendered after paths for correct z-order) */}
                 {STAGES.map((stage) => {
                   const y = scoreToY(stage.score);
                   const isGround = stage.score === 0;
+                  if (isGround) return null;
                   return (
                     <g key={stage.name}>
-                      {isGround ? (
-                        <line x1={0} y1={y} x2={canvasWidth} y2={y} stroke="var(--primary)" strokeWidth={2} />
-                      ) : (
-                        <line x1={0} y1={y} x2={canvasWidth} y2={y} stroke="var(--border)" strokeWidth={0.5} />
-                      )}
+                      <line x1={0} y1={y} x2={canvasWidth} y2={y} stroke="var(--border)" strokeWidth={0.5} />
                     </g>
                   );
                 })}
@@ -440,11 +437,6 @@ export function TimelineCanvas({ objectives, signals, onNavigateToEvidence, fisc
                     opacity={isJanuary ? 0.3 : 0.15}
                   />
                 ))}
-
-                {/* Ground line label */}
-                <text x={canvasWidth - 8} y={GROUND_Y - 6} fontSize={9} fill="var(--primary)" fontFamily="var(--font-ibm-plex-mono)" textAnchor="end">
-                  GROUND LINE
-                </text>
 
                 {/* Monthly axis labels */}
                 {monthLabels.map(({ x, label, isJanuary, year }, i) => (
@@ -544,6 +536,12 @@ export function TimelineCanvas({ objectives, signals, onNavigateToEvidence, fisc
                     </g>
                   );
                 })}
+
+                {/* Ground line — rendered after path fills so it sits on top of fills but below nodes */}
+                <line x1={0} y1={GROUND_Y} x2={canvasWidth} y2={GROUND_Y} stroke="var(--primary)" strokeWidth={2} />
+                <text x={canvasWidth - 8} y={GROUND_Y - 6} fontSize={9} fill="var(--primary)" fontFamily="var(--font-ibm-plex-mono)" textAnchor="end">
+                  GROUND LINE
+                </text>
 
                 {/* SVG nodes for selected objectives */}
                 {objectiveNodeSets.map(({ objective, nodes, latestSignalIdx }, objIdx) => {
