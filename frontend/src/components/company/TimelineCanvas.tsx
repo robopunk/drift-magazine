@@ -530,11 +530,17 @@ export function TimelineCanvas({ objectives, signals, onNavigateToEvidence, fisc
                 {objectiveNodeSets.map(({ objective, nodes }) => {
                   const colour = colourMap.get(objective.id) ?? "#999";
                   const points = nodes.map((n) => ({ x: n.x, y: n.y }));
-                  const isBelowGround = objective.momentum_score <= 0;
                   const dimmed = hoveredId !== null && hoveredId !== objective.id;
                   return (
                     <g key={objective.id} opacity={dimmed ? 0.25 : 1} style={{ transition: "opacity 200ms" }}>
-                      <TimelinePath points={points} colour={colour} isBelowGround={isBelowGround} groundY={GROUND_Y} id={objective.id} />
+                      <TimelinePath
+                        points={points}
+                        colour={colour}
+                        groundY={GROUND_Y}
+                        id={objective.id}
+                        canvasWidth={canvasWidth}
+                        canvasHeight={CANVAS_HEIGHT}
+                      />
                     </g>
                   );
                 })}

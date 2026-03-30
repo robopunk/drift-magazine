@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { render } from "@testing-library/react";
-import { TimelinePath } from "@/components/company/TimelinePath";
+import { TimelinePath, toSmoothPath } from "@/components/company/TimelinePath";
 
 const points = [
   { x: 10, y: 50 },
@@ -11,10 +11,37 @@ const points = [
 const defaultProps = {
   points,
   colour: "#22c55e",
-  isBelowGround: false,
   groundY: 100,
   id: "obj-abc123",
+  canvasWidth: 800,
+  canvasHeight: 650,
 };
+
+describe("toSmoothPath", () => {
+  it("returns empty string for 0 points", () => {
+    expect(toSmoothPath([])).toBe("");
+  });
+
+  it("returns empty string for 1 point", () => {
+    expect(toSmoothPath([{ x: 10, y: 50 }])).toBe("");
+  });
+
+  it("returns straight line for 2 points (per D-04)", () => {
+    expect(toSmoothPath([{ x: 10, y: 50 }, { x: 100, y: 120 }])).toBe(
+      "M 10 50 L 100 120"
+    );
+  });
+
+  it("returns path starting with M and containing C for 3+ points (Catmull-Rom cubic output)", () => {
+    const result = toSmoothPath([
+      { x: 10, y: 50 },
+      { x: 100, y: 120 },
+      { x: 200, y: 40 },
+    ]);
+    expect(result).toMatch(/^M 10 50/);
+    expect(result).toContain("C");
+  });
+});
 
 describe("TimelinePath", () => {
   it("renders without crashing with required props", () => {
@@ -83,5 +110,51 @@ describe("TimelinePath", () => {
     const paths = Array.from(container.querySelectorAll("path"));
     const belowStroke = paths.find((p) => p.getAttribute("stroke-dasharray") === "6 4");
     expect(belowStroke).toBeDefined();
+  });
+
+  it("above clip rect has height equal to groundY + 1 (1px overlap at boundary)", () => {
+    const { container } = render(
+      <svg>
+        <TimelinePath {...defaultProps} />
+      </svg>
+    );
+    // groundY is 100, so height should be 101
+    const aboveRect = container.querySelector("clipPath#above-obj-abc123 rect");
+    expect(aboveRect).not.toBeNull();
+    expect(aboveRect!.getAttribute("height")).toBe("101");
+  });
+
+  it("below clip rect has y equal to groundY - 1 (1px overlap at boundary)", () => {
+    const { container } = render(
+      <svg>
+        <TimelinePath {...defaultProps} />
+      </svg>
+    );
+    // groundY is 100, so y should be 99
+    const belowRect = container.querySelector("clipPath#below-obj-abc123 rect");
+    expect(belowRect).not.toBeNull();
+    expect(belowRect!.getAttribute("y")).toBe("99");
+  });
+
+  it("clip rect widths use canvasWidth (not magic 10000)", () => {
+    const { container } = render(
+      <svg>
+        <TimelinePath {...defaultProps} />
+      </svg>
+    );
+    const aboveRect = container.querySelector("clipPath#above-obj-abc123 rect");
+    const belowRect = container.querySelector("clipPath#below-obj-abc123 rect");
+    expect(aboveRect!.getAttribute("width")).toBe("800");
+    expect(belowRect!.getAttribute("width")).toBe("800");
+  });
+
+  it("below clip rect height uses canvasHeight (not magic 10000)", () => {
+    const { container } = render(
+      <svg>
+        <TimelinePath {...defaultProps} />
+      </svg>
+    );
+    const belowRect = container.querySelector("clipPath#below-obj-abc123 rect");
+    expect(belowRect!.getAttribute("height")).toBe("650");
   });
 });
