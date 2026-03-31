@@ -465,6 +465,12 @@ export function TimelineCanvas({ objectives, signals, onNavigateToEvidence, fisc
           >
             <div className="relative" style={{ width: canvasWidth, height: CANVAS_HEIGHT }}>
               <svg className="absolute inset-0" width={canvasWidth} height={CANVAS_HEIGHT}>
+                {/* Ground line — rendered first so it is the lowest SVG layer (painter model) */}
+                <line x1={0} y1={GROUND_Y} x2={canvasWidth} y2={GROUND_Y} stroke="var(--primary)" strokeWidth={1.5} />
+                <text x={6} y={GROUND_Y - 4} fontSize={8} fill="var(--primary)" fontFamily="var(--font-ibm-plex-mono)" opacity={0.8}>
+                  WATCH · 0
+                </text>
+
                 {/* Background zones */}
                 <rect x={0} y={PADDING_Y} width={canvasWidth} height={GROUND_Y - PADDING_Y} fill="var(--timeline-zone-above)" />
                 <rect x={0} y={GROUND_Y} width={canvasWidth} height={PADDING_Y + 8 * STAGE_HEIGHT - GROUND_Y} fill="var(--timeline-zone-below)" />
@@ -569,12 +575,6 @@ export function TimelineCanvas({ objectives, signals, onNavigateToEvidence, fisc
                     </g>
                   );
                 })}
-
-                {/* Ground line — rendered after path fills so it sits on top of fills but below nodes */}
-                <line x1={0} y1={GROUND_Y} x2={canvasWidth} y2={GROUND_Y} stroke="var(--primary)" strokeWidth={1.5} />
-                <text x={6} y={GROUND_Y - 4} fontSize={8} fill="var(--primary)" fontFamily="var(--font-ibm-plex-mono)" opacity={0.8}>
-                  WATCH · 0
-                </text>
 
                 {/* SVG nodes for selected objectives */}
                 {objectiveNodeSets.map(({ objective, nodes, latestSignalIdx }, objIdx) => {
