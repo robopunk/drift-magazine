@@ -166,12 +166,13 @@ def prefetch_company_docs(company: dict, api_key: Optional[str]) -> str:
     if not sections:
         return ""
 
-    divider = "=" * 60
+    doc_blocks = "\n".join(
+        f"<document source='{url}'>\n{content}\n</document>"
+        for url, content in _last_prefetch_contents.items()
+    )
     return (
-        f"\n\nPRE-FETCHED DOCUMENTS (full text extracted before your search):\n"
-        f"{divider}\n"
-        + "\n\n---\n\n".join(sections)
-        + f"\n{divider}\n"
+        "\n\nPRE-FETCHED DOCUMENTS (full text extracted before your search):\n"
+        f"<documents>\n{doc_blocks}\n</documents>\n"
         "Use these as primary sources. Then use web_search for any additional recent disclosures.\n"
     )
 
