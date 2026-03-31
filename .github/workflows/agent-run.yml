@@ -34,5 +34,6 @@ jobs:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
           FIRECRAWL_API_KEY: ${{ secrets.FIRECRAWL_API_KEY }}
+          TARGET_COMPANY_ID: ${{ github.event.inputs.company_id }}
         run: |
-          python backend/agent.py --company-id "${{ github.event.inputs.company_id }}"
+          python backend/agent.py --company-id "$TARGET_COMPANY_ID"
