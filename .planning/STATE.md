@@ -2,28 +2,28 @@
 gsd_state_version: 1.0
 milestone: v4.2
 milestone_name: Timeline UI Overhaul
-status: verifying
-last_updated: "2026-03-30T19:18:16.450Z"
-last_activity: 2026-03-30
+status: executing
+last_updated: "2026-03-31T11:10:00.801Z"
+last_activity: 2026-03-31
 progress:
   total_phases: 4
-  completed_phases: 2
-  total_plans: 2
-  completed_plans: 2
+  completed_phases: 1
+  total_plans: 5
+  completed_plans: 4
 ---
 
 # Project State — Drift v4.1
 
 **Last Updated:** 2026-03-28
-**Status:** Phase complete — ready for verification
+**Status:** Ready to execute
 **Phase:** 8
 
 ## Current Position
 
-Phase: 08 (path-fill-fixes) — COMPLETE
-Plan: 1 of 1 (all plans complete)
-Status: Phase 08 complete — visual fixes applied and verified
-Last activity: 2026-03-30
+Phase: 08 (path-fill-fixes) — EXECUTING
+Plan: 2 of 4
+Status: Ready to execute
+Last activity: 2026-03-31
 
 ---
 
@@ -172,6 +172,14 @@ Work performed outside the GSD plan framework during human UAT review. Documente
 | Zone CSS vars changed from near-white hex to rgba | Previous #f8fdf9/#fefcf8 values were imperceptible; rgba(34,197,94,0.04)/rgba(239,68,68,0.04) match dark mode pattern |
 | WATCH·0 ground line label at x=6 | FinanceCharts-style inline annotation; connects score (0) to stage name (Watch) |
 
+## Key Decisions (08-03)
+
+| Decision | Outcome |
+|----------|---------|
+| toBelowFillPath closes at canvasHeight (not groundY) | Red fill polygon closes at canvas bottom so the area sits underneath the spline curve for crossing objectives |
+| toAboveFillPath preserves groundY closing for green fill | No behavioral change to above-ground fill — only below-ground fill path is split |
+| Single toFillPath removed entirely | No shared fill path between zones; each fill function is semantically distinct |
+
 ## Next Step
 
-Phase 08 complete (2 plans: 08-01 structural fixes, 08-02 FinanceCharts visual redesign + windowed node filter bug fix). Human UAT in progress. 143 tests passing. Pushed to GitHub (commit 128bd1e).
+Phase 08 in progress (08-01 structural fixes, 08-02 FinanceCharts visual redesign, 08-03 below-fill path fix complete). 146 tests passing.
