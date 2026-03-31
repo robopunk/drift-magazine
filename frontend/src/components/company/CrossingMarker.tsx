@@ -11,7 +11,7 @@ interface CrossingMarkerProps {
 export function CrossingMarker({ x, y, label, editorialNote, direction = "down" }: CrossingMarkerProps) {
   const isUp = direction === "up";
   return (
-    <div className="absolute group cursor-pointer" style={{ left: x, top: y, transform: "translate(-50%, -50%)" }}>
+    <div className="absolute z-10 group cursor-pointer" style={{ left: x, top: y, transform: "translate(-50%, -50%)" }}>
       <div className="relative w-4 h-4">
         <div className={`absolute inset-0 rounded-full animate-ping opacity-40 ${isUp ? "bg-emerald-500" : "bg-destructive"}`} />
         <div className={`absolute inset-0.5 rounded-full ${isUp ? "bg-emerald-500" : "bg-destructive"}`} />

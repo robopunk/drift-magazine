@@ -54,18 +54,18 @@ function toAboveFillPath(points: Point[], groundY: number): string {
   return `${spline} L ${last.x} ${groundY} L ${first.x} ${groundY} Z`;
 }
 
-function toBelowFillPath(points: Point[], canvasHeight: number): string {
+function toBelowFillPath(points: Point[], groundY: number): string {
   const spline = toSmoothPath(points);
   const first = points[0];
   const last = points[points.length - 1];
-  return `${spline} L ${last.x} ${canvasHeight} L ${first.x} ${canvasHeight} Z`;
+  return `${spline} L ${last.x} ${groundY} L ${first.x} ${groundY} Z`;
 }
 
 export function TimelinePath({ points, colour, groundY, id, canvasWidth, canvasHeight }: TimelinePathProps) {
   if (points.length < 2) return null;
   const splinePath = toSmoothPath(points);
   const aboveFillPath = toAboveFillPath(points, groundY);
-  const belowFillPath = toBelowFillPath(points, canvasHeight);
+  const belowFillPath = toBelowFillPath(points, groundY);
   const aboveId = `above-${id}`;
   const belowId = `below-${id}`;
   return (

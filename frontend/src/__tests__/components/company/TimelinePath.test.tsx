@@ -173,7 +173,7 @@ describe("TimelinePath", () => {
     expect(d).not.toContain("L 10 650");
   });
 
-  it("below-ground fill path d attribute closes at canvasHeight (650), not groundY (100)", () => {
+  it("below-ground fill path d attribute closes at groundY (100) so fill only appears under the spline, not before the crossing", () => {
     const { container } = render(
       <svg>
         <TimelinePath {...defaultProps} />
@@ -183,12 +183,13 @@ describe("TimelinePath", () => {
     const belowFill = paths.find((p) => p.getAttribute("fill") === "var(--destructive)");
     expect(belowFill).toBeDefined();
     const d = belowFill!.getAttribute("d") ?? "";
-    // Must close at canvasHeight (650), not groundY (100)
-    expect(d).toContain("L 10 650");
-    expect(d).not.toContain("L 10 100");
+    // Must close at groundY (100) — the clipPath restricts to below-ground;
+    // closing at canvasHeight would cause red fill to appear before the crossing point
+    expect(d).toContain("L 10 100");
+    expect(d).not.toContain("L 10 650");
   });
 
-  it("above-ground and below-ground fill paths have different d attributes", () => {
+  it("above-ground and below-ground fill paths share the same d attribute — differentiated by clipPath, not path shape", () => {
     const { container } = render(
       <svg>
         <TimelinePath {...defaultProps} />
@@ -199,6 +200,8 @@ describe("TimelinePath", () => {
     const belowFill = paths.find((p) => p.getAttribute("fill") === "var(--destructive)");
     expect(aboveFill).toBeDefined();
     expect(belowFill).toBeDefined();
-    expect(aboveFill!.getAttribute("d")).not.toBe(belowFill!.getAttribute("d"));
+    // Both paths close at groundY — visual split comes from different clipPath regions, not different shapes
+    expect(aboveFill!.getAttribute("d")).toBe(belowFill!.getAttribute("d"));
+    expect(aboveFill!.getAttribute("clip-path")).not.toBe(belowFill!.getAttribute("clip-path"));
   });
 });
