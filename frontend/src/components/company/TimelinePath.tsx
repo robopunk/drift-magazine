@@ -47,17 +47,25 @@ export function toSmoothPath(points: Point[]): string {
   return d;
 }
 
-function toFillPath(points: Point[], groundY: number): string {
+function toAboveFillPath(points: Point[], groundY: number): string {
   const spline = toSmoothPath(points);
   const first = points[0];
   const last = points[points.length - 1];
   return `${spline} L ${last.x} ${groundY} L ${first.x} ${groundY} Z`;
 }
 
+function toBelowFillPath(points: Point[], canvasHeight: number): string {
+  const spline = toSmoothPath(points);
+  const first = points[0];
+  const last = points[points.length - 1];
+  return `${spline} L ${last.x} ${canvasHeight} L ${first.x} ${canvasHeight} Z`;
+}
+
 export function TimelinePath({ points, colour, groundY, id, canvasWidth, canvasHeight }: TimelinePathProps) {
   if (points.length < 2) return null;
   const splinePath = toSmoothPath(points);
-  const fillPath = toFillPath(points, groundY);
+  const aboveFillPath = toAboveFillPath(points, groundY);
+  const belowFillPath = toBelowFillPath(points, canvasHeight);
   const aboveId = `above-${id}`;
   const belowId = `below-${id}`;
   return (
@@ -72,7 +80,7 @@ export function TimelinePath({ points, colour, groundY, id, canvasWidth, canvasH
       </defs>
       {/* Fill — above ground (emerald) */}
       <path
-        d={fillPath}
+        d={aboveFillPath}
         fill="var(--primary)"
         fillOpacity={0.18}
         stroke="none"
@@ -80,7 +88,7 @@ export function TimelinePath({ points, colour, groundY, id, canvasWidth, canvasH
       />
       {/* Fill — below ground (destructive red) */}
       <path
-        d={fillPath}
+        d={belowFillPath}
         fill="var(--destructive)"
         fillOpacity={0.22}
         stroke="none"

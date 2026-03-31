@@ -157,4 +157,48 @@ describe("TimelinePath", () => {
     const belowRect = container.querySelector("clipPath#below-obj-abc123 rect");
     expect(belowRect!.getAttribute("height")).toBe("650");
   });
+
+  it("above-ground fill path d attribute closes at groundY (100), not canvasHeight", () => {
+    const { container } = render(
+      <svg>
+        <TimelinePath {...defaultProps} />
+      </svg>
+    );
+    const paths = Array.from(container.querySelectorAll("path"));
+    const aboveFill = paths.find((p) => p.getAttribute("fill") === "var(--primary)");
+    expect(aboveFill).toBeDefined();
+    const d = aboveFill!.getAttribute("d") ?? "";
+    // Must close at groundY (100), not canvasHeight (650)
+    expect(d).toContain("L 10 100");
+    expect(d).not.toContain("L 10 650");
+  });
+
+  it("below-ground fill path d attribute closes at canvasHeight (650), not groundY (100)", () => {
+    const { container } = render(
+      <svg>
+        <TimelinePath {...defaultProps} />
+      </svg>
+    );
+    const paths = Array.from(container.querySelectorAll("path"));
+    const belowFill = paths.find((p) => p.getAttribute("fill") === "var(--destructive)");
+    expect(belowFill).toBeDefined();
+    const d = belowFill!.getAttribute("d") ?? "";
+    // Must close at canvasHeight (650), not groundY (100)
+    expect(d).toContain("L 10 650");
+    expect(d).not.toContain("L 10 100");
+  });
+
+  it("above-ground and below-ground fill paths have different d attributes", () => {
+    const { container } = render(
+      <svg>
+        <TimelinePath {...defaultProps} />
+      </svg>
+    );
+    const paths = Array.from(container.querySelectorAll("path"));
+    const aboveFill = paths.find((p) => p.getAttribute("fill") === "var(--primary)");
+    const belowFill = paths.find((p) => p.getAttribute("fill") === "var(--destructive)");
+    expect(aboveFill).toBeDefined();
+    expect(belowFill).toBeDefined();
+    expect(aboveFill!.getAttribute("d")).not.toBe(belowFill!.getAttribute("d"));
+  });
 });
