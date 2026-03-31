@@ -156,6 +156,22 @@ This milestone satisfies monetization gate condition #3 and unblocks company #2 
 | isBelowGround prop removed | D-05: dead code — not used by fill/clip dual-zone architecture |
 | Ground line rendered after path fills in SVG DOM | SVG painter model: fills sit behind ground line, nodes sit above it |
 
+## Key Decisions (08-02 — outside GSD plan, retroactively documented)
+
+Work performed outside the GSD plan framework during human UAT review. Documented in [08-02-SUMMARY.md](phases/08-path-fill-fixes/08-02-SUMMARY.md).
+
+| Decision | Outcome |
+|----------|---------|
+| Fill opacity 8%→18%/22% | Fills were near-invisible at 8%; 18%/22% matches FinanceCharts readability |
+| Sparse Y-axis: 5 of 9 scores (+4,+2,0,-2,-4) | Reduces clutter; provides sufficient orientation without crowding label column |
+| Year-only vertical gridlines | Monthly gridlines competed visually with paths; annual cadence is sufficient |
+| Top axis removed; bottom axis quarterly | Duplicate labels added noise; quarterly cadence (Jan/Apr/Jul/Oct + year) provides time navigation |
+| Time range pills (6M/1Y/2Y/All) replace date range text | User-controlled windowing is more useful than a static date range display |
+| windowedMinDate drives all x-position memos | Single source of truth for canvas start — objectiveNodeSets, monthLabels, todayX, deadlineFlags all consistent |
+| Filter nodes to windowStartMs before positioning | Nodes before the window got negative x positions, causing paths to extend off-screen left with no scroll; filtering eliminates the clip illusion |
+| Zone CSS vars changed from near-white hex to rgba | Previous #f8fdf9/#fefcf8 values were imperceptible; rgba(34,197,94,0.04)/rgba(239,68,68,0.04) match dark mode pattern |
+| WATCH·0 ground line label at x=6 | FinanceCharts-style inline annotation; connects score (0) to stage name (Watch) |
+
 ## Next Step
 
-Phase 08 complete. All plans done. Visual fixes applied and verified. 143 tests passing.
+Phase 08 complete (2 plans: 08-01 structural fixes, 08-02 FinanceCharts visual redesign + windowed node filter bug fix). Human UAT in progress. 143 tests passing. Pushed to GitHub (commit 128bd1e).

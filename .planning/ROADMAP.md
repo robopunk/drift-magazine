@@ -62,9 +62,10 @@ Plans:
   1. User sees the red (below-ground) area fill starting exactly at the ground line — no red visible above it on clean above-ground trajectories
   2. User sees the emerald (above-ground) area fill stopping exactly at the ground line — no missing fill gap or double-fill at the boundary
   3. User sees a smooth, continuous path curve with no visible kinks or overshoot at steep momentum transitions
-**Plans**: 1 plan
+**Plans**: 2 plans (08-02 performed outside GSD framework — retroactively documented)
 Plans:
 - [x] 08-01-PLAN.md — Catmull-Rom spline, clip rect 1px overlap fix, canvas dimension props, remove isBelowGround dead code
+- [x] 08-02-SUMMARY.md (no PLAN) — FinanceCharts visual redesign: fill opacity, sparse axis, year gridlines, quarterly X-axis, time range pills (6M/1Y/2Y/All) with windowed node filtering. Bug fix: nodes before window start were positioned at negative x, causing paths to appear clipped with no scroll.
 **UI hint**: yes
 
 ### Phase 9: Node Layer
@@ -104,6 +105,6 @@ Plans:
 | 5. Supabase Verification & Deployment | v4.1 | 2/2 | Complete | 2026-03-28 |
 | 6. Automation & End-to-End Validation | v4.1 | 3/3 | Complete | 2026-03-28 |
 | 7. Canvas Geometry Foundation | v4.2 | 1/1 | Complete | 2026-03-29 |
-| 8. Path & Fill Fixes | v4.2 | 1/1 | Complete   | 2026-03-30 |
+| 8. Path & Fill Fixes | v4.2 | 2/2 | Complete   | 2026-03-31 |
 | 9. Node Layer | v4.2 | 0/? | Not started | - |
 | 10. Tooltip & Zone Polish | v4.2 | 0/? | Not started | - |
