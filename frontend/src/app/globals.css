@@ -51,8 +51,8 @@
     --forced-dark-accent: #34d399;
 
     /* Timeline background zones */
-    --timeline-zone-above: #f8fdf9;
-    --timeline-zone-below: #fefcf8;
+    --timeline-zone-above: rgba(34, 197, 94, 0.04);
+    --timeline-zone-below: rgba(239, 68, 68, 0.04);
 
     /* Timeline cadence dots */
     --timeline-cadence-dot: #d1d5db;

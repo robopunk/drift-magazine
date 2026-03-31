@@ -49,8 +49,9 @@ const AXIS_LABEL_HEIGHT = 40;
 const STAGE_HEIGHT = (CANVAS_HEIGHT - PADDING_Y - AXIS_LABEL_HEIGHT) / 8;
 const GROUND_Y = PADDING_Y + 4 * STAGE_HEIGHT;
 const MONTH_WIDTH = 40;
-const LABEL_COL_WIDTH = 60;
+const LABEL_COL_WIDTH = 52;
 const HORIZONTAL_PADDING = 40;
+const SPARSE_AXIS_SCORES = [4, 2, 0, -2, -4];
 
 function getDefaultSelection(): Set<string> {
   return new Set<string>();
@@ -82,6 +83,7 @@ export function TimelineCanvas({ objectives, signals, onNavigateToEvidence, fisc
   const [selectedIds, setSelectedIds] = useState<Set<string>>(() =>
     getDefaultSelection()
   );
+  const [timeRange, setTimeRange] = useState<"6M" | "1Y" | "2Y" | "All">("All");
 
   const colourMap = useMemo(() => {
     const map = new Map<string, string>();
@@ -121,7 +123,23 @@ export function TimelineCanvas({ objectives, signals, onNavigateToEvidence, fisc
     return { minDate: min, maxDate: max, totalMonths: Math.max(months, 12) };
   }, [signals]);
 
-  const canvasWidth = Math.max(totalMonths * MONTH_WIDTH + HORIZONTAL_PADDING * 2, 800);
+  // Apply time range filter to minDate
+  const windowedMinDate = useMemo(() => {
+    if (timeRange === "All") return minDate;
+    const now = Date.now();
+    const monthsBack = timeRange === "6M" ? 6 : timeRange === "1Y" ? 12 : 24;
+    const cutoff = new Date(now);
+    cutoff.setMonth(cutoff.getMonth() - monthsBack);
+    return Math.max(minDate, cutoff.getTime());
+  }, [timeRange, minDate]);
+
+  const windowedTotalMonths = useMemo(() => {
+    const start = new Date(windowedMinDate);
+    const end = new Date(Math.max(maxDate, Date.now()));
+    return (end.getFullYear() - start.getFullYear()) * 12 + (end.getMonth() - start.getMonth()) + 2;
+  }, [windowedMinDate, maxDate]);
+
+  const canvasWidth = Math.max(windowedTotalMonths * MONTH_WIDTH + HORIZONTAL_PADDING * 2, 800);
 
   // Generate monthly nodes for visible objectives
   const visibleObjectives = useMemo(
@@ -139,7 +157,7 @@ export function TimelineCanvas({ objectives, signals, onNavigateToEvidence, fisc
       // Compute x and y for each node
       if (monthlyNodes.length > 0) {
         const originMonth = monthlyNodes[0].month;
-        const globalOrigin = new Date(minDate);
+        const globalOrigin = new Date(windowedMinDate);
         const globalOriginMonth = new Date(globalOrigin.getFullYear(), globalOrigin.getMonth(), 1);
         const originOffset = (originMonth.getFullYear() - globalOriginMonth.getFullYear()) * 12 +
           (originMonth.getMonth() - globalOriginMonth.getMonth());
@@ -163,7 +181,7 @@ export function TimelineCanvas({ objectives, signals, onNavigateToEvidence, fisc
       const hasTerminalState = obj.terminal_state || (obj.is_in_graveyard === true);
       if (hasTerminalState && obj.exit_date) {
         const exitDate = new Date(obj.exit_date);
-        const globalOrigin = new Date(minDate);
+        const globalOrigin = new Date(windowedMinDate);
         const globalOriginMonth = new Date(globalOrigin.getFullYear(), globalOrigin.getMonth(), 1);
         const exitMonthOffset = (exitDate.getFullYear() - globalOriginMonth.getFullYear()) * 12 +
           (exitDate.getMonth() - globalOriginMonth.getMonth());
@@ -182,7 +200,7 @@ export function TimelineCanvas({ objectives, signals, onNavigateToEvidence, fisc
 
       return { objective: obj, nodes: monthlyNodes, latestSignalIdx };
     });
-  }, [visibleObjectives, signalsByObjective, now, minDate, fiscalYearEndMonth]);
+  }, [visibleObjectives, signalsByObjective, now, windowedMinDate, fiscalYearEndMonth]);
 
   // Crossings: detect ground-line crossings (both down and up)
   const crossings = useMemo(() => {
@@ -205,9 +223,9 @@ export function TimelineCanvas({ objectives, signals, onNavigateToEvidence, fisc
   const monthLabels = useMemo(() => {
     const labels: { x: number; label: string; isJanuary: boolean; year: number }[] = [];
     const MONTH_ABBR = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
-    const start = new Date(minDate);
+    const start = new Date(windowedMinDate);
     const startMonth = new Date(start.getFullYear(), start.getMonth(), 1);
-    for (let i = 0; i < totalMonths; i++) {
+    for (let i = 0; i < windowedTotalMonths; i++) {
       const d = new Date(startMonth);
       d.setMonth(d.getMonth() + i);
       labels.push({
@@ -218,18 +236,18 @@ export function TimelineCanvas({ objectives, signals, onNavigateToEvidence, fisc
       });
     }
     return labels;
-  }, [minDate, totalMonths]);
+  }, [windowedMinDate, windowedTotalMonths]);
 
   // Today marker
   const todayX = useMemo(() => {
     const today = new Date();
-    const start = new Date(minDate);
+    const start = new Date(windowedMinDate);
     const startMonth = new Date(start.getFullYear(), start.getMonth(), 1);
     const monthsFromStart =
       (today.getFullYear() - startMonth.getFullYear()) * 12 + (today.getMonth() - startMonth.getMonth());
     const dayFraction = today.getDate() / 30;
     return (monthsFromStart + dayFraction) * MONTH_WIDTH + HORIZONTAL_PADDING;
-  }, [minDate]);
+  }, [windowedMinDate]);
 
   // Deadline flags for objectives with commitment windows
   const deadlineFlags = useMemo(() => {
@@ -237,7 +255,7 @@ export function TimelineCanvas({ objectives, signals, onNavigateToEvidence, fisc
       .filter((obj) => obj.commitment_type !== "evergreen" && obj.committed_until)
       .map((obj) => {
         const deadlineDate = new Date(obj.committed_until!);
-        const start = new Date(minDate);
+        const start = new Date(windowedMinDate);
         const startMonth = new Date(start.getFullYear(), start.getMonth(), 1);
         const monthsFromStart =
           (deadlineDate.getFullYear() - startMonth.getFullYear()) * 12 +
@@ -248,7 +266,7 @@ export function TimelineCanvas({ objectives, signals, onNavigateToEvidence, fisc
         const label = new Intl.DateTimeFormat("en-US", { month: "short", year: "numeric" }).format(deadlineDate);
         return { objectiveId: obj.id, x, isOverdue, label };
       });
-  }, [visibleObjectives, minDate, now]);
+  }, [visibleObjectives, windowedMinDate, now]);
 
   // Tooltip data
   const tooltipData = useMemo(() => {
@@ -354,36 +372,57 @@ export function TimelineCanvas({ objectives, signals, onNavigateToEvidence, fisc
       />
       <div className="flex-1 flex flex-col min-w-0">
         {/* Toolbar */}
-        <div className="flex items-center justify-between px-4 py-2 border-b border-border text-xs font-mono text-muted-foreground" style={{ height: 44 }}>
-          <span>{selectedIds.size} of {objectives.filter((o) => hasSignals(o.id)).length} selected</span>
-          {dateRangeLabel && <span>{dateRangeLabel}</span>}
+        <div className="flex items-center justify-between px-4 py-2 border-b border-border" style={{ height: 44 }}>
+          <span className="font-mono text-[10px] text-muted-foreground">
+            {selectedIds.size > 0
+              ? `${selectedIds.size} objective${selectedIds.size > 1 ? "s" : ""} selected`
+              : "Select an objective to begin"}
+          </span>
+          <div className="flex items-center gap-0.5">
+            {(["6M", "1Y", "2Y", "All"] as const).map((range) => (
+              <button
+                key={range}
+                onClick={() => setTimeRange(range)}
+                className={`px-2 py-0.5 rounded font-mono text-[9px] transition-colors ${
+                  timeRange === range
+                    ? "bg-primary text-primary-foreground font-semibold"
+                    : "text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                {range}
+              </button>
+            ))}
+          </div>
         </div>
         {/* Canvas area: fixed labels + scrollable data */}
         <div className="flex flex-1 min-h-0">
           {/* Fixed stage label column */}
           <div className="flex-none relative" style={{ width: LABEL_COL_WIDTH }}>
             <svg width={LABEL_COL_WIDTH} height={CANVAS_HEIGHT}>
-              {STAGES.map((stage) => {
+              {STAGES.filter((s) => SPARSE_AXIS_SCORES.includes(s.score)).map((stage) => {
                 const y = scoreToY(stage.score);
                 const isGround = stage.score === 0;
                 return (
                   <g key={stage.name}>
                     <text
-                      x={4}
+                      x={LABEL_COL_WIDTH - 4}
                       y={y + 4}
                       fontSize={9}
                       fill={isGround ? "var(--primary)" : "var(--muted-foreground)"}
                       fontFamily="var(--font-ibm-plex-mono)"
+                      textAnchor="end"
+                      fontWeight={isGround ? 600 : 400}
                     >
-                      {stage.emoji} {stage.score > 0 ? "+" : ""}{stage.score}
+                      {stage.score > 0 ? "+" : ""}{stage.score}
                     </text>
                     <text
-                      x={4}
+                      x={LABEL_COL_WIDTH - 4}
                       y={y + 14}
                       fontSize={8}
                       fill={isGround ? "var(--primary)" : "var(--muted-foreground)"}
                       fontFamily="var(--font-ibm-plex-mono)"
-                      opacity={0.7}
+                      textAnchor="end"
+                      opacity={isGround ? 0.9 : 0.5}
                     >
                       {stage.label}
                     </text>
@@ -411,94 +450,69 @@ export function TimelineCanvas({ objectives, signals, onNavigateToEvidence, fisc
                 <rect x={0} y={PADDING_Y} width={canvasWidth} height={GROUND_Y - PADDING_Y} fill="var(--timeline-zone-above)" />
                 <rect x={0} y={GROUND_Y} width={canvasWidth} height={PADDING_Y + 8 * STAGE_HEIGHT - GROUND_Y} fill="var(--timeline-zone-below)" />
 
-                {/* Stage lines (non-ground only — ground line rendered after paths for correct z-order) */}
-                {STAGES.map((stage) => {
+                {/* Stage lines — sparse scores only, dashed (ground rendered after paths) */}
+                {STAGES.filter((s) => SPARSE_AXIS_SCORES.includes(s.score) && s.score !== 0).map((stage) => {
                   const y = scoreToY(stage.score);
-                  const isGround = stage.score === 0;
-                  if (isGround) return null;
                   return (
-                    <g key={stage.name}>
-                      <line x1={0} y1={y} x2={canvasWidth} y2={y} stroke="var(--border)" strokeWidth={0.5} />
-                    </g>
+                    <line
+                      key={stage.name}
+                      x1={0} y1={y} x2={canvasWidth} y2={y}
+                      stroke="var(--border)"
+                      strokeWidth={0.5}
+                      strokeDasharray="4 6"
+                      opacity={0.4}
+                    />
                   );
                 })}
 
-                {/* Monthly vertical gridlines */}
-                {monthLabels.map(({ x, isJanuary }, i) => (
+                {/* Vertical gridlines — year boundaries only */}
+                {monthLabels.filter(({ isJanuary }) => isJanuary).map(({ x }, i) => (
                   <line
-                    key={`grid-${i}`}
-                    data-gridline={isJanuary ? "january" : "month"}
+                    key={`grid-year-${i}`}
                     x1={x}
                     y1={PADDING_Y}
                     x2={x}
                     y2={PADDING_Y + 8 * STAGE_HEIGHT}
                     stroke="var(--border)"
                     strokeWidth={0.5}
-                    opacity={isJanuary ? 0.3 : 0.15}
+                    opacity={0.35}
                   />
                 ))}
 
-                {/* Monthly axis labels */}
-                {monthLabels.map(({ x, label, isJanuary, year }, i) => (
-                  <g key={`month-${i}`}>
-                    <text
-                      x={x}
-                      y={CANVAS_HEIGHT - AXIS_LABEL_HEIGHT + 18}
-                      fontSize={9}
-                      fill={isJanuary ? "var(--foreground)" : "var(--muted-foreground)"}
-                      fontFamily="var(--font-ibm-plex-mono)"
-                      textAnchor="middle"
-                      fontWeight={isJanuary ? 600 : 400}
-                      opacity={isJanuary ? 1 : 0.5}
-                    >
-                      {label}
-                    </text>
-                    {isJanuary && (
+                {/* Bottom axis labels — January bold + year, quarterly months lighter */}
+                {monthLabels.map(({ x, label, isJanuary, year }, i) => {
+                  const isQuarterStart = i % 3 === 0;
+                  if (!isJanuary && !isQuarterStart) return null;
+                  return (
+                    <g key={`month-${i}`}>
                       <text
                         x={x}
-                        y={CANVAS_HEIGHT - AXIS_LABEL_HEIGHT + 30}
+                        y={CANVAS_HEIGHT - AXIS_LABEL_HEIGHT + 18}
                         fontSize={9}
-                        fill="var(--primary)"
+                        fill={isJanuary ? "var(--foreground)" : "var(--muted-foreground)"}
                         fontFamily="var(--font-ibm-plex-mono)"
                         textAnchor="middle"
-                        fontWeight={500}
+                        fontWeight={isJanuary ? 600 : 400}
+                        opacity={isJanuary ? 1 : 0.45}
                       >
-                        {year}
+                        {label}
                       </text>
-                    )}
-                  </g>
-                ))}
-
-                {/* Top axis labels — mirror of bottom */}
-                {monthLabels.map(({ x, label, isJanuary, year }, i) => (
-                  <g key={`month-top-${i}`}>
-                    <text
-                      x={x}
-                      y={PADDING_Y - 14}
-                      fontSize={9}
-                      fill={isJanuary ? "var(--foreground)" : "var(--muted-foreground)"}
-                      fontFamily="var(--font-ibm-plex-mono)"
-                      textAnchor="middle"
-                      fontWeight={isJanuary ? 600 : 400}
-                      opacity={isJanuary ? 1 : 0.5}
-                    >
-                      {label}
-                    </text>
-                    {isJanuary && (
-                      <text
-                        x={x}
-                        y={PADDING_Y - 4}
-                        fontSize={9}
-                        fill="var(--primary)"
-                        fontFamily="var(--font-ibm-plex-mono)"
-                        textAnchor="middle"
-                        fontWeight={500}
-                      >
-                        {year}
-                      </text>
-                    )}
-                  </g>
-                ))}
+                      {isJanuary && (
+                        <text
+                          x={x}
+                          y={CANVAS_HEIGHT - AXIS_LABEL_HEIGHT + 30}
+                          fontSize={9}
+                          fill="var(--primary)"
+                          fontFamily="var(--font-ibm-plex-mono)"
+                          textAnchor="middle"
+                          fontWeight={600}
+                        >
+                          {year}
+                        </text>
+                      )}
+                    </g>
+                  );
+                })}
 
                 {/* Today marker */}
                 <line x1={todayX} y1={PADDING_Y} x2={todayX} y2={PADDING_Y + 8 * STAGE_HEIGHT} stroke="var(--primary)" strokeWidth={1} strokeDasharray="6 3" opacity={0.5} />
@@ -538,9 +552,9 @@ export function TimelineCanvas({ objectives, signals, onNavigateToEvidence, fisc
                 })}
 
                 {/* Ground line — rendered after path fills so it sits on top of fills but below nodes */}
-                <line x1={0} y1={GROUND_Y} x2={canvasWidth} y2={GROUND_Y} stroke="var(--primary)" strokeWidth={2} />
-                <text x={canvasWidth - 8} y={GROUND_Y - 6} fontSize={9} fill="var(--primary)" fontFamily="var(--font-ibm-plex-mono)" textAnchor="end">
-                  GROUND LINE
+                <line x1={0} y1={GROUND_Y} x2={canvasWidth} y2={GROUND_Y} stroke="var(--primary)" strokeWidth={1.5} />
+                <text x={6} y={GROUND_Y - 4} fontSize={8} fill="var(--primary)" fontFamily="var(--font-ibm-plex-mono)" opacity={0.8}>
+                  WATCH · 0
                 </text>
 
                 {/* SVG nodes for selected objectives */}

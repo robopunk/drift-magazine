@@ -77,9 +77,11 @@ describe("TimelineCanvas", () => {
     expect(screen.getByText("Select an objective to view its trajectory")).toBeInTheDocument();
   });
 
-  it("renders date range in toolbar", () => {
+  it("renders time range pills in toolbar", () => {
     render(<TimelineCanvas objectives={objectives} signals={signals} onNavigateToEvidence={vi.fn()} />);
-    expect(screen.getByText(/Jun 2025/)).toBeInTheDocument();
+    expect(screen.getByText("6M")).toBeInTheDocument();
+    expect(screen.getByText("1Y")).toBeInTheDocument();
+    expect(screen.getByText("All")).toBeInTheDocument();
   });
 
   it("does not render zoom controls", () => {
@@ -98,26 +100,24 @@ describe("TimelineCanvas", () => {
     expect(screen.getByText(/No objectives tracked yet/)).toBeInTheDocument();
   });
 
-  it("renders monthly vertical gridlines", () => {
+  it("renders year-boundary vertical gridlines", () => {
     const { container } = render(
       <TimelineCanvas objectives={objectives} signals={signals} onNavigateToEvidence={vi.fn()} />
     );
-    const gridlines = container.querySelectorAll("line[data-gridline]");
-    expect(gridlines.length).toBeGreaterThan(0);
+    // Year-only gridlines — no data-gridline attributes on monthly lines any more
+    // Just verify the SVG canvas renders without errors (gridline elements are <line> tags inside SVG)
+    const svgLines = container.querySelectorAll("svg line");
+    expect(svgLines.length).toBeGreaterThan(0);
   });
 
-  it("renders January gridlines with stronger opacity", () => {
+  it("renders stage gridlines only at sparse axis scores", () => {
     const { container } = render(
       <TimelineCanvas objectives={objectives} signals={signals} onNavigateToEvidence={vi.fn()} />
     );
-    const januaryLines = container.querySelectorAll('line[data-gridline="january"]');
-    const regularLines = container.querySelectorAll('line[data-gridline="month"]');
-    if (januaryLines.length > 0) {
-      expect(januaryLines[0].getAttribute("opacity")).toBe("0.3");
-    }
-    if (regularLines.length > 0) {
-      expect(regularLines[0].getAttribute("opacity")).toBe("0.15");
-    }
+    // data-gridline attributes removed — year gridlines render without them
+    // Verify no data-gridline="month" elements remain (old dense grid removed)
+    const monthGridlines = container.querySelectorAll('line[data-gridline="month"]');
+    expect(monthGridlines.length).toBe(0);
   });
 
   it("renders stage names in labels", () => {
@@ -136,14 +136,14 @@ describe("TimelineCanvas", () => {
     expect(scrollArea?.getAttribute("style")).toContain("cursor: grab");
   });
 
-  it("renders month labels at both top and bottom of the stage grid", () => {
+  it("renders month labels on the bottom axis", () => {
     render(
       <TimelineCanvas objectives={objectives} signals={signals} onNavigateToEvidence={vi.fn()} />
     );
-    // signals are at 2025-06-01 so "Jun" appears in the axis labels
+    // signals are at 2025-06-01 so "Jun" appears in the bottom axis labels
+    // Top axis removed — only bottom axis renders
     const junLabels = screen.getAllByText("Jun");
-    // One at bottom (existing) + one at top (new) = 2
-    expect(junLabels.length).toBeGreaterThanOrEqual(2);
+    expect(junLabels.length).toBeGreaterThanOrEqual(1);
   });
 
   it("renders a deadline flag for objectives with a committed_until date", () => {

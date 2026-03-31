@@ -74,7 +74,7 @@ export function TimelinePath({ points, colour, groundY, id, canvasWidth, canvasH
       <path
         d={fillPath}
         fill="var(--primary)"
-        fillOpacity={0.08}
+        fillOpacity={0.18}
         stroke="none"
         clipPath={`url(#${aboveId})`}
       />
@@ -82,7 +82,7 @@ export function TimelinePath({ points, colour, groundY, id, canvasWidth, canvasH
       <path
         d={fillPath}
         fill="var(--destructive)"
-        fillOpacity={0.08}
+        fillOpacity={0.22}
         stroke="none"
         clipPath={`url(#${belowId})`}
       />
