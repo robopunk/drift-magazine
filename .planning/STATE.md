@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v4.2
 milestone_name: Timeline UI Overhaul
 status: executing
-last_updated: "2026-03-31T11:12:21.754Z"
+last_updated: "2026-03-31T11:14:52.369Z"
 last_activity: 2026-03-31
 progress:
   total_phases: 4
   completed_phases: 2
   total_plans: 5
-  completed_plans: 5
+  completed_plans: 6
 ---
 
 # Project State — Drift v4.1
@@ -21,7 +21,7 @@ progress:
 ## Current Position
 
 Phase: 08 (path-fill-fixes) — EXECUTING
-Plan: 3 of 4
+Plan: 4 of 4
 Status: Ready to execute
 Last activity: 2026-03-31
 
@@ -180,6 +180,12 @@ Work performed outside the GSD plan framework during human UAT review. Documente
 | toAboveFillPath preserves groundY closing for green fill | No behavioral change to above-ground fill — only below-ground fill path is split |
 | Single toFillPath removed entirely | No shared fill path between zones; each fill function is semantically distinct |
 
+## Key Decisions (08-05)
+
+| Decision | Outcome |
+|----------|---------|
+| Ground line rendered as first SVG child | Background zones (translucent rgba) paint over it visually; paths/nodes/CrossingMarkers stack above naturally via SVG painter model |
+
 ## Next Step
 
-Phase 08 in progress (08-01 structural fixes, 08-02 FinanceCharts visual redesign, 08-03 below-fill path fix complete). 146 tests passing.
+Phase 08 complete (08-01 structural fixes, 08-02 FinanceCharts visual redesign, 08-03 below-fill path fix, 08-04 terminal node truncation, 08-05 ground line layer order fix). 146 tests passing. All CANVAS-01 requirements addressed.
