@@ -150,9 +150,18 @@ export function TimelineCanvas({ objectives, signals, onNavigateToEvidence, fisc
   const now = useMemo(() => new Date(), []);
 
   const objectiveNodeSets = useMemo(() => {
+    const windowStartMs = new Date(
+      new Date(windowedMinDate).getFullYear(),
+      new Date(windowedMinDate).getMonth(),
+      1
+    ).getTime();
+
     return visibleObjectives.map((obj) => {
       const objSignals = signalsByObjective.get(obj.id) || [];
-      const monthlyNodes = generateMonthlyNodes(objSignals, now, fiscalYearEndMonth);
+      const allNodes = generateMonthlyNodes(objSignals, now, fiscalYearEndMonth);
+
+      // Filter to nodes within the windowed date range so paths don't extend off-screen left
+      const monthlyNodes = allNodes.filter((n) => n.month.getTime() >= windowStartMs);
 
       // Compute x and y for each node
       if (monthlyNodes.length > 0) {
