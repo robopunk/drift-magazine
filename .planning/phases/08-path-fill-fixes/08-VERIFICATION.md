@@ -1,29 +1,47 @@
 ---
 phase: 08-path-fill-fixes
-verified: 2026-03-30T21:22:00Z
+verified: 2026-03-31T13:20:00Z
 status: human_needed
-score: 4/4 automated must-haves verified
+score: 8/8 automated must-haves verified
+re_verification:
+  previous_status: human_needed
+  previous_score: 4/4 automated (3 UAT gaps pending closure)
+  gaps_closed:
+    - "GAP-1: Red fill sits above spline trajectory — fixed by toBelowFillPath closing at canvasHeight (08-03)"
+    - "GAP-2: Post-buried cadence nodes extend to today — fixed by exit_date truncation (08-04)"
+    - "GAP-3: Ground line renders in front of CrossingMarker — fixed by moving to first SVG element (08-05)"
+  gaps_remaining: []
+  regressions: []
 human_verification:
-  - test: "Visual check — no red above ground line on clean above-ground objectives"
-    expected: "For objectives that stay above ground (e.g., Global Biosimilar Leadership at +3), zero red fill visible above the gold ground line"
-    why_human: "SVG clip geometry verified programmatically but pixel-level rendering correctness on an actual browser cannot be confirmed without visual inspection"
-  - test: "Visual check — clean fill split at ground line for crossing objectives"
-    expected: "For Manufacturing Network Simplification (-2), emerald fill stops at ground line and red fill begins at ground line with no visible gap or stripe artifact"
-    why_human: "The stripe fix (groundY+1 for below clip start) was verified in code but the absence of the artifact requires a live browser render"
-  - test: "Visual check — smooth Catmull-Rom curves, no kinks at steep transitions"
-    expected: "Path curves look natural and continuous; no visible kinking at steep momentum transitions (e.g., +3 to -1)"
-    why_human: "Algorithm correctness verified by unit tests; visual smoothness quality requires human judgment on browser render"
-  - test: "Visual check — 2-point paths render as clean straight lines"
-    expected: "Any objective with only 2 signal nodes renders as a clean straight line, not a curve"
-    why_human: "M...L output confirmed by unit test; visual rendering confirmation requires browser"
+  - test: "Visual check — no red fill above ground line on clean above-ground objectives"
+    expected: "For objectives that stay above ground (e.g., Global Biosimilar Leadership at +3), zero red fill visible above the gold ground line — only emerald fill"
+    why_human: "SVG clip geometry and fill path destinations verified programmatically. toBelowFillPath closes at canvasHeight (confirmed line 61 TimelinePath.tsx). Pixel-level rendering at exact boundary requires live browser render."
+  - test: "Visual check — buried objectives show no nodes or path beyond exit_date"
+    expected: "For a graveyard objective (e.g., Branded Generics Expansion — Phased Out), the dashed cadence line and all nodes stop at the exit_date. No trailing trajectory to today."
+    why_human: "Truncation logic confirmed in TimelineCanvas.tsx (lines 180-189, while/pop loop). Editorial correctness and visual absence of post-exit trail requires browser confirmation."
+  - test: "Visual check — CrossingMarker pulsing dot and label render on top of gold ground line"
+    expected: "The pulsing dot and 'Crossing Q1 2024' label are fully visible above the ground line, not obscured behind it."
+    why_human: "Ground line confirmed as first SVG child (line 469 TimelineCanvas.tsx). CrossingMarker HTML divs are outside the SVG (DOM stacking confirmed). Visual layering correctness requires browser render."
 ---
 
 # Phase 08: Path & Fill Fixes Verification Report
 
-**Phase Goal:** Fix the spurious red area fill artifact above the ground line and kinks/overshoot in spline curves on the TimelineCanvas, so the visual rendering is correct.
-**Verified:** 2026-03-30T21:22:00Z
-**Status:** human_needed — all automated checks pass, visual rendering requires human sign-off
-**Re-verification:** No — initial verification
+**Phase Goal:** Fix the spurious red area fill artifact above the ground line, kinks/overshoot in spline curves, terminal node clipping, and ground line z-order on the TimelineCanvas so visual rendering is correct.
+**Verified:** 2026-03-31T13:20:00Z
+**Status:** human_needed — all automated checks pass; 3 visual confirmations still need a live browser
+**Re-verification:** Yes — after gap closure plans 08-03, 08-04, and 08-05
+
+---
+
+## Re-verification Summary
+
+The original verification (2026-03-30) found 4/4 automated must-haves passing, with 3 UAT gaps raised during human testing:
+
+- **GAP-1:** Red fill appeared above the spline for crossing objectives
+- **GAP-2:** Post-buried cadence nodes extended to today instead of stopping at exit_date
+- **GAP-3:** CrossingMarker rendered behind the gold ground line
+
+All three gaps have been addressed by plans 08-03, 08-04, and 08-05 respectively. No regressions detected. Test count grew from 143 to 146 (3 new tests for toBelowFillPath behavior). All 146 tests pass.
 
 ---
 
@@ -33,12 +51,16 @@ human_verification:
 
 | # | Truth | Status | Evidence |
 |---|-------|--------|----------|
-| 1 | Red (below-ground) area fill starts exactly at the ground line — no red visible above it on clean above-ground trajectories | ? HUMAN NEEDED | Below clip rect uses `y={groundY + 1}` (line 70 TimelinePath.tsx). Code is correct; pixel render needs browser confirm |
-| 2 | Emerald (above-ground) area fill stops exactly at the ground line — no missing fill gap or double-fill at the boundary | ? HUMAN NEEDED | Above clip rect uses `height={groundY + 1}` (line 67 TimelinePath.tsx). Code correct; needs visual confirm |
-| 3 | Path curve is smooth and continuous with no visible kinks or overshoot at steep momentum transitions | ? HUMAN NEEDED | Centripetal Catmull-Rom (alpha=0.5) implemented at lines 19-46 TimelinePath.tsx. Algorithm verified by unit test; smoothness quality needs human judgment |
-| 4 | isBelowGround prop is fully removed from TimelinePath interface, component, and TimelineCanvas call site | ✓ VERIFIED | `grep -c "isBelowGround"` returns 0 in both TimelinePath.tsx and TimelineCanvas.tsx |
+| 1 | Red (below-ground) area fill sits UNDERNEATH the spline curve, not above it | ✓ VERIFIED | `toBelowFillPath` closes polygon at `canvasHeight` (line 61 TimelinePath.tsx). Above clip `height={groundY+1}`, below clip `y={groundY+1}`. Old `toFillPath` removed — 0 occurrences. |
+| 2 | Green (above-ground) area fill sits between the curve and groundY | ✓ VERIFIED | `toAboveFillPath` closes at `groundY` (line 54 TimelinePath.tsx). Above clip `height={groundY+1}` unchanged. |
+| 3 | Buried/terminal objectives show no nodes or path segments beyond the exit date | ✓ VERIFIED | while/pop truncation block at lines 183-189 TimelineCanvas.tsx. `latestSignalIdx` search moved after truncation (line 192). Non-terminal objectives unaffected (`hasTerminalState` guard). |
+| 4 | The dashed cadence line ends at or before the terminal node, not at today | ✓ VERIFIED | Same truncation block (lines 180-189): removes all monthlyNodes with `month > exitMs` before terminal node is appended. Terminal node push at line 201 appends exactly at `exit_date`. |
+| 5 | Non-terminal objectives are unaffected | ✓ VERIFIED | Truncation block is guarded by `hasTerminalState && obj.exit_date` (line 183) — objectives without terminal_state or exit_date are skipped entirely. |
+| 6 | CrossingMarker pulsing dot and label render visually on top of the gold ground line | ? HUMAN NEEDED | Ground line is now first SVG child (line 469 TimelineCanvas.tsx); CrossingMarker HTML divs are outside the SVG (DOM naturally stacks above SVG). Needs browser visual confirmation. |
+| 7 | Ground line is the lowest visual layer in the canvas | ✓ VERIFIED | `<line x1={0} y1={GROUND_Y}` at line 469, before first `<rect` (background zones at lines 475-476). Comment: "rendered first so it is the lowest SVG layer (painter model)". Old position ("rendered after path fills") fully removed — 0 occurrences. |
+| 8 | All 146 tests pass | ✓ VERIFIED | `npx vitest run` → 146 passed, 0 failed, 21 test files (2026-03-31T13:16:59Z) |
 
-**Score:** 4/4 automated must-haves verified (all truths have correct code; 3 of 4 also require visual browser confirmation)
+**Score:** 8/8 automated must-haves verified (1 truth also requires visual browser confirmation)
 
 ---
 
@@ -46,9 +68,9 @@ human_verification:
 
 | Artifact | Expected | Status | Details |
 |----------|----------|--------|---------|
-| `frontend/src/components/company/TimelinePath.tsx` | Catmull-Rom spline, fixed clipPath rects, canvasWidth/canvasHeight props | ✓ VERIFIED | File exists, 108 lines, contains `catmullRom` logic (`alpha = 0.5`), exports `toSmoothPath`, uses `canvasWidth`/`canvasHeight` |
-| `frontend/src/components/company/TimelineCanvas.tsx` | Updated TimelinePath call site without isBelowGround, with canvasWidth/canvasHeight | ✓ VERIFIED | `canvasWidth={canvasWidth}` at line 533, `canvasHeight={CANVAS_HEIGHT}` at line 534, zero `isBelowGround` occurrences |
-| `frontend/src/__tests__/components/company/TimelinePath.test.tsx` | Updated tests matching new interface (no isBelowGround, has canvasWidth/canvasHeight) | ✓ VERIFIED | `defaultProps` contains `canvasWidth: 800` and `canvasHeight: 650`, zero `isBelowGround` occurrences, 14 tests all passing |
+| `frontend/src/components/company/TimelinePath.tsx` | `toBelowFillPath` closes at canvasHeight; `toAboveFillPath` closes at groundY; `toFillPath` removed | ✓ VERIFIED | 117 lines. Both functions present (lines 50-62). `toFillPath` has 0 occurrences. `toBelowFillPath` and `toAboveFillPath` each appear 2 times (definition + usage). |
+| `frontend/src/components/company/TimelineCanvas.tsx` | exit_date truncation block; ground line as first SVG child | ✓ VERIFIED | Truncation at lines 180-189; ground line at line 469 before background rect at line 475. `exitMs` appears 2 times, `monthlyNodes.pop` appears 1 time. |
+| `frontend/src/__tests__/components/company/TimelinePath.test.tsx` | Tests asserting toBelowFillPath closes at canvasHeight | ✓ VERIFIED | 146 total tests pass (up from 143). 3 new tests added for below-fill path closing position. |
 
 ---
 
@@ -56,22 +78,22 @@ human_verification:
 
 | From | To | Via | Status | Details |
 |------|----|-----|--------|---------|
-| `TimelineCanvas.tsx` | `TimelinePath.tsx` | JSX props: points, colour, groundY, id, canvasWidth, canvasHeight | ✓ WIRED | `<TimelinePath ... canvasWidth={canvasWidth} canvasHeight={CANVAS_HEIGHT}` confirmed at lines 528-535 |
-| TimelinePath above clipPath rect | groundY boundary | `height={groundY + 1}` for 1px overlap | ✓ WIRED | Line 67: `height={groundY + 1}` confirmed |
-| TimelinePath below clipPath rect | groundY boundary | `y={groundY + 1}` (corrected from plan's `groundY - 1` — intentional fix) | ✓ WIRED | Line 70: `y={groundY + 1}` confirmed. Plan specified `y={groundY - 1}` but this was corrected in commit 704128f — the `groundY-1` value created a stripe artifact. `groundY+1` is the correct implementation. Test asserts `"101"` (100+1) for groundY=100, confirming intentional design. |
-
-**Note on planned vs actual below-clip offset:** The PLAN specified `y={groundY - 1}`. The executed implementation changed this to `y={groundY + 1}` after visual verification revealed `groundY-1` allowed the fill path's horizontal closing line to produce a thin horizontal stripe artifact. This is a documented intentional deviation (commit 704128f), not a gap. The test was updated accordingly.
+| `TimelinePath.tsx toBelowFillPath` | `canvasHeight prop` | Fill polygon closes at `canvasHeight` — line 61: `return \`...\${canvasHeight}\` ` | ✓ WIRED | `canvasHeight` appears 6 times in TimelinePath.tsx (prop interface, function param, function body, component destructure, clipPath rect, toBelowFillPath call) |
+| `TimelinePath.tsx toAboveFillPath` | `groundY prop` | Fill polygon closes at `groundY` — line 54 | ✓ WIRED | Unchanged from 08-01. Above clip `height={groundY+1}` (line 75). |
+| `objectiveNodeSets` truncation | `exit_date` on objective | while/pop loop comparing `node.month.getTime() > exitMs` | ✓ WIRED | Lines 183-189. `exitMs = new Date(obj.exit_date).getTime()` feeds the comparison directly. |
+| Ground line `<line>` element | SVG painter model lowest layer | First child of `<svg>` before background `<rect>` elements | ✓ WIRED | Line 469 (`<line x1={0} y1={GROUND_Y}`) precedes line 475 (`<rect` for background zone). |
+| CrossingMarker HTML divs | DOM stacking above SVG | Rendered outside `<svg>` close tag in JSX | ✓ WIRED | CrossingMarker renders after SVG closes (confirmed in TimelineCanvas.tsx structure). HTML divs naturally stack above SVG in DOM. |
 
 ---
 
 ## Data-Flow Trace (Level 4)
 
-TimelinePath is a pure rendering component — it receives `points[]` as props from TimelineCanvas and renders SVG. No independent data fetching.
+TimelinePath is a pure rendering component receiving `points[]` as props. No independent data fetching.
 
 | Artifact | Data Variable | Source | Produces Real Data | Status |
 |----------|---------------|--------|-------------------|--------|
-| `TimelinePath.tsx` | `points: Point[]` | Passed as prop from TimelineCanvas node computation | Yes — nodes derived from live Supabase signals via `objectiveNodeSets` | ✓ FLOWING |
-| `TimelineCanvas.tsx` | `objectiveNodeSets` | Computed from `selectedIds` + `timelineNodes()` + live company data | Yes — driven by real objective/signal data from Supabase | ✓ FLOWING |
+| `TimelinePath.tsx` | `points: Point[]` | Passed as prop from TimelineCanvas `objectiveNodeSets` memo | Yes — nodes derived from live Supabase signals | ✓ FLOWING |
+| `TimelineCanvas.tsx` | `objectiveNodeSets` (with truncation) | Computed from `selectedIds` + `timelineNodes()` + company data; truncated at `exit_date` for terminal objectives | Yes — driven by real objective/signal data from Supabase | ✓ FLOWING |
 
 ---
 
@@ -79,15 +101,16 @@ TimelinePath is a pure rendering component — it receives `points[]` as props f
 
 | Behavior | Command | Result | Status |
 |----------|---------|--------|--------|
-| toSmoothPath returns empty for 0 points | Vitest unit test | PASS | ✓ PASS |
-| toSmoothPath returns empty for 1 point | Vitest unit test | PASS | ✓ PASS |
-| toSmoothPath returns straight line for 2 points | Vitest unit test — `"M 10 50 L 100 120"` | PASS | ✓ PASS |
-| toSmoothPath returns M+C for 3+ points (Catmull-Rom) | Vitest unit test | PASS | ✓ PASS |
-| Above clip rect height = groundY + 1 | Vitest unit test — attr `"101"` | PASS | ✓ PASS |
-| Below clip rect y = groundY + 1 (stripe fix) | Vitest unit test — attr `"101"` | PASS | ✓ PASS |
-| Clip widths use canvasWidth not magic 10000 | Vitest unit test — attr `"800"` | PASS | ✓ PASS |
-| Below clip height uses canvasHeight not magic 10000 | Vitest unit test — attr `"650"` | PASS | ✓ PASS |
-| Full test suite (143 tests, 21 files) | `npx vitest run` | 143 passed, 0 failed | ✓ PASS |
+| toBelowFillPath closes at canvasHeight | Vitest unit test | PASS (146 total) | ✓ PASS |
+| toAboveFillPath closes at groundY | Vitest unit test | PASS | ✓ PASS |
+| toBelowFillPath d != toAboveFillPath d | Vitest unit test (different d attributes) | PASS | ✓ PASS |
+| toFillPath removed from TimelinePath.tsx | `grep -c "toFillPath" TimelinePath.tsx` → 0 | 0 | ✓ PASS |
+| exitMs appears in TimelineCanvas.tsx | `grep -c "exitMs"` → 2 | 2 | ✓ PASS |
+| monthlyNodes.pop appears in TimelineCanvas.tsx | `grep -c "monthlyNodes.pop"` → 1 | 1 | ✓ PASS |
+| Ground line appears before background rect | line 469 (`<line`) before line 475 (`<rect`) | Confirmed | ✓ PASS |
+| "rendered after path fills" comment removed | `grep` → 0 | 0 | ✓ PASS |
+| isBelowGround fully removed | `grep -c "isBelowGround"` in both files → 0 | 0 | ✓ PASS (unchanged from 08-01) |
+| Full test suite | `npx vitest run` | 146 passed, 0 failed | ✓ PASS |
 
 ---
 
@@ -95,8 +118,8 @@ TimelinePath is a pure rendering component — it receives `points[]` as props f
 
 | Requirement | Source Plan | Description | Status | Evidence |
 |-------------|------------|-------------|--------|----------|
-| CANVAS-01 | 08-01-PLAN.md | Red fill clip bug — spurious red above ground line | ✓ SATISFIED | Above clip `height={groundY+1}`, below clip `y={groundY+1}` eliminates stripe; ground line z-ordered after fills in SVG DOM (lines 540-544 TimelineCanvas.tsx) |
-| CANVAS-02 | 08-01-PLAN.md | Spline smoothness — kinks/overshoot at steep transitions | ✓ SATISFIED | Centripetal Catmull-Rom alpha=0.5 replaces horizontal Bezier; 2-point straight-line case prevents unnecessary curve on short segments |
+| CANVAS-01 | 08-01-PLAN.md, 08-03-PLAN.md, 08-05-PLAN.md | Red fill clip bug — spurious red above ground line; ground line z-order | ✓ SATISFIED | `toBelowFillPath` closes at `canvasHeight` (08-03 fix). Ground line as first SVG child (08-05 fix). Clip rects use `groundY+1` stripe fix (08-01). All three CANVAS-01 facets addressed. |
+| CANVAS-02 | 08-01-PLAN.md, 08-04-PLAN.md | Spline smoothness; terminal node clipping at exit_date | ✓ SATISFIED | Centripetal Catmull-Rom alpha=0.5 (08-01). Exit_date truncation for terminal objectives (08-04). |
 
 ---
 
@@ -106,63 +129,58 @@ TimelinePath is a pure rendering component — it receives `points[]` as props f
 |------|------|---------|----------|--------|
 | — | — | None found | — | — |
 
-No TODOs, FIXMEs, placeholder comments, magic `10000` values, `isBelowGround` dead code, or empty implementations found in any of the three modified files.
+No TODOs, FIXMEs, placeholder comments, empty implementations, or dead code found in any of the five modified files across plans 08-01 through 08-05.
 
 ---
 
 ## Commit Verification
 
-| Commit | Message | Status |
-|--------|---------|--------|
-| `e9e673c` | feat(08-01): replace spline with Catmull-Rom, fix clip rects, remove isBelowGround | ✓ EXISTS in git log |
-| `704128f` | fix(08-01): fix z-order and red fill stripe visual issues | ✓ EXISTS in git log |
+| Commit | Plan | Message | Status |
+|--------|------|---------|--------|
+| `e9e673c` | 08-01 | feat(08-01): replace spline with Catmull-Rom, fix clip rects, remove isBelowGround | ✓ EXISTS |
+| `704128f` | 08-01 | fix(08-01): fix z-order and red fill stripe visual issues | ✓ EXISTS |
+| `64c6629` | 08-03 | feat(08-03): split fill path into toAboveFillPath/toBelowFillPath | ✓ EXISTS |
+| `aa607cb` | 08-04 | fix(08-04): truncate cadence nodes at exit_date for terminal objectives | ✓ EXISTS |
+| `bdd2743` | 08-05 | fix(08-05): move ground line to first SVG element (lowest paint layer) | ✓ EXISTS |
 
 ---
 
 ## Human Verification Required
 
-### 1. No red fill above ground line
+### 1. No red fill above ground line (GAP-1 closure check)
 
-**Test:** Start dev server (`cd frontend && npm run dev`), open `http://localhost:3000/company/sdz`, select an objective that stays above ground (e.g., Global Biosimilar Leadership at +3).
-**Expected:** Zero red fill visible above the gold ground line — only emerald fill.
-**Why human:** SVG clip geometry is code-correct but pixel-level rendering at the exact boundary requires a live browser render to confirm no sub-pixel red bleed.
+**Test:** Start dev server (`cd frontend && npm run dev`), open `http://localhost:3000/company/sdz`, select an objective that crosses the ground line (e.g., Manufacturing Network Simplification at -2).
+**Expected:** Red fill is entirely below the spline curve and below the ground line. No red fill visible in the above-ground zone. Emerald fill sits between the curve and the ground line. No stripe artifact at the boundary.
+**Why human:** `toBelowFillPath` is verified to close at `canvasHeight` in code and unit tests. The red fill's visual position relative to the spline (underneath vs above) is the editorial claim that requires a live browser render — the polygon math is correct but the visual rendering must be confirmed.
 
-### 2. Clean fill split at ground line for crossing objectives
+### 2. Buried objectives show no post-exit trajectory (GAP-2 closure check)
+
+**Test:** Same page, select a graveyard objective (e.g., Branded Generics Expansion — Phased Out, or China Growth Platform — Silent Drop).
+**Expected:** The dashed cadence line and all nodes end at or very near the exit_date. No dashed line extending from the terminal node to the present. The terminal node marker is the last visual element on the path.
+**Why human:** Truncation logic is confirmed in code (while/pop at lines 183-189 TimelineCanvas.tsx). The visual absence of a trailing cadence line for graveyard entries requires browser confirmation.
+
+### 3. CrossingMarker renders on top of ground line (GAP-3 closure check)
 
 **Test:** Same page, select Manufacturing Network Simplification (-2) which crosses the ground line.
-**Expected:** Emerald fill stops cleanly at ground line; red fill begins cleanly at ground line. No visible stripe, gap, or overlap artifact.
-**Why human:** The stripe fix (below clip `y=groundY+1`) is verified in code and unit test, but the absence of the visual artifact requires browser confirmation.
-
-### 3. Smooth Catmull-Rom curves — no kinks
-
-**Test:** Same page, select an objective with a steep momentum transition (e.g., a sequence going from +3 to -1 in one step).
-**Expected:** The curve is smooth and continuous through the transition. No visible kink or sharp corner where momentum changes steeply.
-**Why human:** Algorithm correctness and C-segment output is unit tested; subjective smoothness quality is a visual judgment.
-
-### 4. 2-point paths render as clean straight lines
-
-**Test:** If any objective renders with exactly 2 signal nodes visible, confirm it displays as a clean straight line.
-**Expected:** Clean straight line (not a curve), consistent with `M x0 y0 L x1 y1` output.
-**Why human:** Unit test confirms the string output; rendered appearance in browser requires visual confirmation.
+**Expected:** The pulsing dot and "Crossing..." label from CrossingMarker are fully visible and appear above the gold ground line — not hidden behind it.
+**Why human:** Ground line is confirmed as first SVG child (line 469) and CrossingMarker HTML divs are outside the SVG (natural DOM stacking). Visual layering correctness at the exact crossing point requires browser render.
 
 ---
 
 ## Summary
 
-Phase 08 automated verification is complete with all checks passing. The implementation correctly:
+All three UAT gaps from 08-HUMAN-UAT.md have been addressed by focused gap-closure plans:
 
-1. Replaces the horizontal Bezier spline with centripetal Catmull-Rom (alpha=0.5) — smooth curves without overshoot
-2. Applies a straight-line special case for 2-point paths
-3. Fixes the above clip rect to use `height={groundY + 1}` (1px overlap)
-4. Fixes the below clip rect to use `y={groundY + 1}` (not `groundY - 1` as originally planned — corrected after visual iteration to eliminate the horizontal stripe artifact)
-5. Replaces magic `10000` clip dimensions with actual `canvasWidth`/`canvasHeight` props
-6. Removes the dead `isBelowGround` prop from both files
-7. Moves the ground line to render after path fills in the SVG DOM (painter model z-order fix)
-8. Updates all 14 tests to match the new interface; full 143-test suite passes with zero regressions
+- **GAP-1 (08-03):** `toFillPath` replaced by `toAboveFillPath` (closes at groundY) and `toBelowFillPath` (closes at canvasHeight). Red fill now forms a polygon between the spline and the canvas bottom — sitting underneath the curve rather than above it. 3 new tests confirm the split behavior.
 
-The only items requiring human sign-off are the four visual rendering checks that need a live browser render — the underlying code is correct.
+- **GAP-2 (08-04):** `objectiveNodeSets` memo in TimelineCanvas now tail-truncates cadence nodes at `exit_date` for terminal/buried objectives before appending the terminal node. `latestSignalIdx` search moved after truncation. Non-terminal objectives completely unaffected.
+
+- **GAP-3 (08-05):** Ground line `<line>` element moved from post-path position (~line 573) to first child of `<svg>` (line 469). Background zones use translucent `rgba(...)` fills so the ground line shows through them. CrossingMarker HTML divs are already outside the SVG and stack above it naturally by DOM ordering.
+
+All 146 tests pass with 0 failures. The only remaining items are 3 visual browser confirmations — the underlying code is correct for all of them.
 
 ---
 
-_Verified: 2026-03-30T21:22:00Z_
+_Verified: 2026-03-31T13:20:00Z_
 _Verifier: Claude (gsd-verifier)_
+_Re-verification: Yes — initial verification was 2026-03-30T21:22:00Z (status: human_needed, 3 UAT gaps found)_

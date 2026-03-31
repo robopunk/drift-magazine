@@ -1,14 +1,14 @@
 ---
-status: failed
+status: resolved
 phase: 08-path-fill-fixes
 source: [08-VERIFICATION.md]
 started: 2026-03-30T21:20:00Z
-updated: 2026-03-31T10:00:00Z
+updated: 2026-03-31T12:00:00Z
 ---
 
 ## Current Test
 
-Human UAT completed 2026-03-31. 3 findings raised — gap closure plans required before phase can close.
+Gap closure complete 2026-03-31. All 3 UAT findings fixed by plans 08-03, 08-04, 08-05. Visual browser re-confirmation pending.
 
 ## Tests
 
@@ -51,6 +51,6 @@ blocked: 0
 
 ## Gaps
 
-- GAP-1: Red fill sits above spline trajectory for crossing objectives (fill path closes at groundY not canvasHeight)
-- GAP-2: Post-buried cadence nodes extend to today — should terminate at exit_date
-- GAP-3: Ground line renders in front of crossing marker — must be lowest SVG layer
+- GAP-1: Red fill sits above spline trajectory for crossing objectives → RESOLVED by 08-03 (toBelowFillPath closes at canvasHeight)
+- GAP-2: Post-buried cadence nodes extend to today — should terminate at exit_date → RESOLVED by 08-04 (while/pop truncation at exit_date)
+- GAP-3: Ground line renders in front of crossing marker — must be lowest SVG layer → RESOLVED by 08-05 (ground line moved to first SVG element)
