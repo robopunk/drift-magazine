@@ -177,7 +177,18 @@ export function TimelineCanvas({ objectives, signals, onNavigateToEvidence, fisc
         });
       }
 
-      // Find latest signal node for emphasis
+      // Truncate cadence nodes at exit_date for terminal objectives
+      // so the path does not extend beyond the terminal event
+      const hasTerminalState = obj.terminal_state || (obj.is_in_graveyard === true);
+      if (hasTerminalState && obj.exit_date) {
+        const exitMs = new Date(obj.exit_date).getTime();
+        // Remove nodes after exit month — keep only nodes where month <= exit_date
+        while (monthlyNodes.length > 0 && monthlyNodes[monthlyNodes.length - 1].month.getTime() > exitMs) {
+          monthlyNodes.pop();
+        }
+      }
+
+      // Find latest signal node for emphasis (must be after truncation)
       let latestSignalIdx = -1;
       for (let i = monthlyNodes.length - 1; i >= 0; i--) {
         if (monthlyNodes[i].type === "origin" || monthlyNodes[i].type === "signal") {
@@ -187,7 +198,6 @@ export function TimelineCanvas({ objectives, signals, onNavigateToEvidence, fisc
       }
 
       // Add terminal node for proved/buried objectives
-      const hasTerminalState = obj.terminal_state || (obj.is_in_graveyard === true);
       if (hasTerminalState && obj.exit_date) {
         const exitDate = new Date(obj.exit_date);
         const globalOrigin = new Date(windowedMinDate);
