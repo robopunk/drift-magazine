@@ -262,7 +262,9 @@ create table company_searches (
 -- ── TRIGGERS: keep updated_at current ───────────────────────
 
 create or replace function set_updated_at()
-returns trigger language plpgsql as $$
+returns trigger language plpgsql
+set search_path = ''
+as $$
 begin
   new.updated_at = now();
   return new;
@@ -281,7 +283,9 @@ create trigger trg_objectives_updated
 -- ── TRIGGER: keep cached counts in sync ─────────────────────
 
 create or replace function refresh_company_counts()
-returns trigger language plpgsql as $$
+returns trigger language plpgsql
+set search_path = ''
+as $$
 begin
   update companies set
     active_objective_count = (
@@ -315,7 +319,9 @@ create trigger trg_objective_counts
 -- and inserts an 'absent' signal noting the expiry.
 
 create or replace function escalate_overdue_objectives()
-returns void language plpgsql as $$
+returns void language plpgsql
+set search_path = ''
+as $$
 declare
   obj record;
 begin
@@ -350,7 +356,7 @@ $$;
 -- ── VIEWS ───────────────────────────────────────────────────
 
 -- Company summary for the landing page grid
-create view v_company_summary as
+create view v_company_summary with (security_invoker = true) as
 select
   c.id,
   c.name,
@@ -382,7 +388,7 @@ where c.tracking_active = true
 group by c.id;
 
 -- Latest signal per objective (for the signal bar)
-create view v_latest_signals as
+create view v_latest_signals with (security_invoker = true) as
 select distinct on (s.objective_id)
   s.*,
   o.title as objective_title,
@@ -395,7 +401,7 @@ where s.is_draft = false
 order by s.objective_id, s.signal_date desc;
 
 -- Draft signals pending human review
-create view v_pending_review as
+create view v_pending_review with (security_invoker = true) as
 select
   s.*,
   o.title as objective_title,
