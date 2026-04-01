@@ -38,7 +38,7 @@ Measuring the *language of commitment* — and the silence that follows when it 
 
 ---
 
-## Current State (v4.1.0 — shipped 2026-03-28)
+## Current State (v4.2 in progress — Phase 09 complete 2026-04-01)
 
 | What | Detail |
 |------|--------|
@@ -182,4 +182,4 @@ This document evolves at phase transitions and milestone boundaries.
 
 ---
 
-*Last updated: 2026-03-29 — v4.2 milestone started*
+*Last updated: 2026-04-01 — Phase 09 (node-layer) complete. NODE-01/02/03 delivered and human-verified.*
