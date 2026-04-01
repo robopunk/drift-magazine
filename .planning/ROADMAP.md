@@ -82,7 +82,7 @@ Plans:
   4. User sees node circle radii proportional to the larger icon size — no icon overflowing its containing circle
 **Plans**: 2 plans
 Plans:
-- [ ] 09-01-PLAN.md — Node icon swap, sizing, labels, proximity-bucket stagger, pulse animation, WCAG fix, test updates
+- [x] 09-01-PLAN.md — Node icon swap, sizing, labels, proximity-bucket stagger, pulse animation, WCAG fix, test updates
 - [ ] 09-02-PLAN.md — Visual checkpoint: human review of all node layer improvements
 **UI hint**: yes
 
@@ -112,5 +112,5 @@ Plans:
 | 6. Automation & End-to-End Validation | v4.1 | 3/3 | Complete | 2026-03-28 |
 | 7. Canvas Geometry Foundation | v4.2 | 1/1 | Complete | 2026-03-29 |
 | 8. Path & Fill Fixes | v4.2 | 5/4 | Complete   | 2026-03-31 |
-| 9. Node Layer | v4.2 | 0/2 | Planned | - |
+| 9. Node Layer | v4.2 | 1/2 | In Progress|  |
 | 10. Tooltip & Zone Polish | v4.2 | 0/? | Not started | - |

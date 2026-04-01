@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v4.2
 milestone_name: Timeline UI Overhaul
 status: executing
-last_updated: "2026-03-31T11:14:52.369Z"
-last_activity: 2026-03-31
+last_updated: "2026-04-01T11:48:13.979Z"
+last_activity: 2026-04-01
 progress:
   total_phases: 4
   completed_phases: 2
-  total_plans: 5
-  completed_plans: 6
+  total_plans: 7
+  completed_plans: 7
 ---
 
 # Project State — Drift v4.1
@@ -20,10 +20,10 @@ progress:
 
 ## Current Position
 
-Phase: 08 (path-fill-fixes) — EXECUTING
-Plan: 4 of 4
+Phase: 09 (node-layer) — EXECUTING
+Plan: 2 of 2
 Status: Ready to execute
-Last activity: 2026-03-31
+Last activity: 2026-04-01
 
 ---
 
@@ -186,9 +186,18 @@ Work performed outside the GSD plan framework during human UAT review. Documente
 |----------|---------|
 | Ground line rendered as first SVG child | Background zones (translucent rgba) paint over it visually; paths/nodes/CrossingMarkers stack above naturally via SVG painter model |
 
+## Key Decisions (09-01)
+
+| Decision | Outcome |
+|----------|---------|
+| tickHeight prop replaces stackIndex | Proximity-bucket stagger computed in Canvas (knows all node x-positions); Node receives pre-computed value |
+| CSS node-pulse class with transform-box fill-box | SVG CSS animation requires fill-box to anchor transform-origin at element center, not SVG viewport origin |
+| SVG symbol defs once in TimelineCanvas parent svg | Symbols defined once, referenced via use href; eliminates per-node duplication |
+| Dark mode --muted-foreground: #6b7280 → #9ca3af | #6b7280 on #0f172a fails WCAG AA (3.69:1); #9ca3af achieves 5.74:1 (passes AA) |
+
 ## Next Step
 
-Phase 08 complete (08-01 structural fixes, 08-02 FinanceCharts visual redesign, 08-03 below-fill path fix, 08-04 terminal node truncation, 08-05 ground line layer order fix). 146 tests passing. All CANVAS-01 requirements addressed.
+Phase 09 plan 01 complete. NODE-01, NODE-02, NODE-03 addressed. 146 tests passing. Proceed to 09-02 for remaining Phase 9 work.
 
 ### Quick Tasks Completed
 

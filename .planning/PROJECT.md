@@ -86,9 +86,9 @@ Measuring the *language of commitment* — and the silence that follows when it 
 
 - [ ] **CANVAS-01**: Area-fill clip bug fixed — below-ground red fill anchors at the ground line
 - [ ] **CANVAS-02**: Path rendered as smooth continuous spline with no visible kinks
-- [ ] **NODE-01**: Node icons enlarged and visually polished (better quality, not emoji-small)
-- [ ] **NODE-02**: Node decluttering — overlapping labels and ticks handled via smart stacking
-- [ ] **NODE-03**: Content-bearing nodes sized for legibility at normal zoom
+- [x] **NODE-01**: Node icons enlarged and visually polished (better quality, not emoji-small) — v4.2 Phase 09-01
+- [x] **NODE-02**: Node decluttering — overlapping labels and ticks handled via smart stacking — v4.2 Phase 09-01
+- [x] **NODE-03**: Content-bearing nodes sized for legibility at normal zoom — v4.2 Phase 09-01
 - [ ] **TOOLTIP-01**: Tooltip redesigned — clean layout, correct positioning, no clipping
 - [ ] **ZONE-01**: Graveyard zone (below-ground) carries stronger editorial visual weight
 - [ ] **CANVAS-03**: Canvas edge padding — no content clipping at left/right/top/bottom edges
