@@ -379,6 +379,35 @@ export function TimelineCanvas({ objectives, signals, onNavigateToEvidence, fisc
 
   const dateRangeLabel = formatDateRange(signals);
 
+  // Proximity-bucket stagger: assign tick heights based on x-position proximity
+  // Per CONTEXT D-C1, D-C2 — replaces stackIndex-based even/odd stagger
+  const TICK_HEIGHTS = [20, 32, 44, 56] as const;
+  const originBuckets = new Map<number, number>();
+  const signalBuckets = new Map<number, number>();
+  const nodeTickHeights = new Map<string, number>();
+
+  for (const { objective, nodes } of objectiveNodeSets) {
+    for (let i = 0; i < nodes.length; i++) {
+      const node = nodes[i];
+      // cadence and fiscal-year-end are exempt (no ticks) — per D-C3
+      if (node.type === "cadence" || node.type === "fiscal-year-end") continue;
+      // stale nodes also have no ticks — exempt
+      if (node.type === "stale") continue;
+      const isOriginFamily =
+        node.type === "origin" ||
+        node.type === "terminal-proved" ||
+        node.type === "terminal-buried";
+      const bucketMap = isOriginFamily ? originBuckets : signalBuckets;
+      const bucketKey = Math.round(node.x / 5);
+      const rank = bucketMap.get(bucketKey) ?? 0;
+      bucketMap.set(bucketKey, rank + 1);
+      nodeTickHeights.set(
+        `${objective.id}-${i}`,
+        TICK_HEIGHTS[Math.min(rank, TICK_HEIGHTS.length - 1)]
+      );
+    }
+  }
+
   return (
     <div className="flex border border-border rounded-lg overflow-hidden bg-card" style={{ height: CANVAS_HEIGHT + 44, minHeight: 500 }}>
       <TimelineLegend
@@ -465,6 +494,25 @@ export function TimelineCanvas({ objectives, signals, onNavigateToEvidence, fisc
           >
             <div className="relative" style={{ width: canvasWidth, height: CANVAS_HEIGHT }}>
               <svg className="absolute inset-0" width={canvasWidth} height={CANVAS_HEIGHT}>
+                <defs>
+                  <symbol id="icon-proved" viewBox="0 0 12 12">
+                    <polyline
+                      points="2,8 6,4 10,8"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="1.8"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                  </symbol>
+                  <symbol id="icon-buried" viewBox="0 0 12 12">
+                    <polygon
+                      points="6,9 2,3 10,3"
+                      fill="currentColor"
+                      stroke="none"
+                    />
+                  </symbol>
+                </defs>
                 {/* Ground line — rendered first so it is the lowest SVG layer (painter model) */}
                 <line x1={0} y1={GROUND_Y} x2={canvasWidth} y2={GROUND_Y} stroke="var(--primary)" strokeWidth={1.5} />
                 <text x={6} y={GROUND_Y - 4} fontSize={8} fill="var(--primary)" fontFamily="var(--font-ibm-plex-mono)" opacity={0.8}>
@@ -619,7 +667,7 @@ export function TimelineCanvas({ objectives, signals, onNavigateToEvidence, fisc
                             colour={nodeColour}
                             label={stageLabel}
                             dateLabel={dateLabel}
-                            stackIndex={objIdx}
+                            tickHeight={nodeTickHeights.get(`${objective.id}-${i}`) ?? 20}
                             monthsSinceLastSignal={node.monthsSinceLastSignal}
                             onHover={
                               node.type === "cadence" ||
