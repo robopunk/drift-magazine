@@ -69,7 +69,7 @@
     --primary: #34d399;
     --ring: #34d399;
     --foreground: #d1d5db;
-    --muted-foreground: #6b7280;
+    --muted-foreground: #9ca3af;
     --card-foreground: #d1d5db;
     --primary-foreground: #0f172a;
     --secondary-foreground: #a1a1aa;
@@ -94,4 +94,22 @@
   0%, 100% { transform: translateX(0); }
   25% { transform: translateX(-3px); }
   75% { transform: translateX(3px); }
+}
+
+@keyframes node-pulse {
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 0.9;
+  }
+  50% {
+    transform: scale(1.08);
+    opacity: 1;
+  }
+}
+
+.node-pulse {
+  animation: node-pulse 2.5s ease-in-out infinite;
+  transform-box: fill-box;
+  transform-origin: center;
 }

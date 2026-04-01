@@ -7,12 +7,12 @@ interface TimelineNodeProps {
   x: number;
   y: number;
   colour: string;
-  /** Stage emoji + text shown above signal/latest nodes. e.g. "🦅 FLY +3" */
+  /** Stage emoji + text shown above latest nodes only. e.g. "🦅 FLY +3" */
   label?: string;
   /** Formatted date shown above origin nodes. e.g. "Oct 2023" */
   dateLabel?: string;
-  /** 0-based index of this objective among visible objectives. Drives tick height stagger. */
-  stackIndex: number;
+  /** Pre-computed tick height in px from proximity-bucket stagger. */
+  tickHeight: number;
   monthsSinceLastSignal?: number;
   onHover?: (e: React.MouseEvent<SVGGElement>) => void;
   onLeave?: () => void;
@@ -26,16 +26,12 @@ export function TimelineNode({
   colour,
   label,
   dateLabel,
-  stackIndex,
+  tickHeight,
   monthsSinceLastSignal,
   onHover,
   onLeave,
   onClick,
 }: TimelineNodeProps) {
-  // Even stackIndex = shorter tick; odd = taller (alternating prevents label collision)
-  const originTickH = stackIndex % 2 === 0 ? 24 : 40;
-  const signalTickH = stackIndex % 2 === 0 ? 20 : 36;
-
   if (type === "cadence") {
     return (
       <g>
@@ -51,12 +47,12 @@ export function TimelineNode({
         onMouseEnter={onHover}
         onMouseLeave={onLeave}
       >
-        <circle cx={x} cy={y} r={4.5} fill="none" stroke="#f59e0b" strokeWidth={1.5} />
+        <circle cx={x} cy={y} r={5} fill="none" stroke="var(--exit-phased)" strokeWidth={1.5} />
         <text
           x={x}
           y={y}
-          fontSize={7}
-          fill="#f59e0b"
+          fontSize={8}
+          fill="var(--exit-phased)"
           textAnchor="middle"
           dominantBaseline="central"
           fontWeight="bold"
@@ -70,15 +66,14 @@ export function TimelineNode({
   if (type === "fiscal-year-end") {
     return (
       <g onMouseEnter={onHover} onMouseLeave={onLeave}>
-        <circle cx={x} cy={y} r={3.5} fill="#f59e0b" opacity={0.85} />
+        <circle cx={x} cy={y} r={3.5} fill="var(--exit-phased)" opacity={0.85} />
       </g>
     );
   }
 
   if (type === "terminal-proved" || type === "terminal-buried") {
     const isProved = type === "terminal-proved";
-    const emoji = isProved ? "🏆" : "⚰️";
-    const tickTopY = y - originTickH;
+    const tickTopY = y - tickHeight;
     return (
       <g
         aria-label={label}
@@ -89,6 +84,14 @@ export function TimelineNode({
       >
         <circle cx={x} cy={y} r={10} fill={colour} fillOpacity={0.20} />
         <circle cx={x} cy={y} r={6} fill={colour} />
+        <use
+          href={isProved ? "#icon-proved" : "#icon-buried"}
+          x={x - 4}
+          y={y - 4}
+          width={8}
+          height={8}
+          color="var(--primary-foreground)"
+        />
         <line
           x1={x}
           y1={y - 10}
@@ -111,20 +114,12 @@ export function TimelineNode({
             {label}
           </text>
         )}
-        <text
-          x={x}
-          y={tickTopY - 4}
-          fontSize={12}
-          textAnchor="middle"
-        >
-          {emoji}
-        </text>
       </g>
     );
   }
 
   if (type === "origin") {
-    const tickTopY = y - originTickH;
+    const tickTopY = y - tickHeight;
     return (
       <g
         aria-label={dateLabel}
@@ -163,7 +158,7 @@ export function TimelineNode({
 
   // signal or latest
   const isLatest = type === "latest";
-  const tickTopY = y - signalTickH;
+  const tickTopY = y - tickHeight;
 
   return (
     <g
@@ -173,11 +168,24 @@ export function TimelineNode({
       onClick={onClick}
       style={onClick ? { cursor: "pointer" } : undefined}
     >
-      <circle cx={x} cy={y} r={6} fill={colour} fillOpacity={0.30} />
-      <circle cx={x} cy={y} r={3} fill={colour} />
+      <circle cx={x} cy={y} r={isLatest ? 8 : 5} fill={colour} fillOpacity={0.30}
+        className={isLatest ? "node-pulse" : undefined} />
+      <circle cx={x} cy={y} r={isLatest ? 4 : 2.5} fill={colour} />
+      {isLatest && label && (
+        <text
+          x={x}
+          y={y}
+          fontSize={18}
+          textAnchor="middle"
+          dominantBaseline="central"
+          dy={1}
+        >
+          {label.split(" ")[0]}
+        </text>
+      )}
       <line
         x1={x}
-        y1={y - 6}
+        y1={y - (isLatest ? 8 : 5)}
         x2={x}
         y2={tickTopY}
         stroke={isLatest ? "var(--foreground)" : "var(--border)"}
@@ -185,15 +193,15 @@ export function TimelineNode({
         {...(!isLatest && { strokeDasharray: "2,3" })}
         opacity={isLatest ? 0.95 : 0.5}
       />
-      {label && (
+      {isLatest && label && (
         <text
           x={x}
           y={tickTopY - 4}
-          fontSize={isLatest ? 9.5 : 9}
-          fill={isLatest ? "var(--foreground)" : "var(--muted-foreground)"}
+          fontSize={11}
+          fill="var(--foreground)"
           textAnchor="middle"
           fontFamily="var(--font-ibm-plex-mono)"
-          fontWeight={isLatest ? "bold" : undefined}
+          fontWeight="bold"
         >
           {label}
         </text>
