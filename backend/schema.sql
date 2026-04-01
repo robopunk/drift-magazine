@@ -416,6 +416,7 @@ alter table companies enable row level security;
 alter table objectives enable row level security;
 alter table signals enable row level security;
 alter table agent_runs enable row level security;
+alter table company_searches enable row level security;
 
 -- Public read access for published data
 create policy "Public can read companies"
@@ -439,6 +440,9 @@ create policy "Service role full access to signals"
 
 create policy "Service role full access to agent_runs"
   on agent_runs for all using (auth.role() = 'service_role');
+
+create policy "Service role full access to company_searches"
+  on company_searches for all using (auth.role() = 'service_role');
 
 
 -- ── SEED: SANDOZ ────────────────────────────────────────────
